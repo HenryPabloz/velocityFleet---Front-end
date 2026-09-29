@@ -1,0 +1,620 @@
+// Dashboard: cards de indicador (KPI), gráficos e tabela de últimas viagens.
+// Conceito: régua de conta-giros no topo dos cards, número grande em Bebas Neue, dado em mono.
+@use '../utilities/responsive' as r;
+
+app-kpi-card,
+app-cartao-grafico {
+  display: block;
+  min-width: 0;
+}
+
+.vf-dashboard {
+  --vf-status-neutro: var(--vf-cor-texto-suave);
+  --vf-status-andamento: #1c5cab;
+  --vf-status-ok: #17734a;
+  --vf-status-cancelado: #c4222a;
+  --vf-viz-amostra-borda: rgb(14 14 17 / 0.18);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-6);
+
+  &__topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--vf-espaco-4);
+  }
+
+  &__etiqueta {
+    margin: 0 0 var(--vf-espaco-1);
+    font-size: var(--vf-texto-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: var(--vf-texto-2xl);
+  }
+
+  &__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vf-espaco-3);
+  }
+
+  &__atualizado {
+    margin: 0;
+    font-size: var(--vf-texto-xs);
+    color: var(--vf-cor-texto-suave);
+  }
+}
+
+[data-theme='dark'] .vf-dashboard {
+  --vf-status-andamento: #6da7ec;
+  --vf-status-ok: #3fc98a;
+  --vf-status-cancelado: #ff6a70;
+  --vf-viz-amostra-borda: rgb(255 255 255 / 0.22);
+}
+
+// ---------- Botões do painel ----------
+.vf-botao-secundario,
+.vf-botao-tentar-novamente {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vf-espaco-2);
+  min-height: 44px;
+  padding: 0 var(--vf-espaco-4);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-pilula);
+  background: var(--vf-cor-superficie);
+  color: var(--vf-cor-texto);
+  font-size: var(--vf-texto-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color var(--vf-transicao-rapida),
+    box-shadow var(--vf-transicao-rapida),
+    transform var(--vf-transicao-rapida);
+
+  &:hover {
+    border-color: var(--vf-cor-destaque);
+    box-shadow: var(--vf-sombra-sm);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--vf-cor-foco);
+    outline-offset: 2px;
+  }
+}
+
+.vf-botao-tentar-novamente {
+  color: var(--vf-cor-destaque-texto);
+}
+
+// ---------- Seções ----------
+.vf-secao__cabeca {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vf-espaco-3);
+  margin-bottom: var(--vf-espaco-4);
+}
+
+.vf-secao__titulo {
+  margin: 0;
+  font-size: var(--vf-texto-xl);
+}
+
+// ---------- Grade de KPIs ----------
+.vf-kpis {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vf-espaco-4);
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include r.a-partir-de-largo {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  &__item {
+    display: block;
+    min-width: 0;
+  }
+
+  // Card da frota é mais largo: cabe o total e os 4 status.
+  &__item--largo {
+    @media (min-width: 576px) {
+      grid-column: span 2;
+    }
+  }
+
+  // No admin, usuários e saúde dividem a segunda linha ao meio.
+  &__item--largo-admin {
+    @include r.a-partir-de-largo {
+      grid-column: span 2;
+    }
+  }
+}
+
+.vf-kpi {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-3);
+  height: 100%;
+  min-height: 9.5rem;
+  padding: var(--vf-espaco-5);
+  padding-top: calc(var(--vf-espaco-5) + 6px);
+  overflow: hidden;
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md);
+  background: var(--vf-cor-superficie);
+  box-shadow: var(--vf-sombra-sm);
+  transition:
+    box-shadow var(--vf-transicao-media),
+    transform var(--vf-transicao-media);
+
+  // Régua de conta-giros: tracinhos finos e um ponteiro vermelho curto.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 7px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--vf-cor-borda) 0 1px,
+      transparent 1px 8px
+    );
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--vf-espaco-5);
+    width: 34px;
+    height: 3px;
+    border-radius: 0 0 3px 3px;
+    background: var(--vf-cor-destaque);
+  }
+
+  &:hover {
+    box-shadow: var(--vf-sombra-md);
+    transform: translateY(-2px);
+  }
+
+  &__cabeca {
+    display: flex;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__rotulo {
+    margin: 0;
+    font-family: var(--vf-fonte-corpo);
+    font-size: var(--vf-texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__linha-valor {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--vf-espaco-2);
+    margin: 0;
+  }
+
+  &__valor {
+    font-family: var(--vf-fonte-titulo);
+    font-size: clamp(2.75rem, 2.2rem + 1.6vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--vf-cor-texto);
+    font-variant-numeric: tabular-nums;
+
+    &--texto {
+      font-size: clamp(2rem, 1.7rem + 1vw, 2.75rem);
+    }
+  }
+
+  &__unidade {
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__dica {
+    margin: 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+    overflow-wrap: anywhere;
+  }
+
+  &__esqueleto {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vf-espaco-3);
+  }
+}
+
+// ---------- Esqueleto de carregamento ----------
+.vf-esqueleto {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--vf-cor-borda) 0%,
+    color-mix(in srgb, var(--vf-cor-borda) 35%, transparent) 50%,
+    var(--vf-cor-borda) 100%
+  );
+  background-size: 200% 100%;
+  animation: vf-brilho-esqueleto 1.4s linear infinite;
+
+  &--valor {
+    width: 55%;
+    height: 2.75rem;
+  }
+
+  &--linha {
+    width: 80%;
+    height: 0.85rem;
+  }
+
+  &--bloco {
+    width: 100%;
+    height: 240px;
+  }
+}
+
+@keyframes vf-brilho-esqueleto {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+// ---------- Erro, sem acesso e vazio ----------
+.vf-card-erro,
+.vf-sem-acesso,
+.vf-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--vf-espaco-2);
+  color: var(--vf-cor-texto-suave);
+
+  p {
+    margin: 0;
+    font-size: var(--vf-texto-sm);
+  }
+}
+
+.vf-card-erro {
+  color: var(--vf-cor-destaque-texto);
+
+  &__texto {
+    color: var(--vf-cor-texto);
+  }
+}
+
+.vf-sem-acesso__titulo {
+  font-weight: 600;
+  color: var(--vf-cor-texto);
+}
+
+.vf-vazio {
+  align-items: center;
+  justify-content: center;
+  min-height: 10rem;
+  text-align: center;
+}
+
+// ---------- Mini lista de status (dentro do card da frota) ----------
+.vf-mini-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: var(--vf-espaco-2) var(--vf-espaco-4);
+  margin: var(--vf-espaco-2) 0 0;
+  padding: var(--vf-espaco-3) 0 0;
+  border-top: 1px solid var(--vf-cor-borda);
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+    min-width: 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__rotulo {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__total {
+    font-weight: 700;
+    color: var(--vf-cor-texto);
+  }
+}
+
+// Quadradinho de cor. A cor nunca vem sozinha: sempre com ícone e texto ao lado.
+.vf-amostra {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px var(--vf-viz-amostra-borda);
+}
+
+// ---------- Grade de gráficos e tabela ----------
+.vf-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vf-espaco-4);
+
+  @include r.a-partir-de-tablet {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
+  &__km,
+  &__viagens {
+    @include r.a-partir-de-tablet {
+      grid-column: span 12;
+    }
+  }
+
+  &__status,
+  &__severidade {
+    @include r.a-partir-de-tablet {
+      grid-column: span 6;
+    }
+  }
+
+  @include r.a-partir-de-largo {
+    &__km {
+      grid-column: span 8;
+    }
+
+    &__status,
+    &__severidade {
+      grid-column: span 4;
+    }
+
+    &__viagens {
+      grid-column: span 8;
+    }
+
+    &__viagens--inteira {
+      grid-column: span 12;
+    }
+  }
+}
+
+.vf-grafico {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-4);
+  height: 100%;
+  padding: var(--vf-espaco-5);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md);
+  background: var(--vf-cor-superficie);
+  box-shadow: var(--vf-sombra-sm);
+
+  &__cabeca {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vf-espaco-1);
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: var(--vf-texto-lg);
+  }
+
+  &__subtitulo {
+    margin: 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__area {
+    min-width: 0;
+    min-height: 220px;
+  }
+}
+
+// ---------- Legenda dos gráficos ----------
+.vf-legenda {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr));
+  gap: var(--vf-espaco-2) var(--vf-espaco-4);
+  margin: 0;
+  padding: var(--vf-espaco-3) 0 0;
+  border-top: 1px solid var(--vf-cor-borda);
+  list-style: none;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+    min-width: 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__rotulo {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__total {
+    font-weight: 700;
+    color: var(--vf-cor-texto);
+  }
+}
+
+.vf-rotulo-icone {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vf-espaco-2);
+}
+
+// ---------- Tabelas ----------
+.vf-tabela-envoltorio {
+  min-width: 0;
+}
+
+.vf-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--vf-texto-sm);
+
+  th,
+  td {
+    padding: var(--vf-espaco-3) var(--vf-espaco-3);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--vf-cor-borda);
+  }
+
+  thead th {
+    font-size: var(--vf-texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vf-cor-texto-suave);
+  }
+
+  tbody th {
+    font-weight: 600;
+  }
+
+  tbody tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  &__numero {
+    text-align: right !important;
+    white-space: nowrap;
+  }
+
+  &__rota {
+    overflow-wrap: anywhere;
+  }
+
+  &__seta {
+    margin: 0 var(--vf-espaco-1);
+    color: var(--vf-cor-texto-suave);
+  }
+}
+
+.vf-selo-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vf-espaco-1);
+  padding: 2px var(--vf-espaco-3) 2px var(--vf-espaco-2);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-pilula);
+  font-size: var(--vf-texto-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--vf-cor-texto);
+
+  app-icone {
+    color: var(--vf-status-neutro);
+  }
+
+  &[data-status='IN_PROGRESS'] app-icone {
+    color: var(--vf-status-andamento);
+  }
+
+  &[data-status='COMPLETED'] app-icone {
+    color: var(--vf-status-ok);
+  }
+
+  &[data-status='CANCELLED'] app-icone {
+    color: var(--vf-status-cancelado);
+  }
+}
+
+// Celular: cada viagem vira um pequeno bloco (sem rolagem lateral).
+@media (max-width: 767.98px) {
+  .vf-tabela--viagens {
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+
+    tbody,
+    tr,
+    td {
+      display: block;
+    }
+
+    tr {
+      padding: var(--vf-espaco-3) 0;
+      border-bottom: 1px solid var(--vf-cor-borda);
+    }
+
+    tbody tr:last-child {
+      border-bottom: 0;
+    }
+
+    td {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--vf-espaco-4);
+      padding: var(--vf-espaco-1) 0;
+      border: 0;
+      text-align: right;
+
+      &::before {
+        content: attr(data-rotulo);
+        flex: none;
+        font-size: var(--vf-texto-xs);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--vf-cor-texto-suave);
+      }
+    }
+
+    .vf-tabela__rota {
+      display: block;
+      text-align: left;
+
+      &::before {
+        display: block;
+        margin-bottom: 2px;
+      }
+    }
+  }
+}

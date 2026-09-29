@@ -1,0 +1,44 @@
+<fieldset
+  class="vf-grupo-opcoes"
+  [id]="idCampo"
+  [attr.aria-describedby]="idsDescricao"
+  [attr.aria-required]="atributoObrigatorio"
+  [class.vf-grupo-opcoes--erro]="mostrarErro"
+>
+  <legend class="vf-grupo-opcoes__legenda">
+    {{ legenda }}
+    @if (obrigatorio) {
+      <span class="vf-campo__obrigatorio" aria-hidden="true">*</span>
+    }
+  </legend>
+  <div class="vf-grupo-opcoes__lista">
+    @for (opcao of opcoes; track opcao.valor) {
+      <label class="vf-opcao" [attr.data-tom]="opcao.tom" [class.vf-opcao--marcada]="marcada(opcao)">
+        <input
+          class="vf-opcao__radio"
+          type="radio"
+          [name]="idCampo"
+          [id]="idDaOpcao(opcao)"
+          [value]="opcao.valor"
+          [checked]="marcada(opcao)"
+          [attr.aria-invalid]="atributoInvalido"
+          (change)="escolher(opcao)"
+          (blur)="aoSairDoGrupo()"
+        />
+        @if (opcao.icone) {
+          <app-icone class="vf-opcao__icone" [nome]="opcao.icone" [tamanho]="20"></app-icone>
+        }
+        <span class="vf-opcao__rotulo">{{ opcao.rotulo }}</span>
+      </label>
+    }
+  </div>
+  @if (ajuda) {
+    <p class="vf-campo__ajuda" [id]="idAjuda">{{ ajuda }}</p>
+  }
+  <p class="vf-campo__erro" [id]="idErro" aria-live="polite">
+    @if (mostrarErro) {
+      <app-icone nome="alerta" [tamanho]="14"></app-icone>
+      <span>{{ textoErro }}</span>
+    }
+  </p>
+</fieldset>

@@ -1,0 +1,135 @@
+<div class="vf-login" id="pagina-login" #raizLogin>
+  <div class="vf-login__fundo" id="fundo-vanta" #fundoVanta aria-hidden="true"></div>
+  <p class="vf-login__marca" aria-hidden="true">{{ 'AUTH.LOGIN.MARCA' | translate }}</p>
+
+  <section class="vf-login__cartao" id="cartao-login" #cartaoLogin aria-labelledby="titulo-login">
+    <header class="vf-login__cabecalho">
+      <svg
+        class="vf-login__logo"
+        viewBox="0 0 48 48"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M6 34a18 18 0 1 1 36 0" />
+        <path d="M24 34l9-12" />
+        <circle cx="24" cy="34" r="2.5" fill="currentColor" />
+      </svg>
+      <h1 class="vf-login__titulo" id="titulo-login">{{ 'AUTH.LOGIN.TITLE' | translate }}</h1>
+      <p class="vf-login__aviso">{{ 'AUTH.LOGIN.SUBTITLE' | translate }}</p>
+    </header>
+
+    <form
+      id="formulario-login"
+      [formGroup]="formulario"
+      (ngSubmit)="entrar()"
+      (focusin)="aoFocarCampo()"
+      novalidate
+    >
+      <div class="vf-login__alerta" id="alerta-erro-login" aria-live="polite">
+        @if (chaveErro) {
+          <p class="vf-login__erro-geral">{{ chaveErro | translate }}</p>
+        }
+      </div>
+
+      <div class="vf-login__campo">
+        <label class="vf-campo__rotulo" for="campo-email">{{ 'AUTH.LOGIN.EMAIL' | translate }}</label>
+        <input
+          class="vf-campo__entrada"
+          id="campo-email"
+          name="email"
+          type="email"
+          inputmode="email"
+          autocomplete="username"
+          spellcheck="false"
+          formControlName="email"
+          [placeholder]="'AUTH.LOGIN.EMAIL_PLACEHOLDER' | translate"
+          [attr.aria-invalid]="temErro('email')"
+          [attr.aria-describedby]="descricaoDoCampo('email')"
+        />
+        @if (erroDoCampo('email'); as chave) {
+          <p class="vf-campo__erro" id="erro-email">{{ chave | translate }}</p>
+        }
+      </div>
+
+      <div class="vf-login__campo">
+        <label class="vf-campo__rotulo" for="campo-senha">{{ 'AUTH.LOGIN.PASSWORD' | translate }}</label>
+        <div class="vf-campo__caixa">
+          <input
+            class="vf-campo__entrada vf-campo__entrada--comtoggle"
+            id="campo-senha"
+            name="password"
+            autocomplete="current-password"
+            formControlName="senha"
+            [type]="tipoSenha"
+            [attr.aria-invalid]="temErro('senha')"
+            [attr.aria-describedby]="descricaoDoCampo('senha')"
+          />
+          <button
+            class="vf-campo__ver"
+            id="botao-ver-senha"
+            type="button"
+            [attr.aria-pressed]="verSenha"
+            [attr.aria-label]="'AUTH.LOGIN.MOSTRAR_SENHA' | translate"
+            (click)="alternarSenha()"
+          >
+            <ng-container *ngTemplateOutlet="icone; context: { visivel: verSenha }" />
+          </button>
+        </div>
+        @if (erroDoCampo('senha'); as chave) {
+          <p class="vf-campo__erro" id="erro-senha">{{ chave | translate }}</p>
+        }
+      </div>
+
+      <div class="vf-login__partida">
+        <svg class="vf-login__conta-giros" viewBox="0 0 320 28" aria-hidden="true" focusable="false">
+          <path class="vf-login__arco-trilha" d="M4 26 Q160 -14 316 26" />
+          <path
+            class="vf-login__arco-progresso"
+            #arcoProgresso
+            d="M4 26 Q160 -14 316 26"
+            pathLength="1"
+          />
+        </svg>
+        <button
+          class="btn vf-login__botao"
+          id="botao-entrar"
+          #botaoEntrar
+          type="submit"
+          [disabled]="carregando"
+          [attr.aria-busy]="carregando"
+        >
+          @if (carregando) {
+            {{ 'AUTH.LOGIN.SUBMITTING' | translate }}
+          } @else {
+            {{ 'AUTH.LOGIN.SUBMIT' | translate }}
+          }
+        </button>
+      </div>
+    </form>
+
+    <p class="vf-login__sem-conta" id="aviso-sem-conta">{{ 'AUTH.LOGIN.SEM_CONTA' | translate }}</p>
+
+    <footer class="vf-login__rodape">
+      <a class="vf-login__link" id="link-esqueci-senha" routerLink="/auth/forgot-password">{{
+        'AUTH.LOGIN.FORGOT' | translate
+      }}</a>
+      <small>{{ 'AUTH.LOGIN.COPYRIGHT' | translate }}</small>
+    </footer>
+  </section>
+</div>
+
+<!-- Ícone do olho: aberto quando o texto está visível, riscado quando escondido. -->
+<ng-template #icone let-visivel="visivel">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+    <circle cx="12" cy="12" r="3" />
+    @if (visivel) {
+      <path d="M3 3l18 18" />
+    }
+  </svg>
+</ng-template>

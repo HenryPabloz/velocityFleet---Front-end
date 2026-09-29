@@ -1,0 +1,113 @@
+<div class="vf-pagina animar-surgir" id="pagina-usuario-editar">
+  <app-cabecalho-pagina
+    [etiqueta]="'USUARIOS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.USUARIOS_EDITAR' | translate"
+    [subtitulo]="'USUARIO_EDITAR.SUBTITULO' | translate"
+    rotaVoltar="/admin/users"
+    [rotuloVoltar]="'USUARIO_FORM.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar()"
+  >
+    @if (usuario) {
+      <form
+        #formularioRef
+        class="vf-bloco vf-bloco--formulario"
+        id="formulario-usuario-editar"
+        novalidate
+        [formGroup]="formulario"
+        [attr.aria-busy]="salvando"
+        (ngSubmit)="salvar()"
+      >
+        @if (bloqueadoPorSerAdmin) {
+          <p class="vf-aviso vf-aviso--aviso" id="aviso-conta-admin" role="alert">
+            <app-icone nome="cadeado" [tamanho]="18"></app-icone>
+            <span>{{ 'ERROS_NEGOCIO.ADMIN_SO_ADMIN_MODIFICA' | translate }}</span>
+          </p>
+        }
+
+        @if (erroGeral) {
+          <p class="vf-aviso vf-aviso--erro" id="alerta-erro-usuario-editar" role="alert" tabindex="-1">
+            <app-icone nome="alerta" [tamanho]="18"></app-icone>
+            <span>{{ erroGeral }}</span>
+          </p>
+        }
+
+        <dl class="vf-detalhes vf-usuario-resumo">
+          <div>
+            <dt>{{ 'USUARIOS.COL_EMAIL' | translate }}</dt>
+            <dd class="dado-mono">{{ usuario.email }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'USUARIOS.COL_PAPEL' | translate }}</dt>
+            <dd>
+              @if (nomeDoPapel) {
+                {{ 'PAPEIS.' + nomeDoPapel | translate }}
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <div class="vf-grade-campos">
+          <app-campo-formulario
+            class="vf-grade-campos__largo"
+            idCampo="campo-usuario-nome"
+            [rotulo]="'USUARIO_FORM.NOME' | translate"
+            [obrigatorio]="true"
+            [controle]="formulario.controls.nome"
+            [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', maxlength: 'ERROS_CAMPO.MAX_CARACTERES' }"
+          >
+            <input
+              vfCampoEntrada
+              class="form-control"
+              type="text"
+              autocomplete="off"
+              maxlength="150"
+              formControlName="nome"
+            />
+          </app-campo-formulario>
+        </div>
+
+        <div class="form-check form-switch vf-usuario-ativo">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="campo-usuario-ativo"
+            formControlName="ativo"
+            [attr.aria-describedby]="'ajuda-campo-usuario-ativo'"
+          />
+          <label class="form-check-label" for="campo-usuario-ativo">{{ 'USUARIO_EDITAR.ATIVO' | translate }}</label>
+        </div>
+        <p class="vf-campo__ajuda" id="ajuda-campo-usuario-ativo">
+          @if (bloquearDesativar) {
+            {{ 'USUARIO_EDITAR.AJUDA_ATIVO_BLOQUEADO' | translate }}
+          } @else {
+            {{ 'USUARIO_EDITAR.AJUDA_ATIVO' | translate }}
+          }
+        </p>
+
+        <div class="vf-botoes">
+          <button
+            class="btn btn-primary"
+            type="submit"
+            id="botao-salvar-usuario"
+            [disabled]="salvando || bloqueadoPorSerAdmin"
+          >
+            <app-icone nome="editar" [tamanho]="16"></app-icone>
+            {{ chaveBotaoSalvar | translate }}
+          </button>
+          <a class="btn btn-outline-secondary" id="botao-cancelar-usuario" routerLink="/admin/users">
+            {{ 'COMUM.CANCELAR' | translate }}
+          </a>
+        </div>
+      </form>
+    }
+  </app-estado-pagina>
+</div>

@@ -1,0 +1,126 @@
+<div class="vf-pagina animar-surgir" id="pagina-usuarios">
+  <app-cabecalho-pagina
+    [etiqueta]="'USUARIOS.ETIQUETA' | translate"
+    [titulo]="'USUARIOS.TITULO' | translate"
+    [subtitulo]="'USUARIOS.SUBTITULO' | translate"
+  >
+    <app-abas-removidos
+      recurso="USER"
+      idAbaAtivos="aba-usuarios-ativos"
+      idAbaRemovidos="aba-usuarios-removidos"
+      [removidos]="verRemovidos"
+      [rotuloAtivos]="'USUARIOS.ABA_ATIVOS' | translate"
+      [rotuloRemovidos]="'USUARIOS.ABA_REMOVIDOS' | translate"
+      (mudou)="mudarAba($event)"
+    ></app-abas-removidos>
+    @if (podeCriar) {
+      <a class="btn btn-primary" id="botao-novo-usuario" routerLink="/admin/users/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'USUARIOS.NOVO' | translate }}
+      </a>
+    }
+  </app-cabecalho-pagina>
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-usuarios" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [tituloVazio]="chaveTituloVazio | translate"
+    [textoVazio]="chaveTextoVazio | translate"
+    [linhasEsqueleto]="5"
+    (tentarNovamente)="carregar()"
+  >
+    <app-tabela-dados
+      idTabela="tabela-usuarios"
+      classeCartao="vf-usuario-card"
+      [legenda]="'USUARIOS.LEGENDA' | translate"
+      [rotuloAcoes]="'COMUM.ACOES' | translate"
+      [colunas]="colunas"
+      [linhas]="resposta?.data ?? []"
+    >
+      <ng-template #celula let-usuario let-coluna="coluna">
+        @switch (coluna.chave) {
+          @case ('fullName') {
+            <strong>{{ usuario.fullName }}</strong>
+            @if (ehMinhaLinha(usuario)) {
+              <span class="vf-usuario-voce">{{ 'USUARIOS.VOCE' | translate }}</span>
+            }
+          }
+          @case ('email') {
+            <span class="dado-mono">{{ usuario.email }}</span>
+          }
+          @case ('role') {
+            @if (nomeDoPapel(usuario)) {
+              {{ 'PAPEIS.' + nomeDoPapel(usuario) | translate }}
+            } @else {
+              <span class="dado-mono">—</span>
+            }
+          }
+          @case ('isActive') {
+            @if (usuario.isActive) {
+              <app-selo-status tipo="ativo" valor="ATIVO"></app-selo-status>
+            } @else {
+              <app-selo-status tipo="ativo" valor="INATIVO"></app-selo-status>
+            }
+          }
+        }
+      </ng-template>
+
+      <ng-template #titulo let-usuario>
+        @if (usuario.isActive) {
+          <app-selo-status tipo="ativo" valor="ATIVO"></app-selo-status>
+        } @else {
+          <app-selo-status tipo="ativo" valor="INATIVO"></app-selo-status>
+        }
+      </ng-template>
+
+      <ng-template #acoes let-usuario>
+        @if (!verRemovidos && podeEditar) {
+          @if (bloqueadoPorSerAdmin(usuario)) {
+            <button
+              class="vf-acao vf-acao--bloqueada"
+              type="button"
+              data-acao="editar"
+              aria-disabled="true"
+              [attr.title]="motivoDoBloqueio(usuario)"
+            >
+              <app-icone nome="editar" [tamanho]="16"></app-icone>
+              <span class="vf-acao__texto">{{ 'COMUM.EDITAR' | translate }}</span>
+              <span class="visually-hidden">({{ motivoDoBloqueio(usuario) }})</span>
+            </button>
+          } @else {
+            <a class="vf-acao" data-acao="editar" [routerLink]="['/admin/users', usuario.id, 'edit']">
+              <app-icone nome="editar" [tamanho]="16"></app-icone>
+              <span class="vf-acao__texto">{{ 'COMUM.EDITAR' | translate }}</span>
+            </a>
+          }
+        }
+        @if (mostrarPromover(usuario)) {
+          <a class="vf-acao" data-acao="promover-role" [routerLink]="['/admin/users', usuario.id, 'role']">
+            <app-icone nome="subir" [tamanho]="16"></app-icone>
+            <span class="vf-acao__texto">{{ 'USUARIOS.PROMOVER' | translate }}</span>
+          </a>
+        }
+        <app-acoes-remocao
+          recurso="USER"
+          [removido]="verRemovidos"
+          [bloquearExcluir]="bloqueadoParaExcluir(usuario)"
+          [bloquearRestaurar]="bloqueadoParaRestaurar(usuario)"
+          [bloquearDefinitivo]="bloqueadoParaExcluir(usuario)"
+          [motivoBloqueio]="motivoDoBloqueio(usuario)"
+          (excluir)="excluir(usuario)"
+          (restaurar)="restaurar(usuario)"
+          (excluirDefinitivo)="excluirDefinitivamente(usuario)"
+        ></app-acoes-remocao>
+      </ng-template>
+    </app-tabela-dados>
+
+    <app-paginacao [paginacao]="resposta?.pagination ?? null" (paginaMudou)="mudarPagina($event)"></app-paginacao>
+  </app-estado-pagina>
+</div>

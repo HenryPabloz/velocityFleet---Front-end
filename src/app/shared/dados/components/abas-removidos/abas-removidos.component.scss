@@ -1,0 +1,39 @@
+// Controle segmentado "Ativos | Removidos": duas pílulas coladas, alvo de toque de 44px.
+.vf-abas-removidos {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-pilula);
+  background: var(--vf-cor-superficie);
+
+  &__aba {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--vf-espaco-2);
+    min-height: 44px;
+    padding: 0 var(--vf-espaco-4);
+    border: 0;
+    border-radius: var(--vf-raio-pilula);
+    background: transparent;
+    color: var(--vf-cor-texto-suave);
+    font-size: var(--vf-texto-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color var(--vf-transicao-rapida),
+      color var(--vf-transicao-rapida);
+
+    &:hover {
+      color: var(--vf-cor-texto);
+    }
+
+    // Vermelho-600 com texto branco passa no contraste AA nos dois temas.
+    &--ativa,
+    &--ativa:hover {
+      background: var(--vf-vermelho-600);
+      color: #fff;
+      box-shadow: var(--vf-sombra-sm);
+    }
+  }
+}

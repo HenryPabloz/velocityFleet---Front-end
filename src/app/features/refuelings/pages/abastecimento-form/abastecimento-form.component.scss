@@ -1,0 +1,47 @@
+// Faixa com a prévia do total, no estilo de um visor de bomba de combustível.
+.vf-total-estimado {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--vf-espaco-2) var(--vf-espaco-4);
+  padding: var(--vf-espaco-4) var(--vf-espaco-5);
+  border: 1px solid var(--vf-cor-borda);
+  border-left: 5px solid var(--vf-cor-destaque);
+  border-radius: var(--vf-raio-sm);
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--vf-cor-destaque) 8%, var(--vf-cor-superficie)),
+    var(--vf-cor-superficie) 70%
+  );
+
+  &__rotulo {
+    font-size: var(--vf-texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__valor {
+    font-family: var(--vf-fonte-titulo);
+    font-size: var(--vf-texto-2xl);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+  }
+
+  &__nota {
+    flex-basis: 100%;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+}
+
+.vf-abastecimento-proprio {
+  display: flex;
+  align-items: center;
+  gap: var(--vf-espaco-2);
+  min-height: 44px;
+  margin: 0;
+  color: var(--vf-cor-texto-suave);
+  font-size: var(--vf-texto-sm);
+}

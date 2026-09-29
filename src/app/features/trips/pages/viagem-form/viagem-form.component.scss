@@ -1,0 +1,30 @@
+.vf-campo-somente-texto {
+  margin: 0;
+  font-weight: 600;
+  color: var(--vf-cor-texto);
+}
+
+.vf-veiculo-escolhido {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vf-espaco-3);
+  padding: var(--vf-espaco-3) var(--vf-espaco-4);
+  border: 1px dashed var(--vf-cor-borda);
+  border-radius: var(--vf-raio-sm);
+  font-size: var(--vf-texto-sm);
+}
+
+.vf-grade-campos__vazio {
+  display: none;
+
+  @media (min-width: 768px) {
+    display: block;
+  }
+}
+
+.vf-form-espera {
+  margin: var(--vf-espaco-3) 0 0;
+  font-size: var(--vf-texto-sm);
+  color: var(--vf-cor-texto-suave);
+}

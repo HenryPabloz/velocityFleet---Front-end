@@ -1,0 +1,57 @@
+// Dois blocos lado a lado no desktop e empilhados no celular.
+.vf-conta-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vf-espaco-5);
+  align-items: start;
+
+  app-conta-perfil,
+  app-conta-senha {
+    display: block;
+    min-width: 0;
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.vf-conta-bloco {
+  height: 100%;
+
+  &__cabeca {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vf-espaco-3);
+    margin-bottom: var(--vf-espaco-5);
+  }
+
+  &__icone {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--vf-raio-pilula);
+    background: var(--vf-cor-borda);
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: var(--vf-texto-lg);
+  }
+
+  &__texto {
+    margin: var(--vf-espaco-1) 0 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+}
+
+.vf-conta-resumo {
+  margin-bottom: var(--vf-espaco-5);
+  padding-bottom: var(--vf-espaco-4);
+  border-bottom: 1px solid var(--vf-cor-borda);
+}

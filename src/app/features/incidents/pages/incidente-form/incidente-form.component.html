@@ -1,0 +1,207 @@
+<div class="vf-pagina animar-surgir" id="pagina-incidente-form">
+  <app-cabecalho-pagina
+    [etiqueta]="'INCIDENTES.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.INCIDENTES_NOVO' | translate"
+    [subtitulo]="'INCIDENTES.SUBTITULO_NOVO' | translate"
+    rotaVoltar="/incidents"
+    [rotuloVoltar]="'INCIDENTES.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="4"
+    (tentarNovamente)="carregarOpcoes()"
+  >
+    <form
+      #formularioRef
+      class="vf-bloco vf-bloco--formulario"
+      id="formulario-incidente"
+      novalidate
+      [formGroup]="formulario"
+      [attr.aria-busy]="salvando"
+      (ngSubmit)="salvar()"
+    >
+      @if (semMotoristaVinculado) {
+        <p class="vf-aviso vf-aviso--aviso" id="aviso-sem-motorista" role="alert">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>
+            <strong class="vf-aviso__titulo">{{ 'INCIDENTES.SEM_MOTORISTA_TITULO' | translate }}</strong>
+            {{ 'INCIDENTES.SEM_MOTORISTA_TEXTO' | translate }}
+          </span>
+        </p>
+      }
+
+      @if (erroGeral) {
+        <p class="vf-aviso vf-aviso--erro" id="alerta-erro-negocio" role="alert" tabindex="-1">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>{{ erroGeral }}</span>
+        </p>
+      }
+
+      <div class="vf-grade-campos">
+        @if (podeVerViagens) {
+          <app-campo-formulario
+            class="vf-grade-campos__largo"
+            idCampo="campo-incidente-viagem"
+            [rotulo]="'INCIDENTES.VIAGEM' | translate"
+            [ajuda]="chaveAjudaViagem | translate"
+            [controle]="formulario.controls.viagem"
+          >
+            <select vfCampoEntrada class="form-select" formControlName="viagem">
+              <option value="">{{ 'INCIDENTES.SEM_VIAGEM' | translate }}</option>
+              @for (opcao of opcoesViagens; track opcao.viagem.id) {
+                <option [value]="opcao.viagem.id">{{ opcao.rotulo }}</option>
+              }
+            </select>
+          </app-campo-formulario>
+        }
+
+        @if (escolheMotorista) {
+          <app-campo-formulario
+            idCampo="campo-incidente-motorista"
+            [rotulo]="'INCIDENTES.MOTORISTA' | translate"
+            [ajuda]="'INCIDENTES.AJUDA_MOTORISTA' | translate"
+            [obrigatorio]="true"
+            [controle]="formulario.controls.motorista"
+            [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+          >
+            <select vfCampoEntrada class="form-select" formControlName="motorista">
+              <option value="">{{ 'INCIDENTES.ESCOLHA_MOTORISTA' | translate }}</option>
+              @for (opcao of opcoesMotoristas; track opcao.id) {
+                <option [value]="opcao.id">{{ opcao.rotulo }}</option>
+              }
+            </select>
+          </app-campo-formulario>
+        }
+
+        <app-campo-formulario
+          idCampo="campo-incidente-veiculo"
+          [rotulo]="'INCIDENTES.VEICULO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.veiculo"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        >
+          <select vfCampoEntrada class="form-select" formControlName="veiculo">
+            <option value="">{{ 'INCIDENTES.ESCOLHA_VEICULO' | translate }}</option>
+            @for (veiculo of veiculos; track veiculo.id) {
+              <option [value]="veiculo.id">{{ veiculo.plate | placa }} — {{ veiculo.model }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        <app-grupo-opcoes
+          class="vf-grade-campos__largo"
+          idCampo="campo-incidente-tipo"
+          [legenda]="'INCIDENTES.TIPO' | translate"
+          [obrigatorio]="true"
+          [opcoes]="opcoesTipo"
+          [controle]="formulario.controls.tipo"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        ></app-grupo-opcoes>
+
+        <app-grupo-opcoes
+          class="vf-grade-campos__largo"
+          idCampo="campo-incidente-severidade"
+          [legenda]="'INCIDENTES.SEVERIDADE' | translate"
+          [obrigatorio]="true"
+          [opcoes]="opcoesSeveridade"
+          [controle]="formulario.controls.severidade"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        ></app-grupo-opcoes>
+
+        <app-campo-formulario
+          class="vf-grade-campos__largo"
+          idCampo="campo-incidente-descricao"
+          [rotulo]="'INCIDENTES.DESCRICAO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.descricao"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', maxlength: 'ERROS_CAMPO.MAX_CARACTERES' }"
+        >
+          <textarea
+            vfCampoEntrada
+            class="form-control"
+            rows="5"
+            [attr.maxlength]="limiteDescricao"
+            formControlName="descricao"
+          ></textarea>
+        </app-campo-formulario>
+        <p class="vf-contador vf-grade-campos__largo" id="contador-caracteres-descricao" aria-hidden="true">
+          {{ caracteresUsados }}/{{ limiteDescricao }}
+        </p>
+        <p class="visually-hidden" role="status">{{ avisoLimiteDescricao }}</p>
+
+        <div class="vf-grade-campos__largo vf-upload">
+          <span class="form-label" id="rotulo-foto-incidente">{{ 'INCIDENTES.FOTO' | translate }}</span>
+          <label
+            class="vf-upload__area"
+            id="area-upload-foto"
+            for="input-foto-incidente"
+            [class.vf-upload__area--arrastando]="arrastando"
+            (dragover)="aoArrastarSobre($event)"
+            (dragleave)="aoSairDoArraste()"
+            (drop)="aoSoltar($event)"
+          >
+            <input
+              #entradaFoto
+              class="vf-upload__entrada"
+              id="input-foto-incidente"
+              type="file"
+              accept="image/jpeg,image/png,application/pdf"
+              aria-describedby="ajuda-foto-incidente erro-foto-incidente"
+              (change)="aoEscolherArquivo($event)"
+            />
+            <app-icone class="vf-upload__icone" nome="upload" [tamanho]="28"></app-icone>
+            <span class="vf-upload__titulo">{{ 'INCIDENTES.FOTO_ARRASTE' | translate }}</span>
+            <span class="vf-upload__ajuda" id="ajuda-foto-incidente">{{ 'INCIDENTES.FOTO_AJUDA' | translate }}</span>
+          </label>
+
+          <p class="vf-campo__erro" id="erro-foto-incidente" role="alert">
+            @if (erroFoto) {
+              <app-icone nome="alerta" [tamanho]="14"></app-icone>
+              <span>{{ erroFoto }}</span>
+            }
+          </p>
+          <p class="visually-hidden" id="anuncio-foto-incidente" role="status" aria-live="polite">{{ anuncioFoto }}</p>
+
+          @if (arquivoFoto) {
+            <div class="vf-upload__escolhido" id="foto-escolhida">
+              @if (arquivoEhImagem) {
+                <img class="vf-upload__previa" [src]="urlPrevia" [alt]="'INCIDENTES.FOTO_PREVIA_ALT' | translate" />
+              } @else {
+                <span class="vf-upload__previa vf-upload__previa--arquivo">
+                  <app-icone nome="arquivo" [tamanho]="28"></app-icone>
+                </span>
+              }
+              <span class="vf-upload__nome">{{ arquivoFoto.name }}</span>
+              <button
+                class="vf-acao vf-acao--perigo"
+                type="button"
+                id="botao-remover-foto"
+                (click)="removerFoto()"
+              >
+                <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+                <span class="vf-acao__texto">{{ 'INCIDENTES.FOTO_REMOVER' | translate }}</span>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="vf-botoes">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          id="botao-registrar-incidente"
+          [disabled]="salvando || semMotoristaVinculado"
+        >
+          <app-icone nome="incidentes" [tamanho]="16"></app-icone>
+          {{ chaveBotaoSalvar | translate }}
+        </button>
+        <a class="btn btn-outline-secondary" id="botao-cancelar-incidente" routerLink="/incidents">
+          {{ 'COMUM.CANCELAR' | translate }}
+        </a>
+      </div>
+    </form>
+  </app-estado-pagina>
+</div>

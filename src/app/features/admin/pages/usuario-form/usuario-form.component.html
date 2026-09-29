@@ -1,0 +1,179 @@
+<div class="vf-pagina animar-surgir" id="pagina-usuario-form">
+  <app-cabecalho-pagina
+    [etiqueta]="'USUARIOS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.USUARIOS_NOVO' | translate"
+    [subtitulo]="'USUARIO_FORM.SUBTITULO' | translate"
+    rotaVoltar="/admin/users"
+    [rotuloVoltar]="'USUARIO_FORM.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="4"
+    (tentarNovamente)="carregarPapeis()"
+  >
+    <form
+      #formularioRef
+      class="vf-bloco vf-bloco--formulario"
+      id="formulario-usuario"
+      novalidate
+      [formGroup]="formulario"
+      [attr.aria-busy]="salvando"
+      (ngSubmit)="salvar()"
+    >
+      @if (erroGeral) {
+        <p class="vf-aviso vf-aviso--erro" id="alerta-erro-usuario" role="alert" tabindex="-1">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>{{ erroGeral }}</span>
+        </p>
+      }
+
+      <div class="vf-grade-campos">
+        <app-campo-formulario
+          class="vf-grade-campos__largo"
+          idCampo="campo-usuario-nome"
+          [rotulo]="'USUARIO_FORM.NOME' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.nome"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', maxlength: 'ERROS_CAMPO.MAX_CARACTERES' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control"
+            type="text"
+            autocomplete="off"
+            maxlength="150"
+            formControlName="nome"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-usuario-email"
+          [rotulo]="'USUARIO_FORM.EMAIL' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.email"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', email: 'USUARIO_FORM.ERRO_EMAIL' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control"
+            type="email"
+            autocomplete="off"
+            maxlength="255"
+            formControlName="email"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-usuario-senha"
+          [rotulo]="'USUARIO_FORM.SENHA' | translate"
+          [ajuda]="'USUARIO_FORM.AJUDA_SENHA' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.senha"
+          [mensagens]="{
+            required: 'ERROS_CAMPO.OBRIGATORIO',
+            minlength: 'USUARIO_FORM.ERRO_SENHA',
+            maxlength: 'USUARIO_FORM.ERRO_SENHA'
+          }"
+        >
+          <div class="vf-campo-senha">
+            <input
+              vfCampoEntrada
+              class="form-control"
+              autocomplete="new-password"
+              maxlength="15"
+              formControlName="senha"
+              [type]="tipoDoCampoSenha"
+            />
+            <button
+              class="vf-campo-senha__botao"
+              id="botao-mostrar-senha-usuario"
+              type="button"
+              [attr.aria-pressed]="mostrarSenha"
+              [attr.aria-label]="chaveMostrarSenha | translate"
+              (click)="alternarSenha()"
+            >
+              <app-icone nome="olho" [tamanho]="18"></app-icone>
+            </button>
+          </div>
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          class="vf-grade-campos__largo"
+          idCampo="campo-usuario-papel"
+          [rotulo]="'USUARIO_FORM.PAPEL' | translate"
+          [ajuda]="'USUARIO_FORM.AJUDA_PAPEL' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.papel"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        >
+          <select vfCampoEntrada class="form-select" formControlName="papel">
+            <option value="">{{ 'USUARIO_FORM.ESCOLHA_PAPEL' | translate }}</option>
+            @for (papel of papeisDisponiveis; track papel.id) {
+              <option [value]="papel.id">{{ 'PAPEIS.' + papel.name | translate }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+      </div>
+
+      @if (ehMotorista) {
+        <fieldset class="vf-bloco-motorista" id="bloco-dados-motorista">
+          <legend class="vf-bloco-motorista__titulo">{{ 'USUARIO_FORM.DADOS_MOTORISTA' | translate }}</legend>
+          <div class="vf-grade-campos">
+            <app-campo-formulario
+              idCampo="campo-usuario-cnh"
+              [rotulo]="'USUARIO_FORM.CNH' | translate"
+              [ajuda]="'USUARIO_FORM.AJUDA_CNH' | translate"
+              [obrigatorio]="true"
+              [controle]="formulario.controls.cnh"
+              [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', cnh: 'USUARIO_FORM.ERRO_CNH' }"
+            >
+              <input
+                vfCampoEntrada
+                class="form-control dado-mono"
+                type="text"
+                inputmode="numeric"
+                autocomplete="off"
+                maxlength="11"
+                formControlName="cnh"
+                (input)="aoDigitarCnh($event)"
+              />
+            </app-campo-formulario>
+
+            <app-campo-formulario
+              idCampo="campo-usuario-validade-cnh"
+              [rotulo]="'USUARIO_FORM.VALIDADE_CNH' | translate"
+              [ajuda]="'USUARIO_FORM.AJUDA_VALIDADE' | translate"
+              [obrigatorio]="true"
+              [controle]="formulario.controls.validadeCnh"
+              [mensagens]="{
+                required: 'ERROS_CAMPO.OBRIGATORIO',
+                dataInvalida: 'USUARIO_FORM.ERRO_DATA',
+                dataPassada: 'USUARIO_FORM.ERRO_VALIDADE_PASSADA'
+              }"
+            >
+              <input
+                vfCampoEntrada
+                class="form-control"
+                type="date"
+                formControlName="validadeCnh"
+                [attr.min]="dataMinimaCnh"
+              />
+            </app-campo-formulario>
+          </div>
+        </fieldset>
+      }
+
+      <div class="vf-botoes">
+        <button class="btn btn-primary" type="submit" id="botao-criar-usuario" [disabled]="salvando">
+          <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+          {{ chaveBotaoSalvar | translate }}
+        </button>
+        <a class="btn btn-outline-secondary" id="botao-cancelar-usuario" routerLink="/admin/users">
+          {{ 'COMUM.CANCELAR' | translate }}
+        </a>
+      </div>
+    </form>
+  </app-estado-pagina>
+</div>

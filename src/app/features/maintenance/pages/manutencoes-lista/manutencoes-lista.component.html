@@ -1,0 +1,154 @@
+<div class="vf-pagina animar-surgir" id="pagina-manutencoes">
+  <app-cabecalho-pagina
+    [etiqueta]="'MANUTENCOES.ETIQUETA' | translate"
+    [titulo]="'MANUTENCOES.TITULO' | translate"
+    [subtitulo]="'MANUTENCOES.SUBTITULO' | translate"
+  >
+    <app-abas-removidos
+      recurso="MAINTENANCE"
+      [removidos]="verRemovidas"
+      [rotuloAtivos]="'MANUTENCOES.ABA_ATIVAS' | translate"
+      [rotuloRemovidos]="'MANUTENCOES.ABA_REMOVIDAS' | translate"
+      (mudou)="mudarAba($event)"
+    ></app-abas-removidos>
+    @if (podeCriar) {
+      <a class="btn btn-primary" id="botao-nova-manutencao" routerLink="/maintenance/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'MANUTENCOES.NOVA' | translate }}
+      </a>
+    }
+  </app-cabecalho-pagina>
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-manutencoes" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  @if (!verRemovidas) {
+    <details
+      class="vf-bloco vf-bloco--sem-regua vf-bloco--filtros"
+      id="filtros-manutencoes"
+      [open]="filtrosAbertos"
+      (toggle)="aoAlternarFiltros($event)"
+    >
+      <summary class="vf-bloco__resumo">
+        <app-icone nome="busca" [tamanho]="18"></app-icone>
+        {{ 'COMUM.FILTROS' | translate }}
+        @if (quantidadeFiltrosAtivos > 0) {
+          <span
+            class="vf-bloco__contagem"
+            [attr.aria-label]="'COMUM.FILTROS_ATIVOS' | translate: { quantidade: quantidadeFiltrosAtivos }"
+            >{{ quantidadeFiltrosAtivos }}</span
+          >
+        }
+        <app-icone nome="seta-baixo" [tamanho]="18"></app-icone>
+      </summary>
+      <div class="vf-filtros">
+        <app-campo-formulario idCampo="filtro-status-manutencao" [rotulo]="'MANUTENCOES.FILTRO_STATUS' | translate">
+          <select vfCampoEntrada class="form-select" [(ngModel)]="filtroStatus" (ngModelChange)="mudarFiltro()">
+            <option value="">{{ 'MANUTENCOES.TODOS_STATUS' | translate }}</option>
+            @for (status of statusDisponiveis; track status) {
+              <option [value]="status">{{ 'STATUS_MANUTENCAO.' + status | translate }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        <app-campo-formulario idCampo="filtro-veiculo-manutencao" [rotulo]="'MANUTENCOES.FILTRO_VEICULO' | translate">
+          <select vfCampoEntrada class="form-select" [(ngModel)]="filtroVeiculo" (ngModelChange)="mudarFiltro()">
+            <option value="">{{ 'MANUTENCOES.TODOS_VEICULOS' | translate }}</option>
+            @for (veiculo of listaVeiculos; track veiculo.id) {
+              <option [value]="veiculo.id">{{ veiculo.plate | placa }} · {{ veiculo.model }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+      </div>
+    </details>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [tituloVazio]="chaveTituloVazio | translate"
+    [textoVazio]="chaveTextoVazio | translate"
+    [linhasEsqueleto]="5"
+    (tentarNovamente)="carregar()"
+  >
+    @if (temFiltro && !verRemovidas) {
+      <button vazioAcao class="vf-botao-secundario" type="button" (click)="limparFiltros()">
+        {{ 'COMUM.LIMPAR_FILTROS' | translate }}
+      </button>
+    }
+    @if (!temFiltro && !verRemovidas && podeCriar) {
+      <a vazioAcao class="btn btn-primary" routerLink="/maintenance/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'MANUTENCOES.NOVA' | translate }}
+      </a>
+    }
+
+    <app-tabela-dados
+      idTabela="tabela-manutencoes"
+      classeCartao="vf-manutencao-card"
+      [legenda]="'MANUTENCOES.LEGENDA' | translate"
+      [rotuloAcoes]="'COMUM.ACOES' | translate"
+      [colunas]="colunas"
+      [linhas]="resposta?.data ?? []"
+    >
+      <ng-template #celula let-manutencao let-coluna="coluna">
+        @switch (coluna.chave) {
+          @case ('vehicle') {
+            @if (placaDe(manutencao)) {
+              <app-placa [placa]="placaDe(manutencao)" tamanho="p"></app-placa>
+            } @else {
+              <span class="dado-mono">—</span>
+            }
+          }
+          @case ('type') {
+            {{ 'TIPO_MANUTENCAO.' + manutencao.type | translate }}
+          }
+          @case ('status') {
+            <app-selo-status tipo="manutencao" [valor]="manutencao.status"></app-selo-status>
+          }
+          @case ('scheduledDate') {
+            <span class="dado-mono">{{ manutencao.scheduledDate | dataCurta }}</span>
+          }
+          @case ('cost') {
+            <span class="dado-mono">{{ manutencao.cost | moeda }}</span>
+          }
+        }
+      </ng-template>
+
+      <ng-template #titulo let-manutencao>
+        @if (placaDe(manutencao)) {
+          <app-placa [placa]="placaDe(manutencao)"></app-placa>
+        }
+        <app-selo-status tipo="manutencao" [valor]="manutencao.status"></app-selo-status>
+      </ng-template>
+
+      <ng-template #acoes let-manutencao>
+        @if (!verRemovidas) {
+          <a class="vf-acao" data-acao="ver" [routerLink]="['/maintenance', manutencao.id]">
+            <app-icone nome="olho" [tamanho]="16"></app-icone>
+            <span class="vf-acao__texto">{{ 'COMUM.VER_DETALHES' | translate }}</span>
+          </a>
+          @if (podeConcluirLinha(manutencao)) {
+            <button class="vf-acao" type="button" data-acao="concluir" (click)="concluir(manutencao)">
+              <app-icone nome="ok" [tamanho]="16"></app-icone>
+              <span class="vf-acao__texto">{{ 'MANUTENCOES.CONCLUIR' | translate }}</span>
+            </button>
+          }
+        }
+        <app-acoes-remocao
+          recurso="MAINTENANCE"
+          [removido]="verRemovidas"
+          (excluir)="excluir(manutencao)"
+          (restaurar)="restaurar(manutencao)"
+          (excluirDefinitivo)="excluirDefinitivamente(manutencao)"
+        ></app-acoes-remocao>
+      </ng-template>
+    </app-tabela-dados>
+
+    <app-paginacao [paginacao]="resposta?.pagination ?? null" (paginaMudou)="mudarPagina($event)"></app-paginacao>
+  </app-estado-pagina>
+</div>

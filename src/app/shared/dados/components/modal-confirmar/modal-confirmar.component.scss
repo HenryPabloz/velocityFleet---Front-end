@@ -1,0 +1,53 @@
+// Modal de confirmação: as classes da janela são as do Bootstrap; aqui só o acabamento.
+.vf-modal-confirmar {
+  .modal-content {
+    border: 1px solid var(--vf-cor-borda);
+    background: var(--vf-cor-superficie-elevada);
+    color: var(--vf-cor-texto);
+  }
+
+  .modal-header,
+  .modal-footer {
+    border-color: var(--vf-cor-borda);
+  }
+}
+
+.vf-confirmar {
+  &__cabeca {
+    align-items: center;
+  }
+
+  &__titulo {
+    margin: 0;
+    font-family: var(--vf-fonte-titulo);
+    font-size: var(--vf-texto-xl);
+    font-weight: 400;
+    letter-spacing: var(--vf-espaco-letras-titulo, 0.03em);
+  }
+
+  &__texto {
+    margin: 0;
+  }
+
+  &__fechar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+    border: 0;
+    border-radius: var(--vf-raio-pilula);
+    background: transparent;
+    color: var(--vf-cor-texto-suave);
+
+    &:hover {
+      background: var(--vf-cor-borda);
+      color: var(--vf-cor-texto);
+    }
+  }
+
+  &__rodape .btn {
+    min-height: 44px;
+  }
+}

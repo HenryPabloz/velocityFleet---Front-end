@@ -1,0 +1,103 @@
+// Área de envio da foto: um rótulo grande e clicável, com o campo de arquivo de verdade por cima.
+.vf-upload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-2);
+
+  &__area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--vf-espaco-1);
+    min-height: 9rem;
+    padding: var(--vf-espaco-5) var(--vf-espaco-4);
+    border: 2px dashed var(--vf-cor-borda);
+    border-radius: var(--vf-raio-md, 12px);
+    background: color-mix(in srgb, var(--vf-cor-destaque) 3%, var(--vf-cor-superficie));
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 0.18s ease,
+      background-color 0.18s ease,
+      box-shadow 0.18s ease;
+
+    &:hover,
+    &--arrastando {
+      border-color: var(--vf-cor-destaque);
+      background: color-mix(in srgb, var(--vf-cor-destaque) 9%, var(--vf-cor-superficie));
+    }
+
+    &--arrastando {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--vf-cor-destaque) 18%, transparent);
+    }
+
+    // Foco de teclado visível na área toda.
+    &:has(.vf-upload__entrada:focus-visible) {
+      outline: 3px solid var(--vf-cor-destaque-texto);
+      outline-offset: 3px;
+    }
+  }
+
+  // O campo de arquivo cobre a área inteira: clicar, tocar e Enter/Espaço abrem o seletor.
+  &__entrada {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &__icone {
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  &__titulo {
+    font-weight: 600;
+  }
+
+  &__ajuda {
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__escolhido {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vf-espaco-3);
+    padding: var(--vf-espaco-3);
+    border: 1px solid var(--vf-cor-borda);
+    border-radius: var(--vf-raio-sm);
+    background: var(--vf-cor-superficie);
+  }
+
+  &__previa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: var(--vf-raio-sm);
+    object-fit: cover;
+
+    &--arquivo {
+      background: color-mix(in srgb, var(--vf-cor-destaque) 10%, var(--vf-cor-superficie));
+      color: var(--vf-cor-destaque-texto);
+    }
+  }
+
+  &__nome {
+    flex: 1 1 10rem;
+    min-width: 0;
+    font-size: var(--vf-texto-sm);
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vf-upload__area {
+    transition: none;
+  }
+}

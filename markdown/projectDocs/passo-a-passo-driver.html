@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fleet Management – Passo a passo da rota do Motorista</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; font-size: 11pt; line-height: 1.45; margin: 0; }
+  h1 { font-size: 26pt; margin: 0 0 4px; color: #D22730; }
+  h2 { font-size: 16pt; margin: 22px 0 8px; color: #14213d; border-bottom: 2px solid #D22730; padding-bottom: 4px; page-break-after: avoid; }
+  h3 { font-size: 12.5pt; margin: 14px 0 4px; color: #14213d; page-break-after: avoid; }
+  p { margin: 6px 0; }
+  .sub { color: #596474; font-size: 12pt; margin-bottom: 14px; }
+  .resumo { background: #F3F5F8; border-left: 5px solid #D22730; padding: 10px 14px; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #cbd2da; padding: 5px 7px; text-align: left; vertical-align: top; }
+  th { background: #14213d; color: #fff; }
+  tr { page-break-inside: avoid; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #eef1f5; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #14181A; color: #EAF0F7; padding: 8px 10px; border-radius: 5px; font-size: 9pt; white-space: pre-wrap; margin: 6px 0; page-break-inside: avoid; }
+  .triste h2 { border-color: #7a1f24; } .feliz h2 { border-color: #1f7a4d; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 9pt; font-weight: 700; color: #fff; }
+  .t-erro { background: #b3261e; } .t-ok { background: #1f7a4d; }
+  ul { margin: 4px 0 4px 18px; padding: 0; } li { margin: 2px 0; }
+  .quebra { page-break-before: always; }
+  .nota { color: #596474; font-size: 9.5pt; }
+</style>
+</head>
+<body>
+
+<h1>Fleet Management · Gestão de Frota</h1>
+<p class="sub">Passo a passo da rota do Motorista (Driver): caminho triste e caminho feliz</p>
+
+<div class="resumo">
+  <h3 style="margin-top:0">O projeto e o motivo de sua criação</h3>
+  <p>O <b>Fleet Management</b> é uma API REST de gestão de frota corporativa. Ela controla veículos, motoristas, viagens, abastecimentos, manutenções e incidentes, e responde perguntas do dia a dia: qual veículo está disponível, quem está dirigindo o quê, quanto cada veículo gasta e o que aconteceu em cada viagem, com histórico auditável.</p>
+  <p>Foi criado como <b>avaliação técnica de back-end</b>, para demonstrar num sistema real: regras de integridade impostas no próprio banco (procedures, triggers e CHECKs), autenticação em camadas (API key + JWT) com permissões por papel, integração com uma API externa real (ViaCEP), erros padronizados (RFC 7807) e documentação Swagger. Stack: NestJS, Prisma e PostgreSQL.</p>
+</div>
+
+<h2>Como ler este documento</h2>
+<p>Primeiro o <b>caminho triste</b>: o que acontece quando o motorista (ou alguém no lugar dele) tenta algo errado, e como o sistema se protege. Depois o <b>caminho feliz</b>: o passo a passo completo de uma viagem bem-sucedida. No final, as regras de negócio do sistema e as regras dos outros cargos.</p>
+<p class="nota">Todas as respostas de erro seguem o padrão RFC 7807 (<code>application/problem+json</code>, com <code>type</code>, <code>title</code>, <code>status</code> e <code>detail</code>). Os valores entre &lt; &gt; são substituídos pelos dados reais; nenhuma chave ou senha aparece aqui.</p>
+
+<div class="triste">
+<h2>Parte 1 · Caminho triste (o que dá errado)</h2>
+
+<h3>1.1 Entrada no sistema</h3>
+<table>
+  <tr><th style="width:36%">Ação do motorista</th><th style="width:12%">Resposta</th><th>Por quê</th></tr>
+  <tr><td>Login sem o header <code>x-api-key</code></td><td><span class="tag t-erro">401</span></td><td>O login exige API key <b>e</b> e-mail e senha.</td></tr>
+  <tr><td>Login com senha errada</td><td><span class="tag t-erro">401</span></td><td>Credenciais inválidas; a mensagem não revela qual campo falhou.</td></tr>
+  <tr><td>Tentar se cadastrar (<code>POST /auth/signup</code>)</td><td><span class="tag t-erro">404</span></td><td>Não existe cadastro público. A conta é criada por ADMIN ou gerente.</td></tr>
+  <tr><td>Chamar qualquer rota sem o JWT</td><td><span class="tag t-erro">401</span></td><td>As rotas de negócio exigem <code>Authorization: Bearer</code>.</td></tr>
+  <tr><td>Usar a conta depois de ser desativada (soft delete)</td><td><span class="tag t-erro">401/403</span></td><td>Conta inativa não autentica, mesmo com JWT antigo.</td></tr>
+</table>
+
+<h3>1.2 Permissões e escopo</h3>
+<table>
+  <tr><th style="width:36%">Ação do motorista</th><th style="width:12%">Resposta</th><th>Por quê</th></tr>
+  <tr><td><code>GET /users</code> ou criar veículo (<code>POST /vehicles</code>)</td><td><span class="tag t-erro">403</span></td><td>O papel DRIVER não tem essas permissões.</td></tr>
+  <tr><td>Criar viagem com o <code>driverId</code> de outro motorista</td><td><span class="tag t-erro">403</span></td><td>Motorista só age sobre o próprio perfil.</td></tr>
+  <tr><td>Ler, iniciar ou finalizar a viagem de outro motorista</td><td><span class="tag t-erro">404</span></td><td>Para o motorista, o dado alheio simplesmente não existe (evita vazar que existe).</td></tr>
+  <tr><td>Apagar de vez (<code>DELETE .../permanent</code>)</td><td><span class="tag t-erro">403</span></td><td>Deleção total é exclusiva do ADMIN.</td></tr>
+  <tr><td>Tentar mudar o próprio papel (<code>PATCH /users/:id/role</code>)</td><td><span class="tag t-erro">403</span></td><td>Só ADMIN troca papel, e ninguém muda o próprio.</td></tr>
+  <tr><td>Usar <code>PUT</code> em qualquer recurso</td><td><span class="tag t-erro">404</span></td><td>As rotas <code>PUT</code> foram removidas; só existe <code>PATCH</code>.</td></tr>
+</table>
+
+<h3>1.3 Regras da viagem</h3>
+<table>
+  <tr><th style="width:36%">Ação do motorista</th><th style="width:12%">Resposta</th><th>Por quê</th></tr>
+  <tr><td>Criar viagem com CEP inexistente ou mal formado</td><td><span class="tag t-erro">400</span></td><td>Os CEPs de partida e destino são validados no ViaCEP.</td></tr>
+  <tr><td>ViaCEP fora do ar ou lento</td><td><span class="tag t-erro">502/504</span></td><td>Falha da API externa nunca é confundida com "CEP inválido".</td></tr>
+  <tr><td>Enviar <code>startKm</code> ao criar a viagem</td><td><span class="tag t-erro">400</span></td><td>O km inicial é o hodômetro do veículo, definido pelo servidor.</td></tr>
+  <tr><td>Criar viagem com veículo em uso, em manutenção, fora de serviço ou inativo</td><td><span class="tag t-erro">409</span></td><td>Só veículo disponível pode ser usado.</td></tr>
+  <tr><td>Motorista com CNH vencida, inativo ou que já tem viagem ativa</td><td><span class="tag t-erro">409</span></td><td>Regras aplicadas no banco (procedure e triggers).</td></tr>
+  <tr><td>Iniciar com body (ex.: <code>currentMileage</code>)</td><td><span class="tag t-erro">400</span></td><td>O <code>start</code> não recebe body; o status já valida.</td></tr>
+  <tr><td>Iniciar viagem que não está PLANNED (ex.: já iniciada)</td><td><span class="tag t-erro">409</span></td><td>Só PLANNED vira IN_PROGRESS.</td></tr>
+  <tr><td>Finalizar com <code>endKm</code> 0, negativo ou acima de 100000</td><td><span class="tag t-erro">400</span></td><td><code>endKm</code> são os km rodados: de 1 a 100000 por viagem.</td></tr>
+  <tr><td>Finalizar viagem que não está IN_PROGRESS</td><td><span class="tag t-erro">409</span></td><td>Só uma viagem em andamento pode ser concluída.</td></tr>
+  <tr><td>Cancelar viagem já concluída</td><td><span class="tag t-erro">409</span></td><td>Concluída ou cancelada não volta atrás.</td></tr>
+</table>
+
+<h3>1.4 Abastecimento e incidente</h3>
+<table>
+  <tr><th style="width:36%">Ação do motorista</th><th style="width:12%">Resposta</th><th>Por quê</th></tr>
+  <tr><td>Abastecer enviando <code>mileage</code></td><td><span class="tag t-erro">400</span></td><td>O campo não existe mais; o abastecimento não altera o hodômetro.</td></tr>
+  <tr><td>Abastecer um veículo que está em viagem em andamento de outro motorista</td><td><span class="tag t-erro">409</span></td><td>Com viagem ativa, o abastecimento só vale para o motorista dela.</td></tr>
+  <tr><td>Litros ou preço por litro zero/negativo, combustível inválido</td><td><span class="tag t-erro">400</span></td><td>Validação de DTO e da procedure.</td></tr>
+  <tr><td>Registrar incidente com tipo ou gravidade inválidos, foto fora do padrão</td><td><span class="tag t-erro">400</span></td><td>Tipos: ACCIDENT, MECHANICAL_FAILURE, OTHER; gravidades: LOW, MEDIUM, HIGH; foto JPEG/PNG/PDF até 10 MB.</td></tr>
+  <tr><td>Muitas requisições em pouco tempo</td><td><span class="tag t-erro">429</span></td><td>Limite de requisições (rate limiting).</td></tr>
+</table>
+</div>
+
+<div class="feliz quebra">
+<h2>Parte 2 · Caminho feliz (passo a passo)</h2>
+<p><b>Cenário:</b> a motorista Ana recebe a conta, faz login, planeja uma viagem, inicia, abastece, registra a chegada e confere o resultado.</p>
+
+<h3>Passo 0 · Conta criada por ADMIN ou gerente</h3>
+<p><code>POST /users</code> com papel DRIVER e o bloco <code>driver</code> (CNH e validade). O servidor gera a API key e a devolve <b>uma única vez</b>; o gestor a entrega à motorista. O perfil de motorista nasce junto com o usuário.</p>
+
+<h3>Passo 1 · Login</h3>
+<p><code>POST /auth/login</code> com o header <code>x-api-key</code> e o body abaixo. <span class="tag t-ok">200</span></p>
+<pre>{ "email": "&lt;email&gt;", "password": "&lt;senha&gt;" }</pre>
+<p>A resposta traz o <code>accessToken</code> (JWT) e o <code>user</code>, com <code>permissions</code> e <code>driverId</code>. Daqui em diante: <code>Authorization: Bearer &lt;accessToken&gt;</code>.</p>
+
+<h3>Passo 2 · Conferir o próprio perfil</h3>
+<p><code>GET /users/me</code> devolve papel, permissões efetivas e o <code>driverId</code> que será usado nos próximos passos. <span class="tag t-ok">200</span></p>
+
+<h3>Passo 3 · Planejar a viagem</h3>
+<p><code>POST /trips</code> <span class="tag t-ok">201</span></p>
+<pre>{ "driverId": "&lt;driverId&gt;", "vehicleId": "&lt;id do veículo disponível&gt;",
+  "startLocation": "01310-100", "endLocation": "20040-020" }</pre>
+<p>Os CEPs são validados no ViaCEP. A viagem nasce <b>PLANNED</b>, o veículo passa a <b>IN_USE</b> e o km inicial é o hodômetro atual do veículo (sem o motorista informar km).</p>
+
+<h3>Passo 4 · Iniciar a viagem</h3>
+<p><code>PATCH /trips/:id/start</code>, <b>sem body</b>. <span class="tag t-ok">200</span> A viagem vai para <b>IN_PROGRESS</b>.</p>
+
+<h3>Passo 5 · Abastecer no caminho</h3>
+<p><code>POST /refuelings</code> <span class="tag t-ok">201</span></p>
+<pre>{ "vehicleId": "&lt;id&gt;", "driverId": "&lt;driverId&gt;",
+  "litersAdded": 10.5, "costPerLiter": 5.12, "fuelType": "GASOLINE" }</pre>
+<p>O custo total é calculado pelo sistema. O abastecimento guarda o hodômetro do momento e <b>não altera</b> o hodômetro do veículo.</p>
+
+<h3>Passo 6 · Registrar um incidente (se houver)</h3>
+<p><code>POST /incidents</code> (multipart/form-data) com veículo, motorista, tipo, gravidade, descrição e, opcionalmente, uma foto. <span class="tag t-ok">201</span></p>
+
+<h3>Passo 7 · Finalizar a viagem</h3>
+<p><code>PATCH /trips/:id/end</code> <span class="tag t-ok">200</span></p>
+<pre>{ "endKm": 120, "endLocation": "20040-020" }</pre>
+<p><code>endKm</code> são os <b>km rodados</b>. O servidor soma ao hodômetro do veículo (ex.: 82000 + 120 = 82120), conclui a viagem (<b>COMPLETED</b>) e devolve o veículo para <b>AVAILABLE</b>. A resposta traz o hodômetro final e o <code>distanceKm</code>.</p>
+
+<h3>Passo 8 · Consultar o resultado</h3>
+<p><code>GET /trips/:id</code> mostra a viagem concluída; <code>GET /trips</code> lista <b>somente as viagens da própria motorista</b>. <span class="tag t-ok">200</span></p>
+
+<h3>Alternativa · Cancelar</h3>
+<p>Se a viagem não vai acontecer: <code>PATCH /trips/:id/cancel</code> (permitido antes de concluir). A viagem fica <b>CANCELLED</b> e o veículo é liberado.</p>
+
+<h3>Resumo do ciclo</h3>
+<table>
+  <tr><th>Estado</th><th>Como chega</th><th>Veículo</th><th>Hodômetro</th></tr>
+  <tr><td>PLANNED</td><td><code>POST /trips</code></td><td>IN_USE</td><td>Igual ao do veículo (km inicial provisório)</td></tr>
+  <tr><td>IN_PROGRESS</td><td><code>PATCH .../start</code></td><td>IN_USE</td><td>Não muda</td></tr>
+  <tr><td>COMPLETED</td><td><code>PATCH .../end</code></td><td>AVAILABLE</td><td>Soma os km rodados</td></tr>
+  <tr><td>CANCELLED</td><td><code>PATCH .../cancel</code></td><td>AVAILABLE</td><td>Não muda</td></tr>
+</table>
+</div>
+
+<h2 class="quebra">Parte 3 · Principais regras de negócio</h2>
+
+<h3>Regras gerais do sistema</h3>
+<ul>
+  <li><b>Sem cadastro público.</b> Toda conta nasce em <code>POST /users</code>, feito por ADMIN ou por quem tem a permissão <code>USER_CREATE</code>. O motorista nasce junto com o usuário.</li>
+  <li><b>Acesso em duas camadas.</b> Login com API key + e-mail + senha; depois JWT. A API key é guardada apenas como hash e mostrada uma única vez. Renovar a própria chave exige a senha.</li>
+  <li><b>Permissões por papel e por delegação.</b> Cada papel tem um conjunto de permissões; o ADMIN pode conceder ou retirar permissões individuais de um usuário.</li>
+  <li><b>Regras no banco, não só na aplicação.</b> O ciclo da viagem, abastecimento e incidente rodam em procedures; triggers e CHECKs bloqueiam dados inválidos mesmo em escrita direta.</li>
+  <li><b>Hodômetro só muda por viagens.</b> Cadastro do veículo define o valor inicial; depois, só o fim de uma viagem soma km. Editar o hodômetro de um veículo em uso é bloqueado.</li>
+  <li><b>Uma viagem ativa por vez.</b> Um veículo e um motorista só podem ter uma viagem ativa cada; veículo em manutenção, fora de serviço, em uso ou inativo não viaja; CNH vencida bloqueia o motorista.</li>
+  <li><b>Endereços validados.</b> Os CEPs de viagem e o local inicial do veículo passam pelo ViaCEP; falha da API externa é 502/504, nunca "CEP inválido".</li>
+  <li><b>Soft delete e restauração.</b> Apagar comum é reversível (o registro fica inativo); restaurar é permissão própria. Deleção total é exclusiva do ADMIN e bloqueada quando há dependências (por exemplo, veículo com viagens); abastecimentos de um veículo apagado saem em cascata.</li>
+  <li><b>Auditoria imutável.</b> Mudanças em viagens, abastecimentos e incidentes geram registro em <code>audit_logs</code>, que não aceita alteração nem exclusão (só o autor pode ser anonimizado quando o usuário é apagado de vez).</li>
+  <li><b>Erros padronizados</b> (RFC 7807), limite de requisições e logs sem dados sensíveis.</li>
+</ul>
+
+<h3>Regras por cargo</h3>
+<table>
+  <tr><th style="width:18%">Cargo</th><th>O que pode</th><th style="width:34%">O que não pode</th></tr>
+  <tr><td><b>Motorista</b><br>(DRIVER)</td><td>Fazer login; ver o próprio perfil; criar, iniciar, finalizar e cancelar as <b>próprias</b> viagens; registrar abastecimentos e incidentes com o <b>próprio</b> perfil; consultar apenas os próprios dados.</td><td>Ver dados de outros motoristas (recebe 404); cadastrar veículos ou usuários; trocar papel; apagar de vez.</td></tr>
+  <tr><td><b>Gerente de Frota</b><br>(FLEET_MANAGER)</td><td>Gerir veículos, manutenções, viagens, abastecimentos e incidentes de toda a frota; ver indicadores (analytics); criar contas de <b>motorista</b>; usar as permissões que o ADMIN delegar (ex.: listar usuários).</td><td>Criar gerente ou ADMIN; trocar papéis; mexer em contas ADMIN; deleção total; reemitir API key de outro usuário.</td></tr>
+  <tr><td><b>Administrador</b><br>(ADMIN)</td><td>Tudo: criar contas de qualquer papel; promover usuários; delegar e retirar permissões; reemitir API key; deleção total; consultar auditoria e todos os dados.</td><td>Rebaixar papel (a troca só sobe, e ninguém muda o próprio); desativar ou apagar outro ADMIN ou a si mesmo.</td></tr>
+</table>
+
+<h3>Regras de proteção de contas</h3>
+<ul>
+  <li><b>Contas ADMIN são protegidas:</b> quem não é ADMIN nunca altera uma conta ADMIN, mesmo com permissão delegada.</li>
+  <li><b>A troca de papel só sobe</b> (por exemplo, DRIVER para FLEET_MANAGER). Uma promoção errada só se desfaz desativando a conta.</li>
+  <li><b>Motorista sai de circulação</b> pelo soft delete; a conta desativada perde o acesso na hora.</li>
+</ul>
+
+</body>
+</html>

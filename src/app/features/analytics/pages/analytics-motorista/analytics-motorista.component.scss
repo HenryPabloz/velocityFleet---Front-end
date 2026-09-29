@@ -1,0 +1,16 @@
+.vf-analytics-seletor {
+  max-width: 40rem;
+  margin-bottom: var(--vf-espaco-4);
+}
+
+.vf-analytics-kpis-motorista {
+  margin-bottom: var(--vf-espaco-5);
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.vf-analytics-cabeca-grafico {
+  margin-bottom: var(--vf-espaco-3);
+}

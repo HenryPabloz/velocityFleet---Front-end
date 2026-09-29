@@ -1,0 +1,16 @@
+// Fundo asfalto fixo. As cores escuras do login vêm de styles/pages/_auth.scss.
+.layout-auth {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--vf-espaco-4);
+  background: #0b0c0f;
+
+  &__conteudo {
+    width: 100%;
+
+    &:focus {
+      outline: none;
+    }
+  }
+}

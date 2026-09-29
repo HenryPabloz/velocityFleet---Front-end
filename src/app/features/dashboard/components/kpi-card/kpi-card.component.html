@@ -1,0 +1,54 @@
+<article
+  class="vf-kpi"
+  [attr.data-kpi]="chave"
+  [attr.data-situacao]="situacao"
+  [attr.aria-labelledby]="'kpi-rotulo-' + chave"
+  [attr.aria-busy]="situacao === 'carregando'"
+>
+  <header class="vf-kpi__cabeca">
+    <app-icone [nome]="icone" [tamanho]="18"></app-icone>
+    <h3 class="vf-kpi__rotulo" [id]="'kpi-rotulo-' + chave">{{ rotulo }}</h3>
+  </header>
+
+  @switch (situacao) {
+    @case ('carregando') {
+      <div class="vf-kpi__esqueleto" aria-hidden="true">
+        <span class="vf-esqueleto vf-esqueleto--valor"></span>
+        <span class="vf-esqueleto vf-esqueleto--linha"></span>
+      </div>
+      <span class="visually-hidden">{{ 'DASHBOARD.ESTADO.CARREGANDO' | translate }}</span>
+    }
+    @case ('pronto') {
+      <p class="vf-kpi__linha-valor">
+        @if (valorNumero !== null) {
+          <span
+            class="vf-kpi__valor"
+            [appContador]="valorNumero"
+            [casasDecimais]="casasDecimais"
+          ></span>
+        } @else {
+          <span class="vf-kpi__valor vf-kpi__valor--texto">{{ valorTexto }}</span>
+        }
+        @if (unidade) {
+          <span class="vf-kpi__unidade dado-mono">{{ unidade }}</span>
+        }
+      </p>
+      @if (dica) {
+        <p class="vf-kpi__dica">{{ dica }}</p>
+      }
+      <ng-content></ng-content>
+    }
+    @case ('erro') {
+      <app-estado-bloco tipo="erro" (tentarNovamente)="tentarNovamente.emit()"></app-estado-bloco>
+    }
+    @case ('limite') {
+      <app-estado-bloco tipo="limite" (tentarNovamente)="tentarNovamente.emit()"></app-estado-bloco>
+    }
+    @case ('sem-acesso') {
+      <app-estado-bloco
+        tipo="sem-acesso"
+        [mensagemSemAcesso]="mensagemSemAcesso"
+      ></app-estado-bloco>
+    }
+  }
+</article>

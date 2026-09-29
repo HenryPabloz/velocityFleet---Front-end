@@ -1,0 +1,113 @@
+<div class="vf-pagina animar-surgir" id="pagina-motorista-detalhe">
+  <app-abas-frota></app-abas-frota>
+
+  @if (estado === 'ok' && motorista) {
+    <app-cabecalho-pagina
+      [etiqueta]="'MOTORISTAS.DETALHE_ETIQUETA' | translate"
+      [titulo]="nome"
+      rotaVoltar="/fleet/drivers"
+      [rotuloVoltar]="'MOTORISTAS.VOLTAR' | translate"
+    >
+      @if (podeExcluir) {
+        <button class="btn btn-perigo btn-outline-secondary" type="button" id="botao-excluir-motorista" (click)="excluir()">
+          <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+          {{ 'COMUM.EXCLUIR' | translate }}
+        </button>
+      }
+    </app-cabecalho-pagina>
+  } @else {
+    <app-cabecalho-pagina
+      [titulo]="'PAGINAS.MOTORISTAS_DETALHE' | translate"
+      rotaVoltar="/fleet/drivers"
+      [rotuloVoltar]="'MOTORISTAS.VOLTAR' | translate"
+    ></app-cabecalho-pagina>
+  }
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-motorista" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar()"
+  >
+    @if (motorista) {
+      @if (situacao !== 'VALIDA' && motorista.isActive) {
+        <p class="vf-aviso vf-aviso--aviso" role="status" id="aviso-cnh">
+          <app-icone nome="relogio" [tamanho]="18"></app-icone>
+          <span>
+            @if (situacao === 'VENCIDA') {
+              <strong class="vf-aviso__titulo">{{ 'MOTORISTAS.AVISO_VENCIDA' | translate }}</strong>
+              {{ 'MOTORISTAS.AVISO_VENCIDA_TEXTO' | translate }}
+            } @else {
+              <strong class="vf-aviso__titulo">{{
+                'MOTORISTAS.AVISO_VENCENDO' | translate: { dias: diasRestantes }
+              }}</strong>
+              {{ 'MOTORISTAS.AVISO_VENCENDO_TEXTO' | translate }}
+            }
+          </span>
+        </p>
+      }
+
+      <section class="vf-bloco" aria-labelledby="titulo-dados-motorista">
+        <h2 class="visually-hidden" id="titulo-dados-motorista">{{ 'MOTORISTAS.DADOS' | translate }}</h2>
+        <dl class="vf-detalhes">
+          <div>
+            <dt>{{ 'MOTORISTAS.COL_NOME' | translate }}</dt>
+            <dd>{{ nome }}</dd>
+          </div>
+          @if (usuario) {
+            <div>
+              <dt>{{ 'MOTORISTAS.EMAIL' | translate }}</dt>
+              <dd>{{ usuario.email }}</dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'MOTORISTAS.COL_CNH' | translate }}</dt>
+            <dd class="dado-mono">{{ motorista.licenseNumber }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'MOTORISTAS.COL_VALIDADE' | translate }}</dt>
+            <dd class="dado-mono">{{ motorista.licenseExpiry | dataCurta }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'MOTORISTAS.COL_SITUACAO' | translate }}</dt>
+            <dd><app-selo-status tipo="cnh" [valor]="situacao"></app-selo-status></dd>
+          </div>
+          <div>
+            <dt>{{ 'MOTORISTAS.COL_ATIVO' | translate }}</dt>
+            <dd>
+              @if (motorista.isActive) {
+                <app-selo-status tipo="ativo" valor="ATIVO"></app-selo-status>
+              } @else {
+                <app-selo-status tipo="ativo" valor="INATIVO"></app-selo-status>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'MOTORISTAS.CADASTRADO_EM' | translate }}</dt>
+            <dd class="dado-mono">{{ motorista.createdAt | dataCurta }}</dd>
+          </div>
+        </dl>
+        @if (podeVerViagens) {
+        <div class="vf-botoes">
+          <a
+            class="btn btn-outline-secondary"
+            id="botao-ver-viagens-motorista"
+            routerLink="/trips"
+            [queryParams]="{ driverId: motorista.id }"
+          >
+            <app-icone nome="viagens" [tamanho]="16"></app-icone>
+            {{ 'MOTORISTAS.VER_VIAGENS' | translate }}
+          </a>
+        </div>
+        }
+      </section>
+    }
+  </app-estado-pagina>
+</div>

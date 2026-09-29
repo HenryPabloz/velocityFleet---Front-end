@@ -1,0 +1,226 @@
+<div class="vf-pagina animar-surgir" id="pagina-veiculos">
+  <app-abas-frota></app-abas-frota>
+
+  <app-cabecalho-pagina
+    [etiqueta]="'VEICULOS.ETIQUETA' | translate"
+    [titulo]="chaveTitulo | translate"
+    [subtitulo]="chaveSubtitulo | translate"
+  >
+    <app-abas-removidos
+      recurso="VEHICLE"
+      [removidos]="verExcluidos"
+      [rotuloAtivos]="'VEICULOS.ABA_ATIVOS' | translate"
+      [rotuloRemovidos]="'VEICULOS.ABA_REMOVIDOS' | translate"
+      (mudou)="mudarAba($event)"
+    ></app-abas-removidos>
+    @if (podeCriar) {
+      <a class="btn btn-primary" id="botao-novo-veiculo" routerLink="/fleet/vehicles/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'VEICULOS.NOVO' | translate }}
+      </a>
+    }
+  </app-cabecalho-pagina>
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-veiculos" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  @if (!verExcluidos) {
+    <details
+      class="vf-bloco vf-bloco--sem-regua vf-bloco--filtros"
+      id="filtros-veiculos"
+      [open]="filtrosAbertos"
+      (toggle)="aoAlternarFiltros($event)"
+    >
+      <summary class="vf-bloco__resumo">
+        <app-icone nome="busca" [tamanho]="18"></app-icone>
+        {{ 'COMUM.FILTROS' | translate }}
+        @if (quantidadeFiltrosAtivos > 0) {
+          <span class="vf-bloco__contagem" [attr.aria-label]="'COMUM.FILTROS_ATIVOS' | translate: { quantidade: quantidadeFiltrosAtivos }">{{
+            quantidadeFiltrosAtivos
+          }}</span>
+        }
+        <app-icone nome="seta-baixo" [tamanho]="18"></app-icone>
+      </summary>
+      <div class="vf-filtros">
+        <app-campo-formulario idCampo="filtro-status-veiculo" [rotulo]="'VEICULOS.FILTRO_STATUS' | translate">
+          <select
+            vfCampoEntrada
+            class="form-select"
+            [(ngModel)]="filtroStatus"
+            (ngModelChange)="mudarStatus()"
+          >
+            <option value="">{{ 'VEICULOS.TODOS_STATUS' | translate }}</option>
+            @for (status of statusDisponiveis; track status) {
+              <option [value]="status">{{ 'STATUS_VEICULO.' + status | translate }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        <app-campo-formulario idCampo="busca-placa" [rotulo]="'VEICULOS.FILTRO_PLACA' | translate">
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="search"
+            autocomplete="off"
+            maxlength="8"
+            [placeholder]="'VEICULOS.PLACEHOLDER_BUSCA' | translate"
+            [(ngModel)]="busca"
+            (ngModelChange)="aplicarFiltrosDoCliente()"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario idCampo="filtro-modelo-veiculo" [rotulo]="'VEICULOS.FILTRO_MODELO' | translate">
+          <select
+            vfCampoEntrada
+            class="form-select"
+            [(ngModel)]="filtroModelo"
+            (ngModelChange)="aplicarFiltrosDoCliente()"
+          >
+            <option value="">{{ 'VEICULOS.TODOS_MODELOS' | translate }}</option>
+            @for (modelo of modelosDaPagina; track modelo) {
+              <option [value]="modelo">{{ modelo }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        <app-campo-formulario idCampo="filtro-ano-de" [rotulo]="'VEICULOS.FILTRO_ANO_DE' | translate">
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="numeric"
+            min="1900"
+            max="2100"
+            [(ngModel)]="anoDe"
+            (ngModelChange)="aplicarFiltrosDoCliente()"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario idCampo="filtro-ano-ate" [rotulo]="'VEICULOS.FILTRO_ANO_ATE' | translate">
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="numeric"
+            min="1900"
+            max="2100"
+            [(ngModel)]="anoAte"
+            (ngModelChange)="aplicarFiltrosDoCliente()"
+          />
+        </app-campo-formulario>
+
+        <p class="vf-filtros__nota" id="nota-filtros-cliente">
+          <app-icone nome="info" [tamanho]="14"></app-icone>
+          {{ 'VEICULOS.NOTA_FILTROS' | translate: { quantidade: resposta?.data?.length ?? 0 } }}
+        </p>
+      </div>
+    </details>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [tituloVazio]="chaveTituloVazio | translate"
+    [textoVazio]="chaveTextoVazio | translate"
+    [linhasEsqueleto]="5"
+    (tentarNovamente)="carregar()"
+  >
+    @if (podeCriar && !verExcluidos) {
+      <a vazioAcao class="btn btn-primary" routerLink="/fleet/vehicles/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'VEICULOS.NOVO' | translate }}
+      </a>
+    }
+
+    @if (veiculosVisiveis.length === 0) {
+      <div class="vf-estado" role="status" id="vazio-filtros-veiculos">
+        <app-icone nome="busca" [tamanho]="28"></app-icone>
+        <p class="vf-estado__titulo">{{ 'VEICULOS.SEM_RESULTADO' | translate }}</p>
+        <button class="vf-botao-secundario" type="button" (click)="limparFiltrosDoCliente()">
+          {{ 'COMUM.LIMPAR_FILTROS' | translate }}
+        </button>
+      </div>
+    } @else {
+      <app-tabela-dados
+        idTabela="tabela-veiculos"
+        classeCartao="vf-veiculo-card"
+        [legenda]="'VEICULOS.LEGENDA' | translate"
+        [rotuloAcoes]="'COMUM.ACOES' | translate"
+        [colunas]="colunas"
+        [linhas]="veiculosVisiveis"
+      >
+        <ng-template #celula let-veiculo let-coluna="coluna">
+          @switch (coluna.chave) {
+            @case ('plate') {
+              <app-placa [placa]="veiculo.plate" tamanho="p"></app-placa>
+            }
+            @case ('model') {
+              {{ veiculo.model }}
+            }
+            @case ('year') {
+              <span class="dado-mono">{{ veiculo.year }}</span>
+            }
+            @case ('status') {
+              @if (estaInativo(veiculo)) {
+                <app-selo-status tipo="ativo" valor="INATIVO"></app-selo-status>
+              } @else {
+                <app-selo-status tipo="veiculo" [valor]="veiculo.status"></app-selo-status>
+              }
+            }
+            @case ('currentMileage') {
+              <span class="dado-mono">{{ veiculo.currentMileage | numero }} km</span>
+            }
+          }
+        </ng-template>
+
+        <ng-template #titulo let-veiculo>
+          <app-placa [placa]="veiculo.plate"></app-placa>
+          @if (estaInativo(veiculo)) {
+            <app-selo-status tipo="ativo" valor="INATIVO"></app-selo-status>
+          } @else {
+            <app-selo-status tipo="veiculo" [valor]="veiculo.status"></app-selo-status>
+          }
+        </ng-template>
+
+        <ng-template #acoes let-veiculo>
+          @if (!verExcluidos) {
+            <a class="vf-acao" data-acao="ver" [routerLink]="['/fleet/vehicles', veiculo.id]">
+              <app-icone nome="olho" [tamanho]="16"></app-icone>
+              <span class="vf-acao__texto">{{ 'COMUM.VER_DETALHES' | translate }}</span>
+            </a>
+            @if (podeEditar) {
+              <a class="vf-acao" data-acao="editar" [routerLink]="['/fleet/vehicles', veiculo.id, 'edit']">
+                <app-icone nome="editar" [tamanho]="16"></app-icone>
+                <span class="vf-acao__texto">{{ 'COMUM.EDITAR' | translate }}</span>
+              </a>
+            }
+            @if (podeAgendarManutencao) {
+              <a
+                class="vf-acao"
+                data-acao="agendar-manutencao"
+                routerLink="/maintenance/new"
+                [queryParams]="{ vehicleId: veiculo.id }"
+              >
+                <app-icone nome="manutencao" [tamanho]="16"></app-icone>
+                <span class="vf-acao__texto">{{ 'VEICULOS.AGENDAR_MANUTENCAO' | translate }}</span>
+              </a>
+            }
+          }
+          <app-acoes-remocao
+            recurso="VEHICLE"
+            [removido]="verExcluidos"
+            (excluir)="excluir(veiculo)"
+            (restaurar)="restaurar(veiculo)"
+            (excluirDefinitivo)="excluirDefinitivamente(veiculo)"
+          ></app-acoes-remocao>
+        </ng-template>
+      </app-tabela-dados>
+    }
+
+    <app-paginacao [paginacao]="resposta?.pagination ?? null" (paginaMudou)="mudarPagina($event)"></app-paginacao>
+  </app-estado-pagina>
+</div>

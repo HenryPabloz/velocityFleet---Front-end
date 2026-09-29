@@ -1,0 +1,179 @@
+<div class="vf-pagina animar-surgir" id="pagina-viagens">
+  <app-cabecalho-pagina
+    [etiqueta]="'VIAGENS.ETIQUETA' | translate"
+    [titulo]="'VIAGENS.TITULO' | translate"
+    [subtitulo]="'VIAGENS.SUBTITULO' | translate"
+  >
+    <app-abas-removidos
+      recurso="TRIP"
+      [removidos]="verRemovidas"
+      [rotuloAtivos]="'VIAGENS.ABA_ATIVAS' | translate"
+      [rotuloRemovidos]="'VIAGENS.ABA_REMOVIDAS' | translate"
+      (mudou)="mudarAba($event)"
+    ></app-abas-removidos>
+    @if (podeCriar) {
+      <a class="btn btn-primary" id="botao-nova-viagem" routerLink="/trips/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'VIAGENS.NOVA' | translate }}
+      </a>
+    }
+  </app-cabecalho-pagina>
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-viagens" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  @if (!verRemovidas) {
+  <details
+    class="vf-bloco vf-bloco--sem-regua vf-bloco--filtros"
+    id="filtros-viagens"
+    [open]="filtrosAbertos"
+    (toggle)="aoAlternarFiltros($event)"
+  >
+    <summary class="vf-bloco__resumo">
+      <app-icone nome="busca" [tamanho]="18"></app-icone>
+      {{ 'COMUM.FILTROS' | translate }}
+      @if (quantidadeFiltrosAtivos > 0) {
+        <span class="vf-bloco__contagem" [attr.aria-label]="'COMUM.FILTROS_ATIVOS' | translate: { quantidade: quantidadeFiltrosAtivos }">{{
+          quantidadeFiltrosAtivos
+        }}</span>
+      }
+      <app-icone nome="seta-baixo" [tamanho]="18"></app-icone>
+    </summary>
+    <div class="vf-filtros">
+      <app-campo-formulario idCampo="filtro-status-viagem" [rotulo]="'VIAGENS.FILTRO_STATUS' | translate">
+        <select vfCampoEntrada class="form-select" [(ngModel)]="filtroStatus" (ngModelChange)="mudarFiltro()">
+          <option value="">{{ 'VIAGENS.TODOS_STATUS' | translate }}</option>
+          @for (status of statusDisponiveis; track status) {
+            <option [value]="status">{{ 'STATUS_VIAGEM.' + status | translate }}</option>
+          }
+        </select>
+      </app-campo-formulario>
+
+      @if (podeVerTodas) {
+        <app-campo-formulario idCampo="filtro-motorista-viagem" [rotulo]="'VIAGENS.FILTRO_MOTORISTA' | translate">
+          <select
+            vfCampoEntrada
+            class="form-select"
+            [(ngModel)]="filtroMotorista"
+            (ngModelChange)="mudarFiltro()"
+          >
+            <option value="">{{ 'VIAGENS.TODOS_MOTORISTAS' | translate }}</option>
+            @for (motorista of listaMotoristas; track motorista.id) {
+              <option [value]="motorista.id">{{ rotuloMotorista(motorista) }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        <app-campo-formulario idCampo="filtro-veiculo-viagem" [rotulo]="'VIAGENS.FILTRO_VEICULO' | translate">
+          <select
+            vfCampoEntrada
+            class="form-select"
+            [(ngModel)]="filtroVeiculo"
+            (ngModelChange)="mudarFiltro()"
+          >
+            <option value="">{{ 'VIAGENS.TODOS_VEICULOS' | translate }}</option>
+            @for (veiculo of listaVeiculos; track veiculo.id) {
+              <option [value]="veiculo.id">{{ veiculo.plate | placa }} · {{ veiculo.model }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+      }
+    </div>
+  </details>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [tituloVazio]="chaveTituloVazio | translate"
+    [textoVazio]="chaveTextoVazio | translate"
+    [linhasEsqueleto]="5"
+    (tentarNovamente)="carregar()"
+  >
+    @if (temFiltro && !verRemovidas) {
+      <button vazioAcao class="vf-botao-secundario" type="button" (click)="limparFiltros()">
+        {{ 'COMUM.LIMPAR_FILTROS' | translate }}
+      </button>
+    }
+    @if (!temFiltro && !verRemovidas && podeCriar) {
+      <a vazioAcao class="btn btn-primary" routerLink="/trips/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'VIAGENS.NOVA' | translate }}
+      </a>
+    }
+
+    <app-tabela-dados
+      idTabela="tabela-viagens"
+      classeCartao="vf-viagem-card"
+      [legenda]="'VIAGENS.LEGENDA' | translate"
+      [rotuloAcoes]="'COMUM.ACOES' | translate"
+      [colunas]="colunas"
+      [linhas]="resposta?.data ?? []"
+    >
+      <ng-template #celula let-viagem let-coluna="coluna">
+        @switch (coluna.chave) {
+          @case ('startTime') {
+            <span class="dado-mono vf-data-hora">{{ viagem.startTime | dataHoraCurta }}</span>
+          }
+          @case ('vehicle') {
+            @if (placaDe(viagem)) {
+              <app-placa [placa]="placaDe(viagem)" tamanho="p"></app-placa>
+            } @else {
+              <span class="dado-mono">—</span>
+            }
+          }
+          @case ('driver') {
+            {{ nomeDe(viagem) }}
+          }
+          @case ('route') {
+            <span class="vf-rota-texto">
+              {{ viagem.startLocation }}
+              <app-icone nome="seta-direita" [tamanho]="14"></app-icone>
+              {{ viagem.endLocation }}
+            </span>
+          }
+          @case ('status') {
+            <app-selo-status tipo="viagem" [valor]="viagem.status"></app-selo-status>
+          }
+          @case ('km') {
+            @if (kmRodados(viagem) !== null) {
+              <span class="dado-mono">{{ kmRodados(viagem) | numero }} km</span>
+            } @else {
+              <span class="dado-mono" [attr.aria-label]="'VIAGENS.KM_PENDENTE' | translate">—</span>
+            }
+          }
+        }
+      </ng-template>
+
+      <ng-template #titulo let-viagem>
+        @if (placaDe(viagem)) {
+          <app-placa [placa]="placaDe(viagem)"></app-placa>
+        }
+        <app-selo-status tipo="viagem" [valor]="viagem.status"></app-selo-status>
+      </ng-template>
+
+      <ng-template #acoes let-viagem>
+        @if (!verRemovidas) {
+          <a class="vf-acao" data-acao="ver" [routerLink]="['/trips', viagem.id]">
+            <app-icone nome="olho" [tamanho]="16"></app-icone>
+            <span class="vf-acao__texto">{{ 'COMUM.VER_DETALHES' | translate }}</span>
+          </a>
+        }
+        <app-acoes-remocao
+          recurso="TRIP"
+          [removido]="verRemovidas"
+          [permitirExcluir]="podeExcluirLinha(viagem)"
+          (excluir)="excluir(viagem)"
+          (restaurar)="restaurar(viagem)"
+          (excluirDefinitivo)="excluirDefinitivamente(viagem)"
+        ></app-acoes-remocao>
+      </ng-template>
+    </app-tabela-dados>
+
+    <app-paginacao [paginacao]="resposta?.pagination ?? null" (paginaMudou)="mudarPagina($event)"></app-paginacao>
+  </app-estado-pagina>
+</div>

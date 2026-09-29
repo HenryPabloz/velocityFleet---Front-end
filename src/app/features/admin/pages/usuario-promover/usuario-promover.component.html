@@ -1,0 +1,94 @@
+<div class="vf-pagina animar-surgir" id="pagina-usuario-promover">
+  <app-cabecalho-pagina
+    [etiqueta]="'USUARIOS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.USUARIOS_PROMOVER' | translate"
+    [subtitulo]="'USUARIO_PROMOVER.SUBTITULO' | translate"
+    rotaVoltar="/admin/users"
+    [rotuloVoltar]="'USUARIO_FORM.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar()"
+  >
+    @if (usuario) {
+      <form
+        class="vf-bloco vf-bloco--formulario"
+        id="formulario-promover-role"
+        novalidate
+        [formGroup]="formulario"
+        [attr.aria-busy]="salvando"
+        (ngSubmit)="salvar()"
+      >
+        @if (chaveMotivoBloqueio) {
+          <p class="vf-aviso vf-aviso--aviso" id="aviso-promover-bloqueado" role="alert">
+            <app-icone nome="cadeado" [tamanho]="18"></app-icone>
+            <span>{{ chaveMotivoBloqueio | translate }}</span>
+          </p>
+        }
+
+        @if (erroGeral) {
+          <p class="vf-aviso vf-aviso--erro" id="alerta-erro-promover" role="alert" tabindex="-1">
+            <app-icone nome="alerta" [tamanho]="18"></app-icone>
+            <span>{{ erroGeral }}</span>
+          </p>
+        }
+
+        <dl class="vf-detalhes vf-promover-resumo">
+          <div>
+            <dt>{{ 'USUARIOS.COL_NOME' | translate }}</dt>
+            <dd>{{ usuario.fullName }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'USUARIOS.COL_EMAIL' | translate }}</dt>
+            <dd class="dado-mono">{{ usuario.email }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'USUARIO_PROMOVER.PAPEL_ATUAL' | translate }}</dt>
+            <dd>
+              @if (nomeDoPapelAtual) {
+                {{ 'PAPEIS.' + nomeDoPapelAtual | translate }}
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+        </dl>
+
+        @if (podePromover) {
+          <app-grupo-opcoes
+            idCampo="campo-promover-papel"
+            [legenda]="'USUARIO_PROMOVER.NOVO_PAPEL' | translate"
+            [ajuda]="'USUARIO_PROMOVER.AJUDA' | translate"
+            [obrigatorio]="true"
+            [opcoes]="opcoes"
+            [controle]="formulario.controls.papel"
+            [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+          ></app-grupo-opcoes>
+        } @else if (!chaveMotivoBloqueio) {
+          <p class="vf-aviso" id="aviso-sem-papel-acima" role="status">
+            <app-icone nome="info" [tamanho]="18"></app-icone>
+            <span>{{ 'USUARIO_PROMOVER.SEM_OPCAO' | translate }}</span>
+          </p>
+        }
+
+        <div class="vf-botoes">
+          <button
+            class="btn btn-primary"
+            type="submit"
+            id="botao-promover-role"
+            [disabled]="salvando || !podePromover"
+          >
+            <app-icone nome="subir" [tamanho]="16"></app-icone>
+            {{ chaveBotaoSalvar | translate }}
+          </button>
+          <a class="btn btn-outline-secondary" id="botao-cancelar-promover" routerLink="/admin/users">
+            {{ 'COMUM.CANCELAR' | translate }}
+          </a>
+        </div>
+      </form>
+    }
+  </app-estado-pagina>
+</div>

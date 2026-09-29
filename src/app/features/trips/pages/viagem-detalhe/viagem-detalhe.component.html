@@ -1,0 +1,204 @@
+<div class="vf-pagina animar-surgir" id="pagina-viagem-detalhe">
+  <app-cabecalho-pagina
+    [etiqueta]="'VIAGENS.DETALHE_ETIQUETA' | translate"
+    [titulo]="tituloRota"
+    rotaVoltar="/trips"
+    [rotuloVoltar]="'VIAGENS.VOLTAR' | translate"
+  >
+    @if (viagem) {
+      <app-selo-status tipo="viagem" [valor]="viagem.status"></app-selo-status>
+    }
+  </app-cabecalho-pagina>
+
+  @if (erroNegocio) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-negocio" role="alert" tabindex="-1">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>
+        <strong class="vf-aviso__titulo">{{ 'VIAGENS.ERRO_NEGOCIO_TITULO' | translate }}</strong>
+        {{ erroNegocio }}
+      </span>
+    </p>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar()"
+  >
+    @if (viagem) {
+      <section class="vf-bloco" aria-labelledby="titulo-andamento-viagem">
+        <h2 class="visually-hidden" id="titulo-andamento-viagem">{{ 'VIAGENS.ANDAMENTO' | translate }}</h2>
+        <ol class="vf-etapas" id="andamento-viagem">
+          @for (etapa of etapas; track etapa; let i = $index) {
+            <li
+              class="vf-etapas__item"
+              [class.vf-etapas__item--feita]="etapaFeita(i)"
+              [class.vf-etapas__item--atual]="etapaAtual(i)"
+              [attr.aria-current]="ariaEtapa(i)"
+            >
+              <span class="vf-etapas__marca">
+                <app-icone [nome]="iconeDaEtapa(etapa)" [tamanho]="18"></app-icone>
+              </span>
+              <span class="vf-etapas__rotulo">{{ 'STATUS_VIAGEM.' + etapa | translate }}</span>
+            </li>
+          }
+        </ol>
+        @if (cancelada) {
+          <p class="vf-aviso vf-aviso--erro vf-aviso-cancelada" role="status">
+            <app-icone nome="proibido" [tamanho]="18"></app-icone>
+            <span>{{ 'VIAGENS.AVISO_CANCELADA' | translate }}</span>
+          </p>
+        }
+      </section>
+
+      <section class="vf-bloco" aria-labelledby="titulo-dados-viagem">
+        <h2 class="visually-hidden" id="titulo-dados-viagem">{{ 'VIAGENS.DADOS' | translate }}</h2>
+        <div class="vf-rota-viagem">
+          <div class="vf-rota-viagem__ponto">
+            <app-icone nome="pino" [tamanho]="20"></app-icone>
+            <span class="vf-rota-viagem__rotulo">{{ 'VIAGENS.ORIGEM' | translate }}</span>
+            <strong id="local-origem">{{ viagem.startLocation }}</strong>
+          </div>
+          <span class="vf-rota-viagem__linha" aria-hidden="true"></span>
+          <div class="vf-rota-viagem__ponto">
+            <app-icone nome="bandeira" [tamanho]="20"></app-icone>
+            <span class="vf-rota-viagem__rotulo">{{ 'VIAGENS.DESTINO' | translate }}</span>
+            <strong id="local-destino">{{ viagem.endLocation }}</strong>
+          </div>
+        </div>
+
+        <dl class="vf-detalhes">
+          <div>
+            <dt>{{ 'VIAGENS.VEICULO' | translate }}</dt>
+            <dd>
+              @if (veiculo) {
+                <a class="vf-viagem-veiculo" [routerLink]="['/fleet/vehicles', veiculo.id]">
+                  <app-placa [placa]="placa" tamanho="p"></app-placa>
+                  {{ veiculo.model }}
+                </a>
+              } @else {
+                <span class="dado-mono">—</span>
+              }
+            </dd>
+          </div>
+          @if (podeVerMotorista) {
+            <div>
+              <dt>{{ 'VIAGENS.MOTORISTA' | translate }}</dt>
+              <dd>
+                @if (nomeMotorista) {
+                  <a [routerLink]="['/fleet/drivers', viagem.driverId]">{{ nomeMotorista }}</a>
+                } @else {
+                  <span class="dado-mono">—</span>
+                }
+              </dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'VIAGENS.COL_INICIO' | translate }}</dt>
+            <dd class="dado-mono">{{ viagem.startTime | dataHoraCurta }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'VIAGENS.FIM' | translate }}</dt>
+            <dd class="dado-mono">{{ viagem.endTime | dataHoraCurta }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'VIAGENS.HODOMETRO_INICIAL' | translate }}</dt>
+            <dd class="dado-mono">{{ viagem.startKm | numero }} km</dd>
+          </div>
+          <div>
+            <dt>{{ 'VIAGENS.HODOMETRO_FINAL' | translate }}</dt>
+            <dd class="dado-mono">
+              @if (viagem.endKm !== null) {
+                {{ viagem.endKm | numero }} km
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'VIAGENS.DISTANCIA' | translate }}</dt>
+            <dd class="dado-mono" id="distancia-viagem">
+              @if (distanciaKm !== null) {
+                {{ distanciaKm | numero }} km
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="vf-bloco" aria-labelledby="titulo-acoes-viagem" id="acoes-viagem">
+        <h2 class="vf-bloco__titulo" id="titulo-acoes-viagem">{{ 'VIAGENS.ACOES' | translate }}</h2>
+
+        @if (planejada) {
+          <div class="vf-botoes">
+            <button
+              class="btn btn-primary"
+              type="button"
+              id="botao-iniciar-viagem"
+              [disabled]="processando"
+              [attr.aria-busy]="processando"
+              (click)="iniciar()"
+            >
+              <app-icone nome="iniciar" [tamanho]="16"></app-icone>
+              {{ 'VIAGENS.INICIAR' | translate }}
+            </button>
+            <button
+              class="btn btn-perigo btn-outline-secondary"
+              type="button"
+              id="botao-cancelar-viagem"
+              [disabled]="processando"
+              (click)="cancelar()"
+            >
+              {{ 'VIAGENS.CANCELAR' | translate }}
+            </button>
+          </div>
+        }
+
+        @if (emAndamento) {
+          <div class="vf-botoes">
+            <button
+              class="btn btn-primary"
+              type="button"
+              id="botao-finalizar-viagem"
+              [disabled]="processando"
+              (click)="finalizar()"
+            >
+              <app-icone nome="bandeira" [tamanho]="16"></app-icone>
+              {{ 'VIAGENS.FINALIZAR' | translate }}
+            </button>
+            <button
+              class="btn btn-perigo btn-outline-secondary"
+              type="button"
+              id="botao-cancelar-viagem"
+              [disabled]="processando"
+              (click)="cancelar()"
+            >
+              {{ 'VIAGENS.CANCELAR' | translate }}
+            </button>
+          </div>
+        }
+
+        @if (encerrada) {
+          <p class="vf-acoes-encerrada">{{ 'VIAGENS.ENCERRADA' | translate }}</p>
+          @if (podeExcluir) {
+            <div class="vf-botoes">
+              <button
+                class="btn btn-perigo btn-outline-secondary"
+                type="button"
+                id="botao-excluir-viagem"
+                [disabled]="processando"
+                (click)="excluir()"
+              >
+                <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+                {{ 'VIAGENS.EXCLUIR' | translate }}
+              </button>
+            </div>
+          }
+        }
+      </section>
+    }
+  </app-estado-pagina>
+</div>

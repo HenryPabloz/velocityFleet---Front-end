@@ -1,0 +1,34 @@
+// Cards e modais: superfícies com raio grande, sombra suave e opção de vidro.
+.card {
+  --bs-card-bg: var(--vf-cor-superficie);
+  --bs-card-border-color: var(--vf-cor-borda);
+  --bs-card-border-radius: var(--vf-raio-md);
+  --bs-card-inner-border-radius: calc(var(--vf-raio-md) - 1px);
+  color: var(--vf-cor-texto);
+  box-shadow: var(--vf-sombra-sm);
+  transition:
+    box-shadow var(--vf-transicao-media),
+    transform var(--vf-transicao-media);
+}
+
+.card-interativo:hover {
+  box-shadow: var(--vf-sombra-md);
+  transform: translateY(-2px);
+}
+
+// Efeito vidro para painéis sobre fundos animados (ex: login).
+.superficie-vidro {
+  background: var(--vf-cor-vidro);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-lg);
+  box-shadow: var(--vf-sombra-lg);
+}
+
+.modal {
+  --bs-modal-bg: var(--vf-cor-superficie-elevada);
+  --bs-modal-color: var(--vf-cor-texto);
+  --bs-modal-border-color: var(--vf-cor-borda);
+  --bs-modal-border-radius: var(--vf-raio-lg);
+  --bs-modal-box-shadow: var(--vf-sombra-lg);
+}

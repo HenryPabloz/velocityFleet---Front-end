@@ -1,0 +1,116 @@
+// Cartões de escolha única. O rádio nativo fica escondido só na tela (continua focável e lido).
+.vf-grupo-opcoes {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+
+  &__legenda {
+    float: none;
+    width: auto;
+    margin: 0 0 var(--vf-espaco-2);
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  &__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+    gap: var(--vf-espaco-3);
+  }
+}
+
+.vf-opcao {
+  --vf-tom: var(--vf-cor-texto-suave);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--vf-espaco-2);
+  min-height: 48px;
+  padding: var(--vf-espaco-2) var(--vf-espaco-4);
+  border: 1.5px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md, 12px);
+  background: var(--vf-cor-superficie);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+
+  &:hover {
+    border-color: var(--vf-cor-destaque);
+    transform: translateY(-1px);
+  }
+
+  &__radio {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &__icone {
+    color: var(--vf-tom);
+  }
+
+  &__rotulo {
+    font-weight: 600;
+    font-size: var(--vf-texto-sm);
+  }
+
+  &--marcada {
+    border-color: var(--vf-cor-destaque);
+    background: color-mix(in srgb, var(--vf-cor-destaque) 9%, var(--vf-cor-superficie));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--vf-cor-destaque) 18%, transparent);
+  }
+
+  // Foco de teclado visível em volta do cartão inteiro.
+  &:has(.vf-opcao__radio:focus-visible) {
+    outline: 3px solid var(--vf-cor-destaque-texto);
+    outline-offset: 2px;
+  }
+
+  &[data-tom='ok'] {
+    --vf-tom: #17734a;
+  }
+
+  &[data-tom='aviso'] {
+    --vf-tom: #8a5a00;
+  }
+
+  &[data-tom='perigo'] {
+    --vf-tom: #c4222a;
+  }
+}
+
+.vf-grupo-opcoes--erro .vf-opcao:not(.vf-opcao--marcada) {
+  border-color: var(--vf-cor-destaque);
+}
+
+[data-theme='dark'] .vf-opcao {
+  &[data-tom='ok'] {
+    --vf-tom: #3fc98a;
+  }
+
+  &[data-tom='aviso'] {
+    --vf-tom: #f0b429;
+  }
+
+  &[data-tom='perigo'] {
+    --vf-tom: #ff6a70;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vf-opcao,
+  .vf-opcao:hover {
+    transition: none;
+    transform: none;
+  }
+}

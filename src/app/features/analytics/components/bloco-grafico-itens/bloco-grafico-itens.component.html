@@ -1,0 +1,50 @@
+<app-cartao-grafico
+  [idCartao]="idCartao"
+  [titulo]="titulo"
+  [subtitulo]="subtitulo"
+  [situacao]="situacao"
+  [vazio]="vazio"
+  [mensagemVazio]="mensagemVazio"
+  (tentarNovamente)="tentarNovamente.emit()"
+>
+  @if (verTabela) {
+    <div class="vf-tabela-envoltorio">
+      <table class="vf-tabela vf-tabela--compacta">
+        <caption class="visually-hidden">{{ titulo }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ rotuloColunaItem }}</th>
+            <th scope="col" class="vf-tabela__numero">{{ rotuloColunaTotal }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of itens; track item.chave) {
+            <tr>
+              <th scope="row">
+                <span class="vf-rotulo-icone">
+                  <app-icone [nome]="item.icone" [tamanho]="16"></app-icone>
+                  {{ item.rotulo }}
+                </span>
+              </th>
+              <td class="vf-tabela__numero dado-mono">{{ item.total }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else {
+    <div class="vf-grafico__area" role="img" [attr.aria-label]="resumo">
+      <app-grafico-apex [opcoes]="opcoes"></app-grafico-apex>
+    </div>
+    <ul class="vf-legenda">
+      @for (item of itens; track item.chave) {
+        <li class="vf-legenda__item" [attr.data-item]="item.chave">
+          <span class="vf-amostra" [style.background-color]="item.cor" aria-hidden="true"></span>
+          <app-icone [nome]="item.icone" [tamanho]="15"></app-icone>
+          <span class="vf-legenda__rotulo">{{ item.rotulo }}</span>
+          <span class="vf-legenda__total dado-mono">{{ item.total }}</span>
+        </li>
+      }
+    </ul>
+  }
+</app-cartao-grafico>

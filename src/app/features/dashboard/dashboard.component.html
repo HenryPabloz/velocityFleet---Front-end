@@ -1,0 +1,387 @@
+<div class="vf-dashboard animar-surgir" id="pagina-dashboard">
+  <header class="vf-dashboard__topo">
+    <div>
+      <p class="vf-dashboard__etiqueta dado-mono">{{ mesAtualTexto() }}</p>
+      <h1 class="vf-dashboard__titulo">
+        @if (ehMotorista) {
+          {{ 'DASHBOARD.TITULO_MOTORISTA' | translate }}
+        } @else {
+          {{ 'DASHBOARD.TITULO_GESTAO' | translate }}
+        }
+      </h1>
+    </div>
+    <div class="vf-dashboard__acoes">
+      @if (atualizadoEm) {
+        <p class="vf-dashboard__atualizado dado-mono">
+          {{ 'DASHBOARD.ATUALIZADO_AS' | translate: { hora: formatarHora(atualizadoEm) } }}
+        </p>
+      }
+      <button
+        class="vf-botao-secundario"
+        id="botao-atualizar-painel"
+        type="button"
+        (click)="atualizarPainel()"
+      >
+        <app-icone nome="atualizar" [tamanho]="16"></app-icone>
+        {{ 'DASHBOARD.ATUALIZAR' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <section aria-labelledby="titulo-indicadores">
+    <h2 class="visually-hidden" id="titulo-indicadores">
+      {{ 'DASHBOARD.TITULO_INDICADORES' | translate }}
+    </h2>
+    <div class="vf-kpis" id="painel-kpis">
+      @if (ehMotorista) {
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="viagens-mes"
+          icone="viagens"
+          [rotulo]="'DASHBOARD.KPI.VIAGENS_MES.ROTULO' | translate"
+          [situacao]="viagensMes.situacao"
+          [valorNumero]="viagensMes.dados?.total ?? null"
+          [dica]="dicaViagensMes()"
+          (tentarNovamente)="tentarNovamente('viagensMes')"
+        ></app-kpi-card>
+
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="km-mes"
+          icone="velocimetro"
+          unidade="km"
+          [rotulo]="'DASHBOARD.KPI.KM_MES.ROTULO' | translate"
+          [situacao]="viagensMes.situacao"
+          [valorNumero]="viagensMes.dados?.km ?? null"
+          [dica]="dicaKmMes()"
+          (tentarNovamente)="tentarNovamente('viagensMes')"
+        ></app-kpi-card>
+
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="incidentes-mes"
+          icone="incidentes"
+          [rotulo]="'DASHBOARD.KPI.INCIDENTES_MES.ROTULO' | translate"
+          [situacao]="incidentesMes.situacao"
+          [valorNumero]="incidentesMes.dados?.total ?? null"
+          [dica]="dicaIncidentesMes()"
+          (tentarNovamente)="tentarNovamente('incidentesMes')"
+        ></app-kpi-card>
+
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="proxima-manutencao"
+          icone="manutencao"
+          [rotulo]="'DASHBOARD.KPI.PROXIMA_MANUTENCAO.ROTULO' | translate"
+          [situacao]="proximaManutencao.situacao"
+          [valorTexto]="valorProximaManutencao()"
+          [dica]="dicaProximaManutencao()"
+          [mensagemSemAcesso]="'DASHBOARD.KPI.PROXIMA_MANUTENCAO.INDISPONIVEL' | translate"
+          (tentarNovamente)="tentarNovamente('proximaManutencao')"
+        ></app-kpi-card>
+      }
+
+      @if (ehGestao) {
+        <app-kpi-card
+          class="vf-kpis__item vf-kpis__item--largo"
+          chave="frota-status"
+          icone="frota"
+          [unidade]="'DASHBOARD.KPI.FROTA_STATUS.UNIDADE' | translate"
+          [rotulo]="'DASHBOARD.KPI.FROTA_STATUS.ROTULO' | translate"
+          [situacao]="graficoStatus.situacao"
+          [valorNumero]="totalDaFrota()"
+          (tentarNovamente)="tentarNovamente('frotaStatus')"
+        >
+          <ul class="vf-mini-status" aria-label="{{ 'DASHBOARD.KPI.FROTA_STATUS.DETALHE' | translate }}">
+            @for (item of graficoStatus.itens; track item.chave) {
+              <li class="vf-mini-status__item" [attr.data-status]="item.chave">
+                <span class="vf-amostra" [style.background-color]="item.cor" aria-hidden="true"></span>
+                <app-icone [nome]="item.icone" [tamanho]="14"></app-icone>
+                <span class="vf-mini-status__rotulo">{{ item.rotulo }}</span>
+                <span class="vf-mini-status__total dado-mono">{{ item.total }}</span>
+              </li>
+            }
+          </ul>
+        </app-kpi-card>
+
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="consumo-total"
+          icone="abastecimentos"
+          unidade="L"
+          [casasDecimais]="1"
+          [rotulo]="'DASHBOARD.KPI.CONSUMO_TOTAL.ROTULO' | translate"
+          [situacao]="consumoTotal.situacao"
+          [valorNumero]="consumoTotal.dados?.totalLiters ?? null"
+          [dica]="dicaConsumo()"
+          (tentarNovamente)="tentarNovamente('consumoTotal')"
+        ></app-kpi-card>
+
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="viagens-ativas"
+          icone="viagens"
+          [rotulo]="'DASHBOARD.KPI.VIAGENS_ATIVAS.ROTULO' | translate"
+          [situacao]="viagensAtivas.situacao"
+          [valorNumero]="viagensAtivas.dados"
+          [dica]="dicaViagensAtivas()"
+          (tentarNovamente)="tentarNovamente('viagensAtivas')"
+        ></app-kpi-card>
+      }
+
+      @if (verUsuarios) {
+        <app-kpi-card
+          class="vf-kpis__item vf-kpis__item--largo-admin"
+          chave="usuarios-ativos"
+          icone="usuarios"
+          [rotulo]="'DASHBOARD.KPI.USUARIOS_ATIVOS.ROTULO' | translate"
+          [situacao]="usuariosAtivos.situacao"
+          [valorNumero]="usuariosAtivos.dados?.ativos ?? null"
+          [dica]="dicaUsuarios()"
+          (tentarNovamente)="tentarNovamente('usuariosAtivos')"
+        ></app-kpi-card>
+      }
+
+      @if (verSaude) {
+        <app-kpi-card
+          class="vf-kpis__item vf-kpis__item--largo-admin"
+          chave="saude-sistema"
+          icone="pulso"
+          [rotulo]="'DASHBOARD.KPI.SAUDE_SISTEMA.ROTULO' | translate"
+          [situacao]="saudeSistema.situacao"
+          [valorTexto]="valorSaude()"
+          [dica]="dicaSaude()"
+          (tentarNovamente)="tentarNovamente('saudeSistema')"
+        ></app-kpi-card>
+      }
+    </div>
+  </section>
+
+  <section aria-labelledby="titulo-detalhes">
+    @if (ehGestao) {
+      <header class="vf-secao__cabeca">
+        <h2 class="vf-secao__titulo" id="titulo-detalhes">
+          {{ 'DASHBOARD.GRAFICOS.TITULO_SECAO' | translate }}
+        </h2>
+        <button
+          class="vf-botao-secundario"
+          id="botao-ver-tabela-grafico"
+          type="button"
+          aria-controls="grafico-km-mensal grafico-status-veiculos grafico-incidentes-severidade"
+          [attr.aria-pressed]="verTabela"
+          (click)="alternarTabela()"
+        >
+          <app-icone nome="tabela" [tamanho]="16"></app-icone>
+          {{ 'DASHBOARD.GRAFICOS.VER_TABELA' | translate }}
+        </button>
+      </header>
+    } @else {
+      <h2 class="visually-hidden" id="titulo-detalhes">
+        {{ 'DASHBOARD.TABELA.SECAO' | translate }}
+      </h2>
+    }
+
+    <div class="vf-grade">
+      @if (ehGestao) {
+        <app-cartao-grafico
+          class="vf-grade__km"
+          idCartao="grafico-km-mensal"
+          [titulo]="'DASHBOARD.GRAFICOS.KM_MENSAL.TITULO' | translate"
+          [subtitulo]="'DASHBOARD.GRAFICOS.KM_MENSAL.SUBTITULO' | translate"
+          [situacao]="graficoKm.situacao"
+          [vazio]="graficoKm.vazio"
+          [mensagemVazio]="'DASHBOARD.GRAFICOS.KM_MENSAL.VAZIO' | translate"
+          (tentarNovamente)="tentarNovamente('kmPorDia')"
+        >
+          @if (verTabela) {
+            <div class="vf-tabela-envoltorio">
+              <table class="vf-tabela vf-tabela--compacta">
+                <caption class="visually-hidden">
+                  {{ 'DASHBOARD.GRAFICOS.KM_MENSAL.TITULO' | translate }}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ 'DASHBOARD.GRAFICOS.KM_MENSAL.COL_MES' | translate }}</th>
+                    <th scope="col" class="vf-tabela__numero">
+                      {{ 'DASHBOARD.GRAFICOS.KM_MENSAL.COL_KM' | translate }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (linha of graficoKm.linhas; track linha.rotulo) {
+                    <tr>
+                      <th scope="row">{{ linha.rotulo }}</th>
+                      <td class="vf-tabela__numero dado-mono">{{ formatarNumero(linha.km, 0) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="vf-grafico__area" role="img" [attr.aria-label]="graficoKm.resumo">
+              <app-grafico-apex [opcoes]="graficoKm.opcoes"></app-grafico-apex>
+            </div>
+          }
+        </app-cartao-grafico>
+
+        <app-cartao-grafico
+          class="vf-grade__status"
+          idCartao="grafico-status-veiculos"
+          [titulo]="'DASHBOARD.GRAFICOS.STATUS.TITULO' | translate"
+          [subtitulo]="'DASHBOARD.GRAFICOS.STATUS.SUBTITULO' | translate"
+          [situacao]="graficoStatus.situacao"
+          [vazio]="graficoStatus.vazio"
+          [mensagemVazio]="'DASHBOARD.GRAFICOS.STATUS.VAZIO' | translate"
+          (tentarNovamente)="tentarNovamente('frotaStatus')"
+        >
+          @if (verTabela) {
+            <div class="vf-tabela-envoltorio">
+              <table class="vf-tabela vf-tabela--compacta">
+                <caption class="visually-hidden">
+                  {{ 'DASHBOARD.GRAFICOS.STATUS.TITULO' | translate }}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">{{ 'DASHBOARD.GRAFICOS.STATUS.COL_STATUS' | translate }}</th>
+                    <th scope="col" class="vf-tabela__numero">
+                      {{ 'DASHBOARD.GRAFICOS.STATUS.COL_VEICULOS' | translate }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of graficoStatus.itens; track item.chave) {
+                    <tr>
+                      <th scope="row">
+                        <span class="vf-rotulo-icone">
+                          <app-icone [nome]="item.icone" [tamanho]="16"></app-icone>
+                          {{ item.rotulo }}
+                        </span>
+                      </th>
+                      <td class="vf-tabela__numero dado-mono">{{ item.total }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="vf-grafico__area" role="img" [attr.aria-label]="graficoStatus.resumo">
+              <app-grafico-apex [opcoes]="graficoStatus.opcoes"></app-grafico-apex>
+            </div>
+            <ul class="vf-legenda">
+              @for (item of graficoStatus.itens; track item.chave) {
+                <li class="vf-legenda__item" [attr.data-status]="item.chave">
+                  <span class="vf-amostra" [style.background-color]="item.cor" aria-hidden="true"></span>
+                  <app-icone [nome]="item.icone" [tamanho]="15"></app-icone>
+                  <span class="vf-legenda__rotulo">{{ item.rotulo }}</span>
+                  <span class="vf-legenda__total dado-mono">{{ item.total }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </app-cartao-grafico>
+
+        <app-cartao-grafico
+          class="vf-grade__severidade"
+          idCartao="grafico-incidentes-severidade"
+          [titulo]="'DASHBOARD.GRAFICOS.SEVERIDADE.TITULO' | translate"
+          [subtitulo]="'DASHBOARD.GRAFICOS.SEVERIDADE.SUBTITULO' | translate"
+          [situacao]="graficoSeveridade.situacao"
+          [vazio]="graficoSeveridade.vazio"
+          [mensagemVazio]="'DASHBOARD.GRAFICOS.SEVERIDADE.VAZIO' | translate"
+          (tentarNovamente)="tentarNovamente('severidade')"
+        >
+          @if (verTabela) {
+            <div class="vf-tabela-envoltorio">
+              <table class="vf-tabela vf-tabela--compacta">
+                <caption class="visually-hidden">
+                  {{ 'DASHBOARD.GRAFICOS.SEVERIDADE.TITULO' | translate }}
+                </caption>
+                <thead>
+                  <tr>
+                    <th scope="col">
+                      {{ 'DASHBOARD.GRAFICOS.SEVERIDADE.COL_SEVERIDADE' | translate }}
+                    </th>
+                    <th scope="col" class="vf-tabela__numero">
+                      {{ 'DASHBOARD.GRAFICOS.SEVERIDADE.COL_INCIDENTES' | translate }}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (item of graficoSeveridade.itens; track item.chave) {
+                    <tr>
+                      <th scope="row">
+                        <span class="vf-rotulo-icone">
+                          <app-icone [nome]="item.icone" [tamanho]="16"></app-icone>
+                          {{ item.rotulo }}
+                        </span>
+                      </th>
+                      <td class="vf-tabela__numero dado-mono">{{ item.total }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="vf-grafico__area" role="img" [attr.aria-label]="graficoSeveridade.resumo">
+              <app-grafico-apex [opcoes]="graficoSeveridade.opcoes"></app-grafico-apex>
+            </div>
+          }
+        </app-cartao-grafico>
+      }
+
+      <app-cartao-grafico
+        class="vf-grade__viagens"
+        [class.vf-grade__viagens--inteira]="ehMotorista"
+        idCartao="tabela-ultimas-viagens"
+        [titulo]="'DASHBOARD.TABELA.TITULO' | translate"
+        [subtitulo]="subtituloTabelaViagens()"
+        [situacao]="ultimasViagens.situacao"
+        [vazio]="(ultimasViagens.dados?.length ?? 0) === 0"
+        [mensagemVazio]="'DASHBOARD.TABELA.VAZIO' | translate"
+        (tentarNovamente)="tentarNovamente('ultimasViagens')"
+      >
+        <div class="vf-tabela-envoltorio">
+          <table class="vf-tabela vf-tabela--viagens">
+            <caption class="visually-hidden">
+              {{ 'DASHBOARD.TABELA.TITULO' | translate }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ 'DASHBOARD.TABELA.COL_INICIO' | translate }}</th>
+                <th scope="col">{{ 'DASHBOARD.TABELA.COL_ROTA' | translate }}</th>
+                <th scope="col">{{ 'DASHBOARD.TABELA.COL_STATUS' | translate }}</th>
+                <th scope="col" class="vf-tabela__numero">{{ 'DASHBOARD.TABELA.COL_KM' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody id="corpo-ultimas-viagens">
+              @for (viagem of ultimasViagens.dados ?? []; track viagem.id) {
+                <tr class="vf-tabela__linha" [attr.data-viagem-id]="viagem.id" [attr.data-status]="viagem.status">
+                  <td class="dado-mono" [attr.data-rotulo]="'DASHBOARD.TABELA.COL_INICIO' | translate">
+                    {{ formatarDataHora(viagem.startTime) }}
+                  </td>
+                  <td class="vf-tabela__rota" [attr.data-rotulo]="'DASHBOARD.TABELA.COL_ROTA' | translate">
+                    <span class="vf-tabela__origem">{{ viagem.startLocation }}</span>
+                    <span class="vf-tabela__seta" aria-hidden="true">→</span>
+                    <span class="vf-tabela__destino">{{ viagem.endLocation }}</span>
+                  </td>
+                  <td [attr.data-rotulo]="'DASHBOARD.TABELA.COL_STATUS' | translate">
+                    <span class="vf-selo-status" [attr.data-status]="viagem.status">
+                      <app-icone [nome]="iconeDaViagem(viagem.status)" [tamanho]="14"></app-icone>
+                      {{ 'STATUS_VIAGEM.' + viagem.status | translate }}
+                    </span>
+                  </td>
+                  <td
+                    class="vf-tabela__numero dado-mono"
+                    [attr.data-rotulo]="'DASHBOARD.TABELA.COL_KM' | translate"
+                  >
+                    {{ kmDaViagem(viagem) }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </app-cartao-grafico>
+    </div>
+  </section>
+</div>

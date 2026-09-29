@@ -1,0 +1,32 @@
+// Tema claro (padrão). Também liga as variáveis do Bootstrap às cores da marca.
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+
+  --vf-cor-fundo: var(--vf-cinza-50);
+  --vf-cor-superficie: #ffffff;
+  --vf-cor-superficie-elevada: #ffffff;
+  --vf-cor-borda: var(--vf-cinza-200);
+  --vf-cor-texto: var(--vf-preto-900);
+  --vf-cor-texto-suave: var(--vf-cinza-600);
+  --vf-cor-destaque: var(--vf-vermelho-600);
+  --vf-cor-destaque-hover: var(--vf-vermelho-700);
+  --vf-cor-destaque-texto: var(--vf-vermelho-700);
+  --vf-cor-sobre-destaque: #ffffff;
+  --vf-cor-foco: var(--vf-vermelho-600);
+  --vf-cor-sombra: 14 14 17;
+  --vf-cor-vidro: rgb(255 255 255 / 0.72);
+
+  --bs-body-bg: var(--vf-cor-fundo);
+  --bs-body-color: var(--vf-cor-texto);
+  --bs-body-font-family: var(--vf-fonte-corpo);
+  --bs-secondary-color: var(--vf-cor-texto-suave);
+  --bs-border-color: var(--vf-cor-borda);
+  --bs-primary: var(--vf-vermelho-600);
+  --bs-primary-rgb: 212, 25, 32;
+  --bs-link-color: var(--vf-vermelho-700);
+  --bs-link-hover-color: var(--vf-vermelho-600);
+  --bs-border-radius: var(--vf-raio-sm);
+  --bs-border-radius-lg: var(--vf-raio-md);
+  --bs-border-radius-xl: var(--vf-raio-lg);
+}

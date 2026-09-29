@@ -1,0 +1,45 @@
+// Placa de veículo: sempre clara (é um objeto real), com contraste alto nos dois temas.
+.vf-placa {
+  --vf-placa-fonte: 1.125rem;
+
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid #1a1a1f;
+  border-radius: 7px;
+  background: #f7f7f2;
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.7) inset,
+    0 2px 6px rgb(0 0 0 / 0.18);
+  color: #14141a;
+  line-height: 1;
+
+  &__faixa {
+    padding: 2px 0;
+    background: #1b4aa0;
+    color: #fff;
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-align: center;
+    text-indent: 0.32em;
+  }
+
+  &__texto {
+    padding: 0.2em 0.55em 0.25em;
+    font-size: var(--vf-placa-fonte);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  &[data-tamanho='p'] {
+    --vf-placa-fonte: 0.9rem;
+  }
+
+  &[data-tamanho='g'] {
+    --vf-placa-fonte: 2rem;
+    border-radius: 10px;
+  }
+}

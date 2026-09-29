@@ -1,0 +1,54 @@
+// Selo de status. O texto usa a cor principal (contraste alto); o tom só colore ícone e fundo.
+.vf-badge-status {
+  --vf-tom: var(--vf-cor-texto-suave);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--vf-espaco-1);
+  padding: 3px var(--vf-espaco-3) 3px var(--vf-espaco-2);
+  border: 1px solid color-mix(in srgb, var(--vf-tom) 45%, var(--vf-cor-borda));
+  border-radius: var(--vf-raio-pilula);
+  background: color-mix(in srgb, var(--vf-tom) 10%, var(--vf-cor-superficie));
+  color: var(--vf-cor-texto);
+  font-size: var(--vf-texto-xs);
+  font-weight: 600;
+  white-space: nowrap;
+
+  app-icone {
+    color: var(--vf-tom);
+  }
+
+  &[data-tom='andamento'] {
+    --vf-tom: #1c5cab;
+  }
+
+  &[data-tom='ok'] {
+    --vf-tom: #17734a;
+  }
+
+  &[data-tom='aviso'] {
+    --vf-tom: #8a5a00;
+  }
+
+  &[data-tom='perigo'] {
+    --vf-tom: #c4222a;
+  }
+}
+
+[data-theme='dark'] .vf-badge-status {
+  &[data-tom='andamento'] {
+    --vf-tom: #6da7ec;
+  }
+
+  &[data-tom='ok'] {
+    --vf-tom: #3fc98a;
+  }
+
+  &[data-tom='aviso'] {
+    --vf-tom: #f0b429;
+  }
+
+  &[data-tom='perigo'] {
+    --vf-tom: #ff6a70;
+  }
+}

@@ -1,0 +1,75 @@
+<div class="vf-dados">
+  <table class="vf-tabela-dados" [attr.id]="idTabela || null">
+    <caption class="visually-hidden">{{ legenda }}</caption>
+    <thead>
+      <tr>
+        @for (coluna of colunas; track coluna.chave) {
+          <th scope="col" [class.vf-tabela-dados__direita]="coluna.alinharDireita">{{ coluna.rotulo | translate }}</th>
+        }
+        @if (acoes) {
+          <th scope="col"><span class="visually-hidden">{{ rotuloAcoes }}</span></th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (linha of linhas; track linha.id) {
+        <tr [attr.data-id]="linha.id">
+          @for (coluna of colunas; track coluna.chave) {
+            <td [class.vf-tabela-dados__direita]="coluna.alinharDireita">
+              <ng-container
+                [ngTemplateOutlet]="celula"
+                [ngTemplateOutletContext]="{ $implicit: linha, coluna: coluna }"
+              ></ng-container>
+            </td>
+          }
+          @if (acoes) {
+            <td class="vf-tabela-dados__acoes">
+              <ng-container
+                [ngTemplateOutlet]="acoes"
+                [ngTemplateOutletContext]="{ $implicit: linha }"
+              ></ng-container>
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <ul class="vf-cartoes">
+    @for (linha of linhas; track linha.id) {
+      <li class="vf-cartao {{ classeCartao }}" [attr.data-id]="linha.id">
+        @if (titulo) {
+          <div class="vf-cartao__topo">
+            <ng-container
+              [ngTemplateOutlet]="titulo"
+              [ngTemplateOutletContext]="{ $implicit: linha }"
+            ></ng-container>
+          </div>
+        }
+        <dl class="vf-cartao__dados">
+          @for (coluna of colunas; track coluna.chave) {
+            @if (!coluna.somenteTabela) {
+              <div class="vf-cartao__item">
+                <dt>{{ coluna.rotulo | translate }}</dt>
+                <dd>
+                  <ng-container
+                    [ngTemplateOutlet]="celula"
+                    [ngTemplateOutletContext]="{ $implicit: linha, coluna: coluna }"
+                  ></ng-container>
+                </dd>
+              </div>
+            }
+          }
+        </dl>
+        @if (acoes) {
+          <div class="vf-cartao__acoes">
+            <ng-container
+              [ngTemplateOutlet]="acoes"
+              [ngTemplateOutletContext]="{ $implicit: linha }"
+            ></ng-container>
+          </div>
+        }
+      </li>
+    }
+  </ul>
+</div>

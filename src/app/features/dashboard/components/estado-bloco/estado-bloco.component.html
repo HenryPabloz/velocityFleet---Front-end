@@ -1,0 +1,26 @@
+@if (tipo === 'erro' || tipo === 'limite') {
+  <div class="vf-card-erro" role="alert">
+    <app-icone nome="alerta" [tamanho]="20"></app-icone>
+    @if (tipo === 'limite') {
+      <p class="vf-card-erro__texto">{{ 'DASHBOARD.ESTADO.LIMITE' | translate }}</p>
+    } @else {
+      <p class="vf-card-erro__texto">{{ 'DASHBOARD.ESTADO.ERRO' | translate }}</p>
+    }
+    <button class="vf-botao-tentar-novamente" type="button" (click)="tentarNovamente.emit()">
+      <app-icone nome="atualizar" [tamanho]="16"></app-icone>
+      {{ 'DASHBOARD.ESTADO.TENTAR_NOVAMENTE' | translate }}
+    </button>
+  </div>
+} @else {
+  <div class="vf-sem-acesso" role="status">
+    <app-icone nome="cadeado" [tamanho]="20"></app-icone>
+    <p class="vf-sem-acesso__titulo">{{ 'DASHBOARD.ESTADO.SEM_ACESSO' | translate }}</p>
+    <p class="vf-sem-acesso__texto">
+      @if (mensagemSemAcesso) {
+        {{ mensagemSemAcesso }}
+      } @else {
+        {{ 'DASHBOARD.ESTADO.SEM_ACESSO_TEXTO' | translate }}
+      }
+    </p>
+  </div>
+}

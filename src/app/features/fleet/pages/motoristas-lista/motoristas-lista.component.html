@@ -1,0 +1,102 @@
+<div class="vf-pagina animar-surgir" id="pagina-motoristas">
+  <app-abas-frota></app-abas-frota>
+
+  <app-cabecalho-pagina
+    [etiqueta]="'MOTORISTAS.ETIQUETA' | translate"
+    [titulo]="chaveTitulo | translate"
+    [subtitulo]="'MOTORISTAS.SUBTITULO' | translate"
+  >
+    <app-abas-removidos
+      recurso="DRIVER"
+      [removidos]="verExcluidos"
+      [rotuloAtivos]="'MOTORISTAS.ABA_ATIVOS' | translate"
+      [rotuloRemovidos]="'MOTORISTAS.ABA_REMOVIDOS' | translate"
+      (mudou)="mudarAba($event)"
+    ></app-abas-removidos>
+  </app-cabecalho-pagina>
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-motoristas" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  @if (estado === 'ok' && !verExcluidos && (quantidadeVencidas > 0 || quantidadeVencendo > 0)) {
+    <p class="vf-aviso vf-aviso--aviso" id="resumo-cnh" role="status">
+      <app-icone nome="relogio" [tamanho]="18"></app-icone>
+      <span>
+        @if (quantidadeVencidas > 0) {
+          <strong>{{ 'MOTORISTAS.RESUMO_VENCIDAS' | translate: { quantidade: quantidadeVencidas } }}</strong>
+        }
+        @if (quantidadeVencendo > 0) {
+          {{ 'MOTORISTAS.RESUMO_VENCENDO' | translate: { quantidade: quantidadeVencendo } }}
+        }
+      </span>
+    </p>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [tituloVazio]="chaveTituloVazio | translate"
+    [textoVazio]="chaveTextoVazio | translate"
+    [linhasEsqueleto]="5"
+    (tentarNovamente)="carregar()"
+  >
+    <app-tabela-dados
+      idTabela="tabela-motoristas"
+      classeCartao="vf-motorista-card"
+      [legenda]="'MOTORISTAS.LEGENDA' | translate"
+      [rotuloAcoes]="'COMUM.ACOES' | translate"
+      [colunas]="colunas"
+      [linhas]="resposta?.data ?? []"
+    >
+      <ng-template #celula let-motorista let-coluna="coluna">
+        @switch (coluna.chave) {
+          @case ('nome') {
+            <strong>{{ nomeDe(motorista) }}</strong>
+          }
+          @case ('licenseNumber') {
+            <span class="dado-mono">{{ motorista.licenseNumber }}</span>
+          }
+          @case ('licenseExpiry') {
+            <span class="dado-mono">{{ motorista.licenseExpiry | dataCurta }}</span>
+          }
+          @case ('situacao') {
+            <app-selo-status tipo="cnh" [valor]="situacao(motorista)"></app-selo-status>
+          }
+          @case ('isActive') {
+            @if (motorista.isActive) {
+              <app-selo-status tipo="ativo" valor="ATIVO"></app-selo-status>
+            } @else {
+              <app-selo-status tipo="ativo" valor="INATIVO"></app-selo-status>
+            }
+          }
+        }
+      </ng-template>
+
+      <ng-template #titulo let-motorista>
+        <strong class="vf-motorista-nome">{{ nomeDe(motorista) }}</strong>
+      </ng-template>
+
+      <ng-template #acoes let-motorista>
+        @if (!verExcluidos) {
+          <a class="vf-acao" data-acao="ver" [routerLink]="['/fleet/drivers', motorista.id]">
+            <app-icone nome="olho" [tamanho]="16"></app-icone>
+            <span class="vf-acao__texto">{{ 'COMUM.VER_DETALHES' | translate }}</span>
+          </a>
+        }
+        <app-acoes-remocao
+          recurso="DRIVER"
+          [removido]="verExcluidos"
+          (excluir)="excluir(motorista)"
+          (restaurar)="restaurar(motorista)"
+          (excluirDefinitivo)="excluirDefinitivamente(motorista)"
+        ></app-acoes-remocao>
+      </ng-template>
+    </app-tabela-dados>
+
+    <app-paginacao [paginacao]="resposta?.pagination ?? null" (paginaMudou)="mudarPagina($event)"></app-paginacao>
+  </app-estado-pagina>
+</div>

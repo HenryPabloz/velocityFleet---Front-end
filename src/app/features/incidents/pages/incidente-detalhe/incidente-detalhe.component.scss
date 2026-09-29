@@ -1,0 +1,137 @@
+// Andamento do incidente: três passos numerados ligados por uma linha.
+.vf-etapas-incidente {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+    min-width: 0;
+    color: var(--vf-cor-texto-suave);
+    text-align: center;
+
+    &:not(:first-child)::before {
+      content: '';
+      position: absolute;
+      top: 21px;
+      right: 50%;
+      left: -50%;
+      height: 3px;
+      background: var(--vf-cor-borda);
+    }
+
+    &--feita,
+    &--atual {
+      color: var(--vf-cor-texto);
+    }
+
+    &--feita:not(:first-child)::before,
+    &--atual:not(:first-child)::before {
+      background: var(--vf-cor-destaque);
+    }
+  }
+
+  &__marca {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 3px solid var(--vf-cor-borda);
+    border-radius: 50%;
+    background: var(--vf-cor-superficie);
+    font-family: var(--vf-fonte-titulo);
+  }
+
+  &__item--feita &__marca {
+    border-color: var(--vf-cor-destaque);
+    background: var(--vf-cor-destaque);
+    color: var(--vf-cor-sobre-destaque);
+  }
+
+  &__item--atual &__marca {
+    border-color: var(--vf-cor-destaque);
+    color: var(--vf-cor-destaque-texto);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--vf-cor-destaque) 18%, transparent);
+  }
+
+  &__rotulo {
+    font-size: var(--vf-texto-sm);
+    font-weight: 600;
+  }
+}
+
+// Foto do incidente: miniatura grande que abre a imagem inteira em outra aba.
+.vf-foto-incidente {
+  display: inline-block;
+  max-width: 100%;
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md, 12px);
+  overflow: hidden;
+  box-shadow: 0 8px 24px color-mix(in srgb, #000 12%, transparent);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--vf-cor-destaque-texto);
+    outline-offset: 3px;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    max-height: 26rem;
+    object-fit: contain;
+  }
+
+  &__vazia {
+    display: flex;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+    margin: 0;
+    color: var(--vf-cor-texto-suave);
+  }
+}
+
+.vf-acoes-encerrada {
+  margin: 0;
+  color: var(--vf-cor-texto-suave);
+}
+
+// Escolha do novo status e botão lado a lado (empilhados no celular).
+.vf-mudar-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--vf-espaco-3);
+
+  app-campo-formulario {
+    flex: 1 1 16rem;
+  }
+
+  .btn {
+    margin-top: 1.9rem;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vf-foto-incidente {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}

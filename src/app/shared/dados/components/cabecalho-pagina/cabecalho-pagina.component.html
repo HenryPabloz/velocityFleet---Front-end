@@ -1,0 +1,20 @@
+<header class="vf-pagina__topo">
+  <div class="vf-pagina__texto">
+    @if (rotaVoltar) {
+      <a class="vf-pagina__voltar" [routerLink]="rotaVoltar">
+        <app-icone nome="seta-esquerda" [tamanho]="16"></app-icone>
+        {{ rotuloVoltar }}
+      </a>
+    }
+    @if (etiqueta) {
+      <p class="vf-pagina__etiqueta dado-mono">{{ etiqueta }}</p>
+    }
+    <h1 class="vf-pagina__titulo">{{ titulo }}</h1>
+    @if (subtitulo) {
+      <p class="vf-pagina__subtitulo">{{ subtitulo }}</p>
+    }
+  </div>
+  <div class="vf-pagina__acoes">
+    <ng-content></ng-content>
+  </div>
+</header>

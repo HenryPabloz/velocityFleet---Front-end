@@ -1,0 +1,95 @@
+// Casca do app: coluna da barra lateral + coluna do conteúdo.
+// Celular <768: sem barra fixa (vira gaveta) e bottom tab. Tablet 768-1199: barra só com ícones.
+@use '../utilities/responsive' as r;
+
+:root {
+  --vf-largura-barra-recolhida: 76px;
+  --vf-altura-cabecalho: 60px;
+}
+
+.vf-app {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  // Espaço para o bottom tab não cobrir o fim da página.
+  padding-bottom: calc(var(--vf-altura-bottom-tab) + env(safe-area-inset-bottom, 0px));
+
+  @include r.a-partir-de-tablet {
+    grid-template-columns: var(--vf-largura-sidebar) minmax(0, 1fr);
+    padding-bottom: 0;
+    transition: grid-template-columns var(--vf-transicao-media);
+  }
+
+  &--recolhida {
+    @include r.a-partir-de-tablet {
+      grid-template-columns: var(--vf-largura-barra-recolhida) minmax(0, 1fr);
+    }
+  }
+
+  &__coluna {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    // No celular desconta o bottom tab, para a página não rolar à toa.
+    min-height: calc(100dvh - var(--vf-altura-bottom-tab) - env(safe-area-inset-bottom, 0px));
+
+    @include r.a-partir-de-tablet {
+      min-height: 100dvh;
+    }
+  }
+
+  &__conteudo {
+    flex: 1;
+    padding: var(--vf-espaco-4);
+
+    &:focus {
+      outline: none;
+    }
+
+    @include r.a-partir-de-tablet {
+      padding: var(--vf-espaco-5) var(--vf-espaco-6);
+    }
+
+    @include r.a-partir-de-largo {
+      padding: var(--vf-espaco-6) var(--vf-espaco-7);
+    }
+  }
+
+  &__miolo {
+    max-width: 1440px;
+    margin-inline: auto;
+  }
+
+  // Fundo escuro atrás da gaveta do celular.
+  &__cortina {
+    position: fixed;
+    inset: 0;
+    z-index: 1035;
+    background: rgb(8 8 10 / 0.6);
+    animation: vf-cortina 200ms ease both;
+  }
+}
+
+@keyframes vf-cortina {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// TV (>=1920px): tudo em rem cresce 12,5% e o conteúdo ganha mais largura.
+@include r.a-partir-de-tv {
+  html {
+    font-size: 112.5%;
+  }
+
+  :root {
+    --vf-largura-sidebar: 288px;
+  }
+
+  .vf-app__miolo {
+    max-width: 1760px;
+  }
+}

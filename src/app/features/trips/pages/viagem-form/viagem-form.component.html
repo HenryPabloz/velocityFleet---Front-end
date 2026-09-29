@@ -1,0 +1,159 @@
+<div class="vf-pagina animar-surgir" id="pagina-viagem-form">
+  <app-cabecalho-pagina
+    [etiqueta]="'VIAGENS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.VIAGENS_NOVA' | translate"
+    [subtitulo]="'VIAGENS.SUBTITULO_NOVA' | translate"
+    rotaVoltar="/trips"
+    [rotuloVoltar]="'VIAGENS.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="4"
+    (tentarNovamente)="carregarOpcoes()"
+  >
+    <form
+      #formularioRef
+      class="vf-bloco vf-bloco--formulario"
+      id="formulario-viagem"
+      novalidate
+      [formGroup]="formulario"
+      [attr.aria-busy]="salvando"
+      (ngSubmit)="salvar()"
+    >
+      @if (semMotoristaVinculado) {
+        <p class="vf-aviso vf-aviso--aviso" id="aviso-sem-motorista" role="alert">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>
+            <strong class="vf-aviso__titulo">{{ 'VIAGENS.SEM_MOTORISTA_TITULO' | translate }}</strong>
+            {{ 'VIAGENS.SEM_MOTORISTA_TEXTO' | translate }}
+          </span>
+        </p>
+      }
+
+      @if (erroGeral) {
+        <p class="vf-aviso vf-aviso--erro" id="alerta-erro-negocio" role="alert" tabindex="-1">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>{{ erroGeral }}</span>
+        </p>
+      }
+
+      <div class="vf-grade-campos">
+        @if (escolheMotorista) {
+          <app-campo-formulario
+            idCampo="campo-viagem-motorista"
+            [rotulo]="'VIAGENS.MOTORISTA' | translate"
+            [ajuda]="chaveAjudaMotorista | translate"
+            [obrigatorio]="true"
+            [controle]="formulario.controls.motorista"
+            [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+          >
+            <select vfCampoEntrada class="form-select" formControlName="motorista">
+              <option value="">{{ 'VIAGENS.ESCOLHA_MOTORISTA' | translate }}</option>
+              @for (opcao of opcoesMotoristas; track opcao.id) {
+                <option [value]="opcao.id">{{ opcao.rotulo }}</option>
+              }
+            </select>
+          </app-campo-formulario>
+        } @else {
+          <app-campo-formulario
+            idCampo="campo-viagem-motorista"
+            [rotulo]="'VIAGENS.MOTORISTA' | translate"
+            [ajuda]="chaveAjudaMotorista | translate"
+          >
+            <p vfCampoEntrada class="form-control-plaintext vf-campo-somente-texto">
+              {{ meuNomeMotorista }}
+            </p>
+          </app-campo-formulario>
+        }
+
+        <app-campo-formulario
+          idCampo="campo-viagem-veiculo"
+          [rotulo]="'VIAGENS.VEICULO' | translate"
+          [ajuda]="chaveAjudaVeiculo | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.veiculo"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        >
+          <select vfCampoEntrada class="form-select dado-mono" formControlName="veiculo">
+            <option value="">{{ 'VIAGENS.ESCOLHA_VEICULO' | translate }}</option>
+            @for (opcao of opcoesVeiculos; track opcao.veiculo.id) {
+              <option [value]="opcao.veiculo.id">{{ opcao.rotulo }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        @if (veiculoEscolhido) {
+          <div class="vf-grade-campos__largo vf-veiculo-escolhido" id="info-veiculo-viagem" role="status">
+            <app-placa [placa]="veiculoEscolhido.plate" tamanho="p"></app-placa>
+            <app-selo-status tipo="veiculo" [valor]="veiculoEscolhido.status"></app-selo-status>
+            <span class="dado-mono">
+              {{ 'VIAGENS.KM_ATUAL_VEICULO' | translate }}: {{ veiculoEscolhido.currentMileage | numero }} km
+            </span>
+          </div>
+        }
+
+        <app-campo-formulario
+          idCampo="campo-viagem-cep-origem"
+          [rotulo]="'VIAGENS.CEP_ORIGEM' | translate"
+          [ajuda]="'VIAGENS.AJUDA_CEP' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.cepOrigem"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', cep: 'VIAGENS.ERRO_CEP' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="text"
+            inputmode="numeric"
+            maxlength="9"
+            autocomplete="postal-code"
+            placeholder="00000-000"
+            formControlName="cepOrigem"
+            (input)="mascararCampoCep('cepOrigem')"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-viagem-cep-destino"
+          [rotulo]="'VIAGENS.CEP_DESTINO' | translate"
+          [ajuda]="'VIAGENS.AJUDA_CEP' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.cepDestino"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', cep: 'VIAGENS.ERRO_CEP' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="text"
+            inputmode="numeric"
+            maxlength="9"
+            autocomplete="off"
+            placeholder="00000-000"
+            formControlName="cepDestino"
+            (input)="mascararCampoCep('cepDestino')"
+          />
+        </app-campo-formulario>
+      </div>
+
+      <div class="vf-botoes">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          id="botao-criar-viagem"
+          [disabled]="salvando || semMotoristaVinculado"
+        >
+          <app-icone nome="viagens" [tamanho]="16"></app-icone>
+          {{ chaveBotaoSalvar | translate }}
+        </button>
+        <a class="btn btn-outline-secondary" id="botao-cancelar-nova-viagem" routerLink="/trips">
+          {{ 'COMUM.CANCELAR' | translate }}
+        </a>
+      </div>
+      @if (salvando) {
+        <p class="vf-form-espera" role="status">{{ 'VIAGENS.VALIDANDO_CEP' | translate }}</p>
+      }
+    </form>
+  </app-estado-pagina>
+</div>

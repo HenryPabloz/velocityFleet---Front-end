@@ -1,0 +1,215 @@
+// Abaixo de 1200px: cards (1 coluna no celular, 2 no tablet). Acima: tabela.
+app-tabela-dados {
+  display: block;
+  min-width: 0;
+}
+
+.vf-dados {
+  min-width: 0;
+}
+
+.vf-tabela-dados {
+  display: none;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md);
+  background: var(--vf-cor-superficie);
+  box-shadow: var(--vf-sombra-sm);
+
+  th,
+  td {
+    padding: var(--vf-espaco-3) var(--vf-espaco-4);
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--vf-cor-borda);
+  }
+
+  thead th {
+    background: color-mix(in srgb, var(--vf-cor-borda) 30%, var(--vf-cor-superficie));
+    font-size: var(--vf-texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vf-cor-texto-suave);
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    transition: background-color var(--vf-transicao-rapida);
+
+    &:hover {
+      background: color-mix(in srgb, var(--vf-cor-borda) 22%, var(--vf-cor-superficie));
+    }
+
+    &:last-child td {
+      border-bottom: 0;
+    }
+  }
+
+  &__direita {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__acoes {
+    white-space: nowrap;
+    text-align: right !important;
+  }
+}
+
+.vf-cartoes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vf-espaco-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.vf-cartao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-3);
+  min-width: 0;
+  padding: var(--vf-espaco-4);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md);
+  background: var(--vf-cor-superficie);
+  box-shadow: var(--vf-sombra-sm);
+  transition:
+    box-shadow var(--vf-transicao-media),
+    transform var(--vf-transicao-media);
+
+  &:hover {
+    box-shadow: var(--vf-sombra-md);
+    transform: translateY(-2px);
+  }
+
+  &__topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+  }
+
+  &__dados {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--vf-espaco-3) var(--vf-espaco-4);
+    margin: 0;
+  }
+
+  &__item {
+    min-width: 0;
+
+    dt {
+      font-size: var(--vf-texto-xs);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--vf-cor-texto-suave);
+    }
+
+    dd {
+      margin: 2px 0 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  &__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--vf-espaco-2);
+    padding-top: var(--vf-espaco-3);
+    border-top: 1px solid var(--vf-cor-borda);
+  }
+}
+
+
+// Botão de ação da linha: só ícone na tabela, ícone + texto nos cards.
+.vf-acao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vf-espaco-2);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--vf-espaco-3);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-pilula);
+  background: var(--vf-cor-superficie);
+  color: var(--vf-cor-texto);
+  font-size: var(--vf-texto-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    border-color var(--vf-transicao-rapida),
+    background-color var(--vf-transicao-rapida);
+
+  &:hover {
+    border-color: var(--vf-cor-destaque);
+    color: var(--vf-cor-texto);
+  }
+
+  &--perigo {
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  // Ação protegida por regra de negócio (ex: conta ADMIN): continua visível, mas sem efeito.
+  &--bloqueada,
+  &--bloqueada:hover {
+    border-color: var(--vf-cor-borda);
+    background: transparent;
+    color: var(--vf-cor-texto-suave);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &__texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+.vf-tabela-dados__acoes {
+  // Vale para botões soltos e para os de dentro de app-acoes-remocao (host display: contents).
+  .vf-acao {
+    margin-left: var(--vf-espaco-1);
+  }
+}
+
+.vf-cartao .vf-acao__texto {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+}
+
+@media (min-width: 1200px) {
+  .vf-tabela-dados {
+    display: table;
+  }
+
+  .vf-cartoes {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vf-cartao:hover {
+    transform: none;
+  }
+}

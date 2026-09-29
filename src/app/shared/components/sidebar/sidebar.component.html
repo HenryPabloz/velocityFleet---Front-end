@@ -1,0 +1,81 @@
+<div
+  class="vf-barra"
+  id="barra-lateral"
+  [class.vf-barra--recolhida]="recolhida"
+  [class.vf-barra--gaveta-aberta]="gavetaAberta"
+  [attr.role]="papelDaGaveta"
+  [attr.aria-modal]="modalDaGaveta"
+  [attr.aria-label]="rotuloDaGaveta | translate"
+>
+  <div class="vf-barra__topo">
+    <a class="vf-marca" routerLink="/dashboard" [attr.aria-label]="'MENU.IR_DASHBOARD' | translate">
+      <span class="vf-marca__curta" aria-hidden="true">VF</span>
+      <span class="vf-marca__longa" aria-hidden="true">Velocity<span>Fleet</span></span>
+    </a>
+    <button
+      class="vf-barra__fechar"
+      id="botao-fechar-gaveta"
+      type="button"
+      [attr.aria-label]="'MENU.FECHAR' | translate"
+      (click)="fecharGaveta.emit()"
+    >
+      <app-icone nome="fechar" [tamanho]="22" [espessura]="1.75"></app-icone>
+    </button>
+  </div>
+
+  <nav
+    class="vf-menu vf-menu--vertical"
+    id="menu-principal"
+    #menu
+    [attr.aria-label]="'MENU.PRINCIPAL' | translate"
+  >
+    <span class="vf-menu__indicador" aria-hidden="true"></span>
+    <ul class="vf-menu__lista">
+      @for (item of itens; track item.id) {
+        <li>
+          <a
+            class="vf-menu__item"
+            [class.vf-menu__item--ativo]="estaAtivo(item)"
+            [routerLink]="item.rota"
+            [attr.aria-current]="valorAriaCurrent(item)"
+            [attr.data-item]="item.id"
+            [attr.data-rotulo]="item.chaveRotulo | translate"
+          >
+            <app-icone class="vf-menu__icone" [nome]="item.icone"></app-icone>
+            <span class="vf-menu__rotulo">{{ item.chaveRotulo | translate }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="vf-barra__rodape">
+    <button
+      class="vf-barra__acao vf-barra__acao--recolher"
+      id="botao-recolher-barra"
+      type="button"
+      aria-controls="barra-lateral"
+      [attr.aria-expanded]="!recolhida"
+      [attr.data-rotulo]="'MENU.RECOLHER' | translate"
+      (click)="alternarRecolhimento.emit()"
+    >
+      @if (recolhida) {
+        <app-icone class="vf-menu__icone" nome="expandir" [tamanho]="22" [espessura]="1.75"></app-icone>
+        <span class="vf-menu__rotulo">{{ 'MENU.EXPANDIR' | translate }}</span>
+      } @else {
+        <app-icone class="vf-menu__icone" nome="recolher" [tamanho]="22" [espessura]="1.75"></app-icone>
+        <span class="vf-menu__rotulo">{{ 'MENU.RECOLHER' | translate }}</span>
+      }
+    </button>
+    <button
+      class="vf-barra__acao vf-barra__acao--sair"
+      id="botao-sair"
+      type="button"
+      [attr.data-rotulo]="'MENU.SAIR' | translate"
+      (click)="sair()"
+    >
+      <app-icone class="vf-menu__icone" nome="sair" [tamanho]="22" [espessura]="1.75"></app-icone>
+      <span class="vf-menu__rotulo">{{ 'MENU.SAIR' | translate }}</span>
+    </button>
+  </div>
+</div>

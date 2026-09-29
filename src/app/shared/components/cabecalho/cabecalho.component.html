@@ -1,0 +1,117 @@
+<header class="vf-cabecalho" id="cabecalho-app">
+  <button
+    class="vf-cabecalho__acao vf-cabecalho__menu-mobile"
+    id="botao-menu-mobile"
+    type="button"
+    aria-controls="barra-lateral"
+    [attr.aria-expanded]="menuMobileAberto"
+    [attr.aria-label]="'MENU.ABRIR' | translate"
+    (click)="abrirMenuMobile.emit()"
+  >
+    <app-icone nome="menu" [tamanho]="22" [espessura]="1.75"></app-icone>
+  </button>
+
+  <a class="vf-cabecalho__marca" routerLink="/dashboard">Velocity<span>Fleet</span></a>
+
+  <p class="vf-cabecalho__saudacao" id="saudacao-usuario">
+    {{ chaveSaudacao | translate: { nome: primeiroNome } }}
+  </p>
+
+  <div class="vf-cabecalho__acoes">
+    <div class="vf-cabecalho__grupo" (focusout)="aoSairDoGrupo($event)">
+      <button
+        class="vf-cabecalho__acao"
+        id="botao-notificacoes"
+        #botaoNotificacoes
+        type="button"
+        aria-controls="painel-notificacoes"
+        [attr.aria-expanded]="menuAberto === 'notificacoes'"
+        [attr.aria-label]="'CABECALHO.NOTIFICACOES' | translate"
+        (click)="alternarMenu('notificacoes')"
+      >
+        <app-icone nome="sino" [tamanho]="20" [espessura]="1.75"></app-icone>
+        @if (naoLidas > 0) {
+          <span class="vf-cabecalho__selo dado-mono" data-notificacoes-nao-lidas>{{ naoLidas }}</span>
+        }
+      </button>
+
+      @if (menuAberto === 'notificacoes') {
+        <div
+          class="vf-painel animar-surgir"
+          id="painel-notificacoes"
+          role="region"
+          [attr.aria-label]="'CABECALHO.NOTIFICACOES' | translate"
+        >
+          <p class="vf-painel__titulo">{{ 'CABECALHO.NOTIFICACOES' | translate }}</p>
+          @if (notificacoes.length === 0) {
+            <div class="vf-painel__vazio" data-estado="vazio">
+              <app-icone nome="sino-mudo" [tamanho]="28" [espessura]="1.5"></app-icone>
+              <p class="vf-painel__vazio-titulo">{{ 'CABECALHO.NOTIFICACOES_VAZIO_TITULO' | translate }}</p>
+              <p class="vf-painel__vazio-texto">{{ 'CABECALHO.NOTIFICACOES_VAZIO_TEXTO' | translate }}</p>
+            </div>
+          } @else {
+            <ul class="vf-painel__lista" data-lista-notificacoes>
+              @for (notificacao of notificacoes; track notificacao.id) {
+                <li class="vf-painel__notificacao" [class.vf-painel__notificacao--nova]="!notificacao.lida">
+                  <strong>{{ notificacao.titulo }}</strong>
+                  <span>{{ notificacao.mensagem }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+    </div>
+
+    <app-theme-toggle></app-theme-toggle>
+
+    <div class="vf-cabecalho__grupo" (focusout)="aoSairDoGrupo($event)">
+      <button
+        class="vf-cabecalho__usuario"
+        id="botao-usuario"
+        #botaoUsuario
+        type="button"
+        aria-controls="menu-usuario"
+        [attr.aria-expanded]="menuAberto === 'usuario'"
+        [attr.aria-label]="'CABECALHO.MENU_USUARIO' | translate"
+        (click)="alternarMenu('usuario')"
+      >
+        <span class="vf-cabecalho__avatar" aria-hidden="true">
+          @if (iniciais !== '') {
+            {{ iniciais }}
+          } @else {
+            <app-icone nome="usuario" [tamanho]="18"></app-icone>
+          }
+        </span>
+        <span class="vf-cabecalho__nome">{{ primeiroNome }}</span>
+        <app-icone class="vf-cabecalho__seta" nome="seta-baixo" [tamanho]="16" [espessura]="2"></app-icone>
+      </button>
+
+      @if (menuAberto === 'usuario') {
+        <div class="vf-painel animar-surgir" id="menu-usuario" role="group" [attr.aria-label]="'CABECALHO.MENU_USUARIO' | translate">
+          <div class="vf-painel__perfil">
+            <p class="vf-painel__perfil-nome">{{ nomeCompleto }}</p>
+            @if (papelConhecido) {
+            <p class="vf-painel__perfil-papel">{{ 'PAPEIS.' + papel | translate }}</p>
+          }
+            <p class="vf-painel__perfil-email dado-mono">{{ email }}</p>
+          </div>
+          <a class="vf-painel__item" routerLink="/account" (click)="fecharMenus()">
+            <app-icone nome="usuario" [tamanho]="20" [espessura]="1.75"></app-icone>
+            <span>{{ 'CABECALHO.MINHA_CONTA' | translate }}</span>
+          </a>
+          @if (papel === 'ADMIN') {
+            <a class="vf-painel__item" id="link-configuracoes" routerLink="/admin/settings" (click)="fecharMenus()">
+              <app-icone nome="engrenagem" [tamanho]="20" [espessura]="1.75"></app-icone>
+              <span>{{ 'CABECALHO.CONFIGURACOES' | translate }}</span>
+            </a>
+          }
+          <button class="vf-painel__item vf-painel__item--perigo" id="botao-sair-usuario" type="button" (click)="sair()">
+            <app-icone nome="sair" [tamanho]="20" [espessura]="1.75"></app-icone>
+            <span>{{ 'MENU.SAIR' | translate }}</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</header>

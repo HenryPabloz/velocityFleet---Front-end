@@ -1,0 +1,7 @@
+// Reaproveita o acabamento do modal de confirmação (janela, cabeçalho, botões).
+@use '../../../../shared/dados/components/modal-confirmar/modal-confirmar.component';
+
+.vf-finalizar__corpo {
+  display: grid;
+  gap: var(--vf-espaco-4);
+}

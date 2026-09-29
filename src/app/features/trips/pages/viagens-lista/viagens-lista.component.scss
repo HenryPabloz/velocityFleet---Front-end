@@ -1,0 +1,14 @@
+.vf-data-hora {
+  white-space: nowrap;
+}
+
+.vf-rota-texto {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px var(--vf-espaco-2);
+
+  app-icone {
+    color: var(--vf-cor-texto-suave);
+  }
+}

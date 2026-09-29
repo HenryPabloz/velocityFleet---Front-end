@@ -1,0 +1,48 @@
+// Campos de formulário com borda suave, foco vermelho e estado de erro claro.
+.form-control,
+.form-select {
+  background-color: var(--vf-cor-superficie);
+  color: var(--vf-cor-texto);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-sm);
+  padding: 0.65rem 0.9rem;
+  transition:
+    border-color var(--vf-transicao-rapida),
+    box-shadow var(--vf-transicao-rapida);
+
+  &::placeholder {
+    color: var(--vf-cor-texto-suave);
+    opacity: 0.8;
+  }
+
+  &:focus {
+    background-color: var(--vf-cor-superficie);
+    color: var(--vf-cor-texto);
+    border-color: var(--vf-cor-foco);
+    outline: 3px solid var(--vf-cor-foco);
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+
+  &.is-invalid {
+    border-color: var(--vf-cor-destaque);
+  }
+}
+
+.form-label {
+  font-size: var(--vf-texto-sm);
+  font-weight: 600;
+  color: var(--vf-cor-texto);
+  margin-bottom: var(--vf-espaco-2);
+}
+
+.invalid-feedback,
+.form-texto-ajuda {
+  font-size: var(--vf-texto-sm);
+}
+
+// Dados técnicos (placa, km, valores) usam a fonte mono.
+.dado-mono {
+  font-family: var(--vf-fonte-dados);
+  font-variant-numeric: tabular-nums;
+}

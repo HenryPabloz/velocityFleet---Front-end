@@ -1,0 +1,18 @@
+<div class="vf-campo" [class.vf-campo--erro]="mostrarErro">
+  <label class="form-label" [attr.for]="idCampo">
+    {{ rotulo }}
+    @if (obrigatorio) {
+      <span class="vf-campo__obrigatorio" aria-hidden="true">*</span>
+    }
+  </label>
+  <ng-content></ng-content>
+  @if (ajuda) {
+    <p class="vf-campo__ajuda" [id]="idAjuda">{{ ajuda }}</p>
+  }
+  <p class="vf-campo__erro" [id]="idErro" aria-live="polite">
+    @if (mostrarErro) {
+      <app-icone nome="alerta" [tamanho]="14"></app-icone>
+      <span>{{ textoErro }}</span>
+    }
+  </p>
+</div>

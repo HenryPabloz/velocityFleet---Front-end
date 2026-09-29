@@ -1,0 +1,131 @@
+<div class="vf-pagina animar-surgir" id="pagina-analytics-veiculo">
+  <app-abas-analytics></app-abas-analytics>
+
+  <app-cabecalho-pagina
+    [etiqueta]="'ANALYTICS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.ANALISE_VEICULO' | translate"
+    [subtitulo]="'ANALYTICS.VEICULO.SUBTITULO' | translate"
+  >
+    @if (eficiencia) {
+      <button class="btn btn-outline-secondary" type="button" id="botao-atualizar-analytics" (click)="atualizar()">
+        <app-icone nome="atualizar" [tamanho]="16"></app-icone>
+        {{ 'ANALYTICS.ATUALIZAR' | translate }}
+      </button>
+    }
+  </app-cabecalho-pagina>
+
+  <section class="vf-bloco vf-bloco--sem-regua vf-analytics-seletor" aria-labelledby="titulo-seletor-veiculo">
+    <h2 class="visually-hidden" id="titulo-seletor-veiculo">{{ 'ANALYTICS.VEICULO.ESCOLHER' | translate }}</h2>
+    <app-campo-formulario
+      idCampo="seletor-veiculo-analytics"
+      [rotulo]="'ANALYTICS.VEICULO.ESCOLHER' | translate"
+      [ajuda]="'ANALYTICS.VEICULO.AJUDA_SELETOR' | translate"
+    >
+      <select
+        vfCampoEntrada
+        class="form-select"
+        [ngModel]="veiculoEscolhido"
+        (ngModelChange)="aoEscolherVeiculo($event)"
+      >
+        <option value="">{{ 'ANALYTICS.VEICULO.OPCAO_VAZIA' | translate }}</option>
+        @for (veiculo of veiculos; track veiculo.id) {
+          <option [value]="veiculo.id">{{ rotuloDoVeiculo(veiculo) }}</option>
+        }
+      </select>
+    </app-campo-formulario>
+  </section>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [tituloVazio]="'ANALYTICS.VEICULO.VAZIO_TITULO' | translate"
+    [textoVazio]="'ANALYTICS.VEICULO.VAZIO_TEXTO' | translate"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar(true)"
+  >
+    @if (eficiencia) {
+      @if (veiculoAtual) {
+        <div class="vf-analytics-veiculo-topo" id="cabecalho-veiculo-analytics">
+          <app-placa [placa]="veiculoAtual.plate" tamanho="g"></app-placa>
+          <p class="vf-analytics-veiculo-topo__modelo">{{ veiculoAtual.model }} · {{ veiculoAtual.year }}</p>
+          <app-selo-status tipo="veiculo" [valor]="veiculoAtual.status"></app-selo-status>
+        </div>
+      }
+
+      @if (semViagens) {
+        <p class="vf-aviso" id="aviso-veiculo-sem-viagens" role="status">
+          <app-icone nome="info" [tamanho]="18"></app-icone>
+          <span>{{ 'ANALYTICS.VEICULO.SEM_VIAGENS' | translate }}</span>
+        </p>
+      }
+
+      <div class="vf-kpis" id="painel-eficiencia-veiculo">
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="veiculo-litros-km"
+          icone="abastecimentos"
+          situacao="pronto"
+          [rotulo]="'ANALYTICS.VEICULO.LITROS_KM' | translate"
+          [valorNumero]="eficiencia.averageLitersPerKm"
+          [casasDecimais]="3"
+          [unidade]="'ANALYTICS.UNIDADE_LITROS_KM' | translate"
+          [dica]="'ANALYTICS.VEICULO.DICA_LITROS_KM' | translate"
+        ></app-kpi-card>
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="veiculo-km"
+          icone="velocimetro"
+          situacao="pronto"
+          [rotulo]="'ANALYTICS.VEICULO.KM_TOTAL' | translate"
+          [valorNumero]="eficiencia.totalKm"
+          unidade="km"
+          [dica]="'ANALYTICS.VEICULO.DICA_KM' | translate"
+        ></app-kpi-card>
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="veiculo-litros"
+          icone="abastecimentos"
+          situacao="pronto"
+          [rotulo]="'ANALYTICS.VEICULO.LITROS_TOTAL' | translate"
+          [valorNumero]="eficiencia.totalLiters"
+          [casasDecimais]="1"
+          unidade="L"
+        ></app-kpi-card>
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="veiculo-custo"
+          icone="dashboard"
+          situacao="pronto"
+          [rotulo]="'ANALYTICS.VEICULO.CUSTO_COMBUSTIVEL' | translate"
+          [valorTexto]="custoTotal"
+          [dica]="'ANALYTICS.VEICULO.DICA_CUSTO' | translate: { custoKm: custoPorKm }"
+        ></app-kpi-card>
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="veiculo-viagens"
+          icone="viagens"
+          situacao="pronto"
+          [rotulo]="'ANALYTICS.VEICULO.VIAGENS' | translate"
+          [valorNumero]="eficiencia.tripsCount"
+        ></app-kpi-card>
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="veiculo-incidentes"
+          icone="incidentes"
+          situacao="pronto"
+          [rotulo]="'ANALYTICS.VEICULO.INCIDENTES' | translate"
+          [valorNumero]="eficiencia.incidentsCount"
+        ></app-kpi-card>
+        <app-kpi-card
+          class="vf-kpis__item"
+          chave="veiculo-km-litro"
+          icone="analytics"
+          situacao="pronto"
+          [rotulo]="'ANALYTICS.VEICULO.KM_LITRO' | translate"
+          [valorTexto]="kmPorLitro"
+          [dica]="'ANALYTICS.VEICULO.DICA_KM_LITRO' | translate"
+        ></app-kpi-card>
+      </div>
+    }
+  </app-estado-pagina>
+</div>

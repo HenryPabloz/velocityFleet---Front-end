@@ -1,0 +1,27 @@
+// Tema escuro: preto profundo com vermelho mais claro para manter o contraste.
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --vf-cor-fundo: var(--vf-preto-950);
+  --vf-cor-superficie: var(--vf-preto-850);
+  --vf-cor-superficie-elevada: var(--vf-preto-800);
+  --vf-cor-borda: var(--vf-preto-700);
+  --vf-cor-texto: #f3f3f5;
+  --vf-cor-texto-suave: var(--vf-cinza-400);
+  --vf-cor-destaque: var(--vf-vermelho-500);
+  --vf-cor-destaque-hover: var(--vf-vermelho-400);
+  --vf-cor-destaque-texto: var(--vf-vermelho-400);
+  --vf-cor-sobre-destaque: #ffffff;
+  --vf-cor-foco: var(--vf-vermelho-400);
+  --vf-cor-sombra: 0 0 0;
+  --vf-cor-vidro: rgb(21 21 25 / 0.72);
+
+  --bs-body-bg: var(--vf-cor-fundo);
+  --bs-body-color: var(--vf-cor-texto);
+  --bs-secondary-color: var(--vf-cor-texto-suave);
+  --bs-border-color: var(--vf-cor-borda);
+  --bs-primary: var(--vf-vermelho-500);
+  --bs-primary-rgb: 238, 48, 56;
+  --bs-link-color: var(--vf-vermelho-400);
+  --bs-link-hover-color: #ff8a8f;
+}

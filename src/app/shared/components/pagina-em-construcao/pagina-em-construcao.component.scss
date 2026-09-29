@@ -1,0 +1,27 @@
+.em-construcao {
+  max-width: 40rem;
+  margin: var(--vf-espaco-5) 0;
+  padding: var(--vf-espaco-6);
+  border-left: 6px solid var(--vf-cor-destaque);
+  background: var(--vf-cor-superficie);
+  border-radius: var(--vf-raio-md);
+  box-shadow: var(--vf-sombra-md);
+
+  &__etiqueta {
+    margin: 0 0 var(--vf-espaco-2);
+    font-size: var(--vf-texto-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  &__titulo {
+    margin: 0 0 var(--vf-espaco-3);
+    font-size: var(--vf-texto-2xl);
+  }
+
+  &__texto {
+    margin: 0;
+    color: var(--vf-cor-texto-suave);
+  }
+}

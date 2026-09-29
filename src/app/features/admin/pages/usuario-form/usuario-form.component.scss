@@ -1,0 +1,65 @@
+// Campo de senha com o botão "mostrar" colado no lado direito.
+.vf-campo-senha {
+  position: relative;
+
+  .form-control {
+    padding-right: 3.25rem;
+  }
+
+  &__botao {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 100%;
+    min-height: 44px;
+    border: 0;
+    border-radius: 0 var(--vf-raio-sm) var(--vf-raio-sm) 0;
+    background: transparent;
+    color: var(--vf-cor-texto-suave);
+
+    &:hover,
+    &[aria-pressed='true'] {
+      color: var(--vf-cor-texto);
+    }
+  }
+}
+
+// Bloco extra que só aparece para o papel de motorista.
+.vf-bloco-motorista {
+  min-width: 0;
+  margin: var(--vf-espaco-2) 0 0;
+  padding: var(--vf-espaco-4) var(--vf-espaco-4) var(--vf-espaco-2);
+  border: 1px dashed var(--vf-cor-borda);
+  border-left: 4px solid var(--vf-cor-destaque);
+  border-radius: var(--vf-raio-sm);
+  background: transparent;
+
+  &__titulo {
+    float: none;
+    width: auto;
+    margin-bottom: var(--vf-espaco-3);
+    padding: 0 var(--vf-espaco-2);
+    font-size: var(--vf-texto-sm);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vf-cor-texto-suave);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vf-bloco-motorista {
+    animation: vf-surgir-bloco 0.25s ease-out;
+  }
+}
+
+@keyframes vf-surgir-bloco {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}

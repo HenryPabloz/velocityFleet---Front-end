@@ -1,0 +1,114 @@
+<div class="vf-pagina animar-surgir" id="pagina-analytics-motorista">
+  <app-abas-analytics></app-abas-analytics>
+
+  <app-cabecalho-pagina
+    [etiqueta]="'ANALYTICS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.ANALISE_MOTORISTA' | translate"
+    [subtitulo]="'ANALYTICS.MOTORISTA.SUBTITULO' | translate"
+  >
+    @if (estatisticas) {
+      <button class="btn btn-outline-secondary" type="button" id="botao-atualizar-analytics" (click)="atualizar()">
+        <app-icone nome="atualizar" [tamanho]="16"></app-icone>
+        {{ 'ANALYTICS.ATUALIZAR' | translate }}
+      </button>
+    }
+  </app-cabecalho-pagina>
+
+  <section class="vf-bloco vf-bloco--sem-regua vf-analytics-seletor" aria-labelledby="titulo-seletor-motorista">
+    <h2 class="visually-hidden" id="titulo-seletor-motorista">{{ 'ANALYTICS.MOTORISTA.ESCOLHER' | translate }}</h2>
+    <app-campo-formulario
+      idCampo="seletor-motorista-analytics"
+      [rotulo]="'ANALYTICS.MOTORISTA.ESCOLHER' | translate"
+      [ajuda]="'ANALYTICS.MOTORISTA.AJUDA_SELETOR' | translate"
+    >
+      <select
+        vfCampoEntrada
+        class="form-select"
+        [ngModel]="motoristaEscolhido"
+        (ngModelChange)="aoEscolherMotorista($event)"
+      >
+        <option value="">{{ 'ANALYTICS.MOTORISTA.OPCAO_VAZIA' | translate }}</option>
+        @for (motorista of motoristas; track motorista.id) {
+          <option [value]="motorista.id">{{ rotuloDoMotorista(motorista) }}</option>
+        }
+      </select>
+    </app-campo-formulario>
+  </section>
+
+  @if (!temEscolha) {
+    <div class="vf-estado" id="estado-motorista-sem-escolha" role="status">
+      <app-icone nome="info" [tamanho]="28"></app-icone>
+      <p class="vf-estado__titulo">{{ 'ANALYTICS.MOTORISTA.VAZIO_TITULO' | translate }}</p>
+      <p class="vf-estado__texto">{{ 'ANALYTICS.MOTORISTA.VAZIO_TEXTO' | translate }}</p>
+    </div>
+  } @else {
+    <div class="vf-kpis vf-analytics-kpis-motorista" id="painel-estatisticas-motorista">
+      <app-kpi-card
+        class="vf-kpis__item"
+        chave="motorista-viagens"
+        icone="viagens"
+        [situacao]="situacao"
+        [rotulo]="'ANALYTICS.MOTORISTA.TOTAL_VIAGENS' | translate"
+        [valorNumero]="valorViagens"
+        (tentarNovamente)="carregar(true)"
+      ></app-kpi-card>
+      <app-kpi-card
+        class="vf-kpis__item"
+        chave="motorista-km"
+        icone="velocimetro"
+        [situacao]="situacao"
+        [rotulo]="'ANALYTICS.MOTORISTA.KM_CONCLUIDAS' | translate"
+        [valorNumero]="valorKm"
+        unidade="km"
+        [dica]="'ANALYTICS.MOTORISTA.DICA_KM' | translate"
+        (tentarNovamente)="carregar(true)"
+      ></app-kpi-card>
+      <app-kpi-card
+        class="vf-kpis__item"
+        chave="motorista-incidentes"
+        icone="incidentes"
+        [situacao]="situacao"
+        [rotulo]="'ANALYTICS.MOTORISTA.INCIDENTES' | translate"
+        [valorNumero]="valorIncidentes"
+        (tentarNovamente)="carregar(true)"
+      ></app-kpi-card>
+    </div>
+
+    <div class="vf-secao__cabeca vf-analytics-cabeca-grafico">
+      <h2 class="vf-secao__titulo" id="titulo-viagens-status-analytics">
+        {{ 'ANALYTICS.MOTORISTA.SECAO' | translate }}
+      </h2>
+      <button
+        class="vf-botao-secundario"
+        id="botao-ver-tabela-grafico"
+        type="button"
+        aria-controls="grafico-viagens-status-analytics"
+        [attr.aria-pressed]="verTabela"
+        (click)="alternarTabela()"
+      >
+        <app-icone nome="tabela" [tamanho]="16"></app-icone>
+        @if (verTabela) {
+          {{ 'DASHBOARD.GRAFICOS.VER_GRAFICO' | translate }}
+        } @else {
+          {{ 'DASHBOARD.GRAFICOS.VER_TABELA' | translate }}
+        }
+      </button>
+    </div>
+
+    <app-bloco-grafico-itens
+      idCartao="grafico-viagens-status-analytics"
+      [titulo]="'ANALYTICS.MOTORISTA.GRAFICO_TITULO' | translate"
+      [subtitulo]="'ANALYTICS.MOTORISTA.GRAFICO_SUBTITULO' | translate: { nome: nomeDoEscolhido }"
+      [situacao]="situacao"
+      [vazio]="vazio"
+      [mensagemVazio]="'ANALYTICS.MOTORISTA.SEM_VIAGENS' | translate"
+      [opcoes]="opcoes"
+      [itens]="itens"
+      [resumo]="resumo"
+      [verTabela]="verTabela"
+      [rotuloColunaItem]="'ANALYTICS.MOTORISTA.COL_STATUS' | translate"
+      [rotuloColunaTotal]="'ANALYTICS.MOTORISTA.COL_VIAGENS' | translate"
+      (tentarNovamente)="carregar(true)"
+    ></app-bloco-grafico-itens>
+  }
+</div>

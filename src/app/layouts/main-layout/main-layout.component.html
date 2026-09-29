@@ -1,0 +1,26 @@
+<a class="pular-conteudo" href="#conteudo-principal" (click)="irParaConteudo($event)">{{
+  'LAYOUT.PULAR_CONTEUDO' | translate
+}}</a>
+<div class="vf-app" id="layout-principal" [class.vf-app--recolhida]="barraRecolhida">
+  <app-sidebar
+    [recolhida]="barraRecolhida"
+    [gavetaAberta]="gavetaAberta"
+    (alternarRecolhimento)="alternarBarra()"
+    (fecharGaveta)="fecharGaveta()"
+  ></app-sidebar>
+
+  @if (gavetaAberta) {
+    <div class="vf-app__cortina" aria-hidden="true" (click)="fecharGaveta()"></div>
+  }
+
+  <div class="vf-app__coluna" [attr.inert]="atributoInerte">
+    <app-cabecalho [menuMobileAberto]="gavetaAberta" (abrirMenuMobile)="abrirGaveta()"></app-cabecalho>
+    <main class="vf-app__conteudo" id="conteudo-principal" tabindex="-1">
+      <div class="vf-app__miolo">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+
+  <app-bottom-tab [attr.inert]="atributoInerte"></app-bottom-tab>
+</div>

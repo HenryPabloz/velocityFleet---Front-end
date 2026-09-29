@@ -1,0 +1,22 @@
+.vf-analytics-seletor {
+  max-width: 40rem;
+  margin-bottom: var(--vf-espaco-4);
+}
+
+.vf-analytics-veiculo-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vf-espaco-4);
+  margin-bottom: var(--vf-espaco-4);
+
+  &__modelo {
+    margin: 0;
+    font-size: var(--vf-texto-lg);
+    font-weight: 600;
+  }
+}
+
+.vf-aviso {
+  margin-bottom: var(--vf-espaco-4);
+}

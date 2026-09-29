@@ -1,0 +1,11 @@
+// Marca a linha da própria pessoa logada.
+.vf-usuario-voce {
+  display: inline-block;
+  margin-left: var(--vf-espaco-2);
+  padding: 0 var(--vf-espaco-2);
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-pilula);
+  font-size: var(--vf-texto-xs);
+  font-weight: 600;
+  color: var(--vf-cor-texto-suave);
+}

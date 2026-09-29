@@ -1,0 +1,59 @@
+// Botões do Bootstrap com a cara VelocityFleet: pílula, sombra suave e foco visível.
+.btn {
+  --bs-btn-border-radius: var(--vf-raio-pilula);
+  --bs-btn-font-weight: 600;
+  --bs-btn-padding-x: 1.35rem;
+  --bs-btn-padding-y: 0.6rem;
+  letter-spacing: 0.01em;
+  transition:
+    transform var(--vf-transicao-rapida),
+    box-shadow var(--vf-transicao-media),
+    background-color var(--vf-transicao-rapida),
+    border-color var(--vf-transicao-rapida);
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--vf-vermelho-600);
+  --bs-btn-border-color: var(--vf-vermelho-600);
+  --bs-btn-color: var(--vf-cor-sobre-destaque);
+  --bs-btn-hover-bg: var(--vf-vermelho-700);
+  --bs-btn-hover-border-color: var(--vf-vermelho-700);
+  --bs-btn-hover-color: var(--vf-cor-sobre-destaque);
+  --bs-btn-active-bg: var(--vf-vermelho-900);
+  --bs-btn-active-border-color: var(--vf-vermelho-900);
+  --bs-btn-disabled-bg: var(--vf-vermelho-600);
+  --bs-btn-disabled-border-color: var(--vf-vermelho-600);
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.14), transparent 60%);
+
+  &:hover {
+    box-shadow: var(--vf-sombra-brilho);
+  }
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--vf-cor-texto);
+  --bs-btn-border-color: var(--vf-cor-borda);
+  --bs-btn-hover-bg: var(--vf-cor-superficie-elevada);
+  --bs-btn-hover-color: var(--vf-cor-texto);
+  --bs-btn-hover-border-color: var(--vf-cor-texto-suave);
+}
+
+// Foco visível em qualquer elemento interativo (teclado).
+:focus-visible {
+  outline: 3px solid var(--vf-cor-foco);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--vf-cor-foco);
+  outline-offset: 2px;
+}

@@ -1,0 +1,130 @@
+// Estados de tela: esqueleto, erro e vazio (mesmo visual do dashboard).
+app-estado-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-4);
+  min-width: 0;
+}
+
+.vf-estado-esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-3);
+
+  &__linha {
+    height: 3.25rem;
+    border-radius: var(--vf-raio-sm);
+  }
+}
+
+.vf-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--vf-espaco-2);
+  padding: var(--vf-espaco-7) var(--vf-espaco-4);
+  border: 1px dashed var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md);
+  background: var(--vf-cor-superficie);
+  text-align: center;
+  color: var(--vf-cor-texto-suave);
+
+  &--erro {
+    border-style: solid;
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: var(--vf-texto-lg);
+    font-weight: 700;
+    color: var(--vf-cor-texto);
+  }
+
+  &__texto {
+    margin: 0;
+    max-width: 46ch;
+    font-size: var(--vf-texto-sm);
+  }
+
+  > :last-child:not(app-icone):not(p) {
+    margin-top: var(--vf-espaco-3);
+  }
+}
+
+.vf-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--vf-espaco-3);
+  margin-top: var(--vf-espaco-4);
+}
+
+// Lista de dados (rótulo pequeno em cima, valor embaixo).
+.vf-detalhes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--vf-espaco-4) var(--vf-espaco-5);
+  margin: 0;
+
+  dt {
+    font-size: var(--vf-texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vf-cor-texto-suave);
+  }
+
+  dd {
+    margin: var(--vf-espaco-1) 0 0;
+    overflow-wrap: anywhere;
+  }
+
+  // Links da lista usam o vermelho da marca (contraste AA nos dois temas), não o azul do Bootstrap.
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--vf-cor-destaque-texto);
+    text-underline-offset: 3px;
+  }
+}
+
+// Aviso dentro da página (erro de negócio, informação, alerta).
+.vf-aviso {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--vf-espaco-3);
+  margin: 0;
+  padding: var(--vf-espaco-3) var(--vf-espaco-4);
+  border: 1px solid var(--vf-cor-borda);
+  border-left: 4px solid var(--vf-cor-texto-suave);
+  border-radius: var(--vf-raio-sm);
+  background: var(--vf-cor-superficie);
+  font-size: var(--vf-texto-sm);
+
+  app-icone {
+    margin-top: 2px;
+  }
+
+  &--erro {
+    border-left-color: var(--vf-cor-destaque);
+
+    app-icone {
+      color: var(--vf-cor-destaque-texto);
+    }
+  }
+
+  &--aviso {
+    border-left-color: #d98a0b;
+  }
+
+  &__titulo {
+    display: block;
+    font-weight: 700;
+  }
+}
+
+// Item da lista de dados que ocupa a linha inteira (ex: descrição longa).
+.vf-detalhes__largo {
+  grid-column: 1 / -1;
+}

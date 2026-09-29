@@ -1,0 +1,100 @@
+<section class="vf-bloco vf-conta-bloco" id="bloco-conta-senha" aria-labelledby="titulo-conta-senha">
+  <header class="vf-conta-bloco__cabeca">
+    <span class="vf-conta-bloco__icone" aria-hidden="true"><app-icone nome="cadeado" [tamanho]="22"></app-icone></span>
+    <div>
+      <h2 class="vf-conta-bloco__titulo" id="titulo-conta-senha">{{ 'CONTA.SENHA.TITULO' | translate }}</h2>
+      <p class="vf-conta-bloco__texto">{{ 'CONTA.SENHA.TEXTO' | translate }}</p>
+    </div>
+  </header>
+
+  <form
+    #formularioRef
+    id="formulario-senha"
+    novalidate
+    [formGroup]="formulario"
+    [attr.aria-busy]="salvando"
+    (ngSubmit)="salvar()"
+  >
+    @if (erroGeral) {
+      <p class="vf-aviso vf-aviso--erro" id="alerta-erro-senha" role="alert" tabindex="-1">
+        <app-icone nome="alerta" [tamanho]="18"></app-icone>
+        <span>{{ erroGeral }}</span>
+      </p>
+    }
+
+    <div class="vf-grade-campos">
+      <app-campo-formulario
+        class="vf-grade-campos__largo"
+        idCampo="campo-senha-atual-troca"
+        [rotulo]="'CONTA.SENHA.ATUAL' | translate"
+        [obrigatorio]="true"
+        [controle]="formulario.controls.atual"
+        [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+      >
+        <input
+          vfCampoEntrada
+          class="form-control"
+          autocomplete="current-password"
+          formControlName="atual"
+          [type]="tipoDosCampos"
+        />
+      </app-campo-formulario>
+
+      <app-campo-formulario
+        idCampo="campo-senha-nova"
+        [rotulo]="'CONTA.SENHA.NOVA' | translate"
+        [ajuda]="'USUARIO_FORM.AJUDA_SENHA' | translate"
+        [obrigatorio]="true"
+        [controle]="formulario.controls.nova"
+        [mensagens]="{
+          required: 'ERROS_CAMPO.OBRIGATORIO',
+          minlength: 'USUARIO_FORM.ERRO_SENHA',
+          maxlength: 'USUARIO_FORM.ERRO_SENHA'
+        }"
+      >
+        <input
+          vfCampoEntrada
+          class="form-control"
+          autocomplete="new-password"
+          maxlength="15"
+          formControlName="nova"
+          [type]="tipoDosCampos"
+        />
+      </app-campo-formulario>
+
+      <app-campo-formulario
+        idCampo="campo-senha-confirmacao"
+        [rotulo]="'CONTA.SENHA.CONFIRMACAO' | translate"
+        [obrigatorio]="true"
+        [controle]="formulario.controls.confirmacao"
+        [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', diferente: 'CONTA.SENHA.ERRO_DIFERENTE' }"
+      >
+        <input
+          vfCampoEntrada
+          class="form-control"
+          autocomplete="new-password"
+          maxlength="15"
+          formControlName="confirmacao"
+          [type]="tipoDosCampos"
+        />
+      </app-campo-formulario>
+    </div>
+
+    <div class="vf-botoes">
+      <button class="btn btn-primary" type="submit" id="botao-trocar-senha" [disabled]="salvando">
+        <app-icone nome="cadeado" [tamanho]="16"></app-icone>
+        {{ chaveBotaoSalvar | translate }}
+      </button>
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        id="botao-mostrar-senhas"
+        [attr.aria-pressed]="mostrarSenhas"
+        (click)="alternarSenhas()"
+      >
+        <app-icone nome="olho" [tamanho]="16"></app-icone>
+        {{ chaveMostrar | translate }}
+      </button>
+    </div>
+  </form>
+</section>

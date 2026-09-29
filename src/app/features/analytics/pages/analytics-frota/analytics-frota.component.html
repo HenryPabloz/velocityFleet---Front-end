@@ -1,0 +1,109 @@
+<div class="vf-pagina animar-surgir" id="pagina-analytics-frota">
+  <app-abas-analytics></app-abas-analytics>
+
+  <app-cabecalho-pagina
+    [etiqueta]="'ANALYTICS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.ANALISE_FROTA' | translate"
+    [subtitulo]="'ANALYTICS.FROTA.SUBTITULO' | translate"
+  >
+    @if (atualizadoEm) {
+      <p class="vf-analytics-atualizado dado-mono" id="analytics-atualizado-em">
+        {{ 'ANALYTICS.ATUALIZADO_AS' | translate: { hora: formatarHora(atualizadoEm) } }}
+      </p>
+    }
+    <button class="btn btn-outline-secondary" type="button" id="botao-atualizar-analytics" (click)="atualizar()">
+      <app-icone nome="atualizar" [tamanho]="16"></app-icone>
+      {{ 'ANALYTICS.ATUALIZAR' | translate }}
+    </button>
+  </app-cabecalho-pagina>
+
+  <div class="vf-analytics-grade">
+    <app-cartao-grafico
+      class="vf-analytics-grade__consumo"
+      idCartao="grafico-consumo-frota"
+      [titulo]="'ANALYTICS.FROTA.CONSUMO_TITULO' | translate"
+      [subtitulo]="'ANALYTICS.FROTA.CONSUMO_SUBTITULO' | translate"
+      [situacao]="situacaoConsumo"
+      [vazio]="consumoVazio"
+      [mensagemVazio]="'ANALYTICS.FROTA.CONSUMO_VAZIO' | translate"
+      (tentarNovamente)="carregarConsumo(true)"
+    >
+      @if (consumo) {
+        <div class="vf-consumo">
+          <p class="vf-consumo__destaque">
+            <span class="vf-consumo__valor" id="valor-consumo-medio">{{ formatar(consumo.averageLitersPerKm, 3) }}</span>
+            <span class="vf-consumo__unidade dado-mono">{{ 'ANALYTICS.UNIDADE_LITROS_KM' | translate }}</span>
+          </p>
+          <p class="vf-consumo__legenda">{{ 'ANALYTICS.FROTA.CONSUMO_MEDIO' | translate }}</p>
+          <dl class="vf-consumo__apoio">
+            <div>
+              <dt>{{ 'ANALYTICS.FROTA.TOTAL_LITROS' | translate }}</dt>
+              <dd class="dado-mono" id="valor-total-litros">{{ formatar(consumo.totalLiters, 1) }} L</dd>
+            </div>
+            <div>
+              <dt>{{ 'ANALYTICS.FROTA.TOTAL_KM' | translate }}</dt>
+              <dd class="dado-mono" id="valor-total-km">{{ formatar(consumo.totalKm, 0) }} km</dd>
+            </div>
+          </dl>
+        </div>
+      }
+    </app-cartao-grafico>
+
+    <div class="vf-analytics-grade__km">
+      <div class="vf-secao__cabeca vf-analytics-cabeca-grafico">
+        <h2 class="vf-secao__titulo" id="titulo-km-mensal-analytics">{{ 'ANALYTICS.FROTA.SECAO_KM' | translate }}</h2>
+        <button
+          class="vf-botao-secundario"
+          id="botao-ver-tabela-grafico"
+          type="button"
+          aria-controls="grafico-km-mensal-analytics"
+          [attr.aria-pressed]="verTabela"
+          (click)="alternarTabela()"
+        >
+          <app-icone nome="tabela" [tamanho]="16"></app-icone>
+          @if (verTabela) {
+            {{ 'DASHBOARD.GRAFICOS.VER_GRAFICO' | translate }}
+          } @else {
+            {{ 'DASHBOARD.GRAFICOS.VER_TABELA' | translate }}
+          }
+        </button>
+      </div>
+
+      <app-cartao-grafico
+        idCartao="grafico-km-mensal-analytics"
+        [titulo]="'DASHBOARD.GRAFICOS.KM_MENSAL.TITULO' | translate"
+        [subtitulo]="'DASHBOARD.GRAFICOS.KM_MENSAL.SUBTITULO' | translate"
+        [situacao]="situacaoKm"
+        [vazio]="kmVazio"
+        [mensagemVazio]="'DASHBOARD.GRAFICOS.KM_MENSAL.VAZIO' | translate"
+        (tentarNovamente)="carregarKm(true)"
+      >
+        @if (verTabela) {
+          <div class="vf-tabela-envoltorio">
+            <table class="vf-tabela vf-tabela--compacta">
+              <caption class="visually-hidden">{{ 'DASHBOARD.GRAFICOS.KM_MENSAL.TITULO' | translate }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'DASHBOARD.GRAFICOS.KM_MENSAL.COL_MES' | translate }}</th>
+                  <th scope="col" class="vf-tabela__numero">{{ 'DASHBOARD.GRAFICOS.KM_MENSAL.COL_KM' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (linha of linhasKm; track linha.rotulo) {
+                  <tr>
+                    <th scope="row">{{ linha.rotulo }}</th>
+                    <td class="vf-tabela__numero dado-mono">{{ formatar(linha.km, 0) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="vf-grafico__area" role="img" [attr.aria-label]="resumoKm">
+            <app-grafico-apex [opcoes]="opcoesKm"></app-grafico-apex>
+          </div>
+        }
+      </app-cartao-grafico>
+    </div>
+  </div>
+</div>

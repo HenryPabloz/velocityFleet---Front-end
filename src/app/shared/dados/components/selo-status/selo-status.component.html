@@ -1,0 +1,8 @@
+<span class="vf-badge-status" [attr.data-status]="valor" [attr.data-tom]="configuracao.tom">
+  <app-icone [nome]="configuracao.icone" [tamanho]="14"></app-icone>
+  @if (configuracao.chave) {
+    {{ configuracao.chave | translate }}
+  } @else {
+    {{ valor }}
+  }
+</span>

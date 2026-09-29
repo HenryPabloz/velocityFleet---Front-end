@@ -1,0 +1,83 @@
+.vf-analytics-atualizado {
+  margin: 0;
+  font-size: var(--vf-texto-xs);
+  color: var(--vf-cor-texto-suave);
+}
+
+.vf-analytics-grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vf-espaco-5);
+  align-items: start;
+
+  @media (min-width: 1200px) {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  }
+
+  &__consumo,
+  &__km {
+    display: block;
+    min-width: 0;
+  }
+}
+
+.vf-analytics-cabeca-grafico {
+  margin-bottom: var(--vf-espaco-3);
+}
+
+// Consumo: o número grande é a média; litros e km ficam como apoio.
+.vf-consumo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-2);
+
+  &__destaque {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--vf-espaco-2);
+    margin: 0;
+  }
+
+  &__valor {
+    font-family: var(--vf-fonte-titulo);
+    font-size: clamp(2.75rem, 8vw, 4rem);
+    line-height: 1;
+    color: var(--vf-cor-texto);
+  }
+
+  &__unidade {
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__legenda {
+    margin: 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__apoio {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--vf-espaco-4);
+    margin: var(--vf-espaco-3) 0 0;
+    padding-top: var(--vf-espaco-4);
+    border-top: 1px solid var(--vf-cor-borda);
+
+    dt {
+      font-size: var(--vf-texto-xs);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--vf-cor-texto-suave);
+    }
+
+    dd {
+      margin: var(--vf-espaco-1) 0 0;
+      font-size: var(--vf-texto-lg);
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+  }
+}

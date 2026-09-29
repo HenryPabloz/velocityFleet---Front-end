@@ -1,0 +1,36 @@
+@switch (estado) {
+  @case ('carregando') {
+    <div class="vf-estado-esqueleto" role="status" aria-live="polite" aria-busy="true">
+      <span class="visually-hidden">{{ 'ESTADO.CARREGANDO' | translate }}</span>
+      @for (linha of linhas; track linha) {
+        <span class="vf-esqueleto vf-estado-esqueleto__linha" aria-hidden="true"></span>
+      }
+    </div>
+  }
+  @case ('erro') {
+    <div class="vf-estado vf-estado--erro" role="alert">
+      <app-icone nome="alerta" [tamanho]="28"></app-icone>
+      <p class="vf-estado__titulo">{{ 'ESTADO.ERRO_TITULO' | translate }}</p>
+      @if (mensagemErro) {
+        <p class="vf-estado__texto">{{ mensagemErro }}</p>
+      }
+      <button class="vf-botao-secundario" type="button" (click)="tentarNovamente.emit()">
+        <app-icone nome="atualizar" [tamanho]="16"></app-icone>
+        {{ 'ESTADO.TENTAR_NOVAMENTE' | translate }}
+      </button>
+    </div>
+  }
+  @case ('vazio') {
+    <div class="vf-estado" role="status">
+      <app-icone nome="info" [tamanho]="28"></app-icone>
+      <p class="vf-estado__titulo">{{ tituloVazio }}</p>
+      @if (textoVazio) {
+        <p class="vf-estado__texto">{{ textoVazio }}</p>
+      }
+      <ng-content select="[vazioAcao]"></ng-content>
+    </div>
+  }
+  @default {
+    <ng-content></ng-content>
+  }
+}

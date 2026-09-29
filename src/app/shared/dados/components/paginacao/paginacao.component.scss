@@ -1,0 +1,87 @@
+.vf-paginacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vf-espaco-3);
+
+  &__resumo {
+    margin: 0;
+    font-size: var(--vf-texto-xs);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__botoes {
+    display: flex;
+    gap: var(--vf-espaco-2);
+  }
+
+  .vf-botao-secundario:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    border-color: var(--vf-cor-borda);
+  }
+}
+
+// Bloco de filtros recolhível (<details>): aberto no desktop, fechado no celular.
+.vf-bloco.vf-bloco--filtros {
+  padding: 0;
+}
+
+.vf-bloco--filtros > .vf-filtros {
+  padding: var(--vf-espaco-2) var(--vf-espaco-5) var(--vf-espaco-5);
+}
+
+.vf-bloco__resumo {
+  display: flex;
+  align-items: center;
+  gap: var(--vf-espaco-2);
+  min-height: 48px;
+  padding: 0 var(--vf-espaco-5);
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  > app-icone:last-child {
+    margin-left: auto;
+    color: var(--vf-cor-texto-suave);
+    transition: transform var(--vf-transicao-rapida);
+  }
+}
+
+.vf-bloco--filtros[open] .vf-bloco__resumo > app-icone:last-child {
+  transform: rotate(180deg);
+}
+
+.vf-bloco__contagem {
+  padding: 0 var(--vf-espaco-2);
+  border-radius: var(--vf-raio-pilula);
+  background: var(--vf-cor-destaque);
+  color: var(--vf-cor-sobre-destaque);
+  font-size: var(--vf-texto-xs);
+  font-weight: 700;
+  line-height: 1.5rem;
+}
+
+.vf-filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--vf-espaco-3) var(--vf-espaco-4);
+  align-items: end;
+
+  .vf-campo__erro {
+    min-height: 0;
+  }
+
+  &__nota {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-texto-suave);
+  }
+}

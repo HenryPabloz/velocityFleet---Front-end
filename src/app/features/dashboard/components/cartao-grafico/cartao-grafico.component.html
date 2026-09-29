@@ -1,0 +1,42 @@
+<section
+  class="vf-grafico"
+  [attr.id]="idCartao"
+  [attr.data-situacao]="situacao"
+  [attr.aria-labelledby]="idCartao + '-titulo'"
+  [attr.aria-busy]="situacao === 'carregando'"
+>
+  <header class="vf-grafico__cabeca">
+    <h3 class="vf-grafico__titulo" [id]="idCartao + '-titulo'">{{ titulo }}</h3>
+    @if (subtitulo) {
+      <p class="vf-grafico__subtitulo">{{ subtitulo }}</p>
+    }
+  </header>
+
+  @switch (situacao) {
+    @case ('carregando') {
+      <div class="vf-grafico__esqueleto" aria-hidden="true">
+        <span class="vf-esqueleto vf-esqueleto--bloco"></span>
+      </div>
+      <span class="visually-hidden">{{ 'DASHBOARD.ESTADO.CARREGANDO' | translate }}</span>
+    }
+    @case ('pronto') {
+      @if (vazio) {
+        <div class="vf-vazio">
+          <app-icone nome="info" [tamanho]="20"></app-icone>
+          <p>{{ mensagemVazio }}</p>
+        </div>
+      } @else {
+        <ng-content></ng-content>
+      }
+    }
+    @case ('erro') {
+      <app-estado-bloco tipo="erro" (tentarNovamente)="tentarNovamente.emit()"></app-estado-bloco>
+    }
+    @case ('limite') {
+      <app-estado-bloco tipo="limite" (tentarNovamente)="tentarNovamente.emit()"></app-estado-bloco>
+    }
+    @case ('sem-acesso') {
+      <app-estado-bloco tipo="sem-acesso"></app-estado-bloco>
+    }
+  }
+</section>

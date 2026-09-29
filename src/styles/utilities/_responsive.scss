@@ -1,0 +1,42 @@
+// Pontos de quebra (iguais aos do Bootstrap) e utilitários de layout.
+$vf-quebra-tablet: 768px;
+$vf-quebra-desktop: 992px;
+$vf-quebra-largo: 1200px;
+$vf-quebra-tv: 1920px;
+
+@mixin a-partir-de-tablet {
+  @media (min-width: $vf-quebra-tablet) {
+    @content;
+  }
+}
+
+@mixin a-partir-de-desktop {
+  @media (min-width: $vf-quebra-desktop) {
+    @content;
+  }
+}
+
+// Só aparece no celular (ex: bottom tab). Some a partir do desktop.
+.somente-mobile {
+  @include a-partir-de-desktop {
+    display: none !important;
+  }
+}
+
+.somente-desktop {
+  @media (max-width: ($vf-quebra-desktop - 0.02px)) {
+    display: none !important;
+  }
+}
+
+@mixin a-partir-de-largo {
+  @media (min-width: $vf-quebra-largo) {
+    @content;
+  }
+}
+
+@mixin a-partir-de-tv {
+  @media (min-width: $vf-quebra-tv) {
+    @content;
+  }
+}

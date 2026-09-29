@@ -1,0 +1,51 @@
+@if (mostrarRestaurar) {
+  <button
+    class="vf-acao"
+    type="button"
+    data-acao="restaurar"
+    [class.vf-acao--bloqueada]="bloquearRestaurar"
+    [attr.aria-disabled]="atributoBloqueado(bloquearRestaurar)"
+    [attr.title]="dica(bloquearRestaurar)"
+    (click)="aoClicarRestaurar()"
+  >
+    <app-icone nome="restaurar" [tamanho]="16"></app-icone>
+    <span class="vf-acao__texto">{{ 'COMUM.RESTAURAR' | translate }}</span>
+    @if (bloquearRestaurar && motivoBloqueio) {
+      <span class="visually-hidden">({{ motivoBloqueio }})</span>
+    }
+  </button>
+}
+@if (mostrarExcluir) {
+  <button
+    class="vf-acao vf-acao--perigo"
+    type="button"
+    data-acao="excluir"
+    [class.vf-acao--bloqueada]="bloquearExcluir"
+    [attr.aria-disabled]="atributoBloqueado(bloquearExcluir)"
+    [attr.title]="dica(bloquearExcluir)"
+    (click)="aoClicarExcluir()"
+  >
+    <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+    <span class="vf-acao__texto">{{ 'COMUM.EXCLUIR' | translate }}</span>
+    @if (bloquearExcluir && motivoBloqueio) {
+      <span class="visually-hidden">({{ motivoBloqueio }})</span>
+    }
+  </button>
+}
+@if (mostrarDefinitivo) {
+  <button
+    class="vf-acao vf-acao--perigo"
+    type="button"
+    data-acao="excluir-definitivo"
+    [class.vf-acao--bloqueada]="bloquearDefinitivo"
+    [attr.aria-disabled]="atributoBloqueado(bloquearDefinitivo)"
+    [attr.title]="dica(bloquearDefinitivo)"
+    (click)="aoClicarDefinitivo()"
+  >
+    <app-icone nome="apagar-definitivo" [tamanho]="16"></app-icone>
+    <span class="vf-acao__texto">{{ 'REMOCAO.DEFINITIVA_ACAO' | translate }}</span>
+    @if (bloquearDefinitivo && motivoBloqueio) {
+      <span class="visually-hidden">({{ motivoBloqueio }})</span>
+    }
+  </button>
+}

@@ -1,0 +1,158 @@
+<div class="vf-pagina animar-surgir" id="pagina-veiculo-form">
+  <app-cabecalho-pagina
+    [etiqueta]="'VEICULOS.ETIQUETA' | translate"
+    [titulo]="chaveTitulo | translate"
+    [rotaVoltar]="rotaVoltar"
+    [rotuloVoltar]="'COMUM.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="4"
+    (tentarNovamente)="carregarVeiculo(idEditando)"
+  >
+    <form
+      #formularioRef
+      class="vf-bloco vf-bloco--formulario"
+      id="formulario-veiculo"
+      novalidate
+      [formGroup]="formulario"
+      [attr.aria-busy]="salvando"
+      (ngSubmit)="salvar()"
+    >
+      @if (erroGeral) {
+        <p class="vf-aviso vf-aviso--erro vf-form-aviso" id="alerta-erro-formulario" role="alert">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>{{ erroGeral }}</span>
+        </p>
+      }
+
+      <div class="vf-grade-campos">
+        <app-campo-formulario
+          idCampo="campo-veiculo-placa"
+          [rotulo]="'VEICULOS.COL_PLACA' | translate"
+          [ajuda]="chaveAjudaPlaca | translate"
+          [obrigatorio]="!editando"
+          [controle]="formulario.controls.placa"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', placa: 'VEICULOS.ERRO_PLACA' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="text"
+            maxlength="8"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            formControlName="placa"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-veiculo-modelo"
+          [rotulo]="'VEICULOS.COL_MODELO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.modelo"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', maxlength: 'ERROS_CAMPO.MAX_CARACTERES' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control"
+            type="text"
+            maxlength="100"
+            autocomplete="off"
+            formControlName="modelo"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-veiculo-ano"
+          [rotulo]="'VEICULOS.COL_ANO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.ano"
+          [mensagens]="{
+            required: 'ERROS_CAMPO.OBRIGATORIO',
+            min: 'ERROS_CAMPO.MINIMO',
+            max: 'ERROS_CAMPO.MAXIMO',
+            inteiro: 'ERROS_CAMPO.INTEIRO'
+          }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="numeric"
+            formControlName="ano"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-veiculo-km-atual"
+          [rotulo]="'VEICULOS.KM_ATUAL' | translate"
+          [ajuda]="chaveAjudaKm | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.kmAtual"
+          [mensagens]="{
+            required: 'ERROS_CAMPO.OBRIGATORIO',
+            min: 'ERROS_CAMPO.MINIMO',
+            max: 'ERROS_CAMPO.MAXIMO',
+            inteiro: 'ERROS_CAMPO.INTEIRO'
+          }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="numeric"
+            formControlName="kmAtual"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-veiculo-km-manutencao"
+          [rotulo]="'VEICULOS.KM_ULTIMA_MANUTENCAO' | translate"
+          [controle]="formulario.controls.kmManutencao"
+          [mensagens]="{
+            min: 'ERROS_CAMPO.MINIMO',
+            max: 'ERROS_CAMPO.MAXIMO',
+            inteiro: 'ERROS_CAMPO.INTEIRO'
+          }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="numeric"
+            formControlName="kmManutencao"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-veiculo-status"
+          [rotulo]="'VEICULOS.COL_STATUS' | translate"
+          [ajuda]="chaveAjudaStatus | translate"
+          [controle]="formulario.controls.status"
+        >
+          <select vfCampoEntrada class="form-select" formControlName="status">
+            @if (statusEmUso) {
+              <option value="IN_USE">{{ 'STATUS_VEICULO.IN_USE' | translate }}</option>
+            }
+            @for (status of statusPermitidos; track status) {
+              <option [value]="status">{{ 'STATUS_VEICULO.' + status | translate }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+      </div>
+
+      <div class="vf-botoes">
+        <button class="btn btn-primary" type="submit" id="botao-salvar-veiculo" [disabled]="salvando">
+          {{ chaveBotaoSalvar | translate }}
+        </button>
+        <a class="btn btn-outline-secondary" id="botao-cancelar-veiculo" [routerLink]="rotaVoltar">
+          {{ 'COMUM.CANCELAR' | translate }}
+        </a>
+      </div>
+    </form>
+  </app-estado-pagina>
+</div>

@@ -1,0 +1,32 @@
+@if (paginacao && paginacao.total > 0) {
+  <nav class="vf-paginacao" [attr.aria-label]="'PAGINACAO.ROTULO' | translate">
+    <p class="vf-paginacao__resumo dado-mono" role="status">
+      {{
+        'PAGINACAO.RESUMO'
+          | translate: { pagina: paginacao.page, total: paginacao.totalPages, itens: paginacao.total }
+      }}
+    </p>
+    <div class="vf-paginacao__botoes">
+      <button
+        class="vf-botao-secundario"
+        type="button"
+        data-acao="pagina-anterior"
+        [disabled]="!temAnterior"
+        (click)="irParaAnterior()"
+      >
+        <app-icone nome="chevron-esquerda" [tamanho]="16"></app-icone>
+        {{ 'PAGINACAO.ANTERIOR' | translate }}
+      </button>
+      <button
+        class="vf-botao-secundario"
+        type="button"
+        data-acao="pagina-proxima"
+        [disabled]="!temProxima"
+        (click)="irParaProxima()"
+      >
+        {{ 'PAGINACAO.PROXIMA' | translate }}
+        <app-icone nome="chevron-direita" [tamanho]="16"></app-icone>
+      </button>
+    </div>
+  </nav>
+}

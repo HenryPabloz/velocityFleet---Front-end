@@ -1,0 +1,193 @@
+<div class="vf-pagina animar-surgir" id="pagina-incidente-detalhe">
+  <app-cabecalho-pagina
+    [etiqueta]="'INCIDENTES.DETALHE_ETIQUETA' | translate"
+    [titulo]="'PAGINAS.INCIDENTES_DETALHE' | translate"
+    rotaVoltar="/incidents"
+    [rotuloVoltar]="'INCIDENTES.VOLTAR' | translate"
+  >
+    @if (incidente) {
+      <app-selo-status tipo="severidade" [valor]="incidente.severity"></app-selo-status>
+      <app-selo-status tipo="incidente" [valor]="incidente.status"></app-selo-status>
+    }
+  </app-cabecalho-pagina>
+
+  @if (erroNegocio) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-negocio" role="alert" tabindex="-1">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroNegocio }}</span>
+    </p>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar()"
+  >
+    @if (incidente) {
+      <section class="vf-bloco" aria-labelledby="titulo-andamento-incidente">
+        <h2 class="visually-hidden" id="titulo-andamento-incidente">{{ 'INCIDENTES.ANDAMENTO' | translate }}</h2>
+        <ol class="vf-etapas-incidente" id="andamento-incidente">
+          @for (etapa of etapas; track etapa; let i = $index) {
+            <li
+              class="vf-etapas-incidente__item"
+              [class.vf-etapas-incidente__item--feita]="etapaFeita(i)"
+              [class.vf-etapas-incidente__item--atual]="etapaAtual(i)"
+              [attr.aria-current]="ariaEtapa(i)"
+            >
+              <span class="vf-etapas-incidente__marca">{{ i + 1 }}</span>
+              <span class="vf-etapas-incidente__rotulo">{{ 'STATUS_INCIDENTE.' + etapa | translate }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+
+      <section class="vf-bloco" aria-labelledby="titulo-dados-incidente">
+        <h2 class="visually-hidden" id="titulo-dados-incidente">{{ 'INCIDENTES.DADOS' | translate }}</h2>
+        <dl class="vf-detalhes">
+          <div>
+            <dt>{{ 'INCIDENTES.TIPO' | translate }}</dt>
+            <dd>{{ 'TIPO_INCIDENTE.' + incidente.type | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'INCIDENTES.SEVERIDADE' | translate }}</dt>
+            <dd><app-selo-status tipo="severidade" [valor]="incidente.severity"></app-selo-status></dd>
+          </div>
+          <div>
+            <dt>{{ 'INCIDENTES.VEICULO' | translate }}</dt>
+            <dd>
+              @if (veiculo) {
+                <a [routerLink]="['/fleet/vehicles', veiculo.id]">
+                  <app-placa [placa]="placa" tamanho="p"></app-placa>
+                  {{ veiculo.model }}
+                </a>
+              } @else {
+                <span class="dado-mono">—</span>
+              }
+            </dd>
+          </div>
+          @if (podeVerMotorista) {
+            <div>
+              <dt>{{ 'INCIDENTES.MOTORISTA' | translate }}</dt>
+              <dd>
+                @if (nomeMotorista) {
+                  <a [routerLink]="['/fleet/drivers', incidente.driverId]">{{ nomeMotorista }}</a>
+                } @else {
+                  <span class="dado-mono">—</span>
+                }
+              </dd>
+            </div>
+          }
+          @if (incidente.tripId) {
+            <div>
+              <dt>{{ 'INCIDENTES.VIAGEM' | translate }}</dt>
+              <dd>
+                <a [routerLink]="['/trips', incidente.tripId]">{{ 'INCIDENTES.VER_VIAGEM' | translate }}</a>
+              </dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'INCIDENTES.REGISTRADO_EM' | translate }}</dt>
+            <dd class="dado-mono">{{ incidente.createdAt | dataHoraCurta }}</dd>
+          </div>
+          <div class="vf-detalhes__largo">
+            <dt>{{ 'INCIDENTES.DESCRICAO' | translate }}</dt>
+            <dd id="descricao-incidente">{{ incidente.description }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="vf-bloco" aria-labelledby="titulo-foto-incidente" id="foto-incidente">
+        <h2 class="vf-bloco__titulo" id="titulo-foto-incidente">{{ 'INCIDENTES.FOTO' | translate }}</h2>
+        @if (incidente.photoUrl) {
+          @if (fotoEhPdf) {
+            <a class="btn btn-outline-secondary" id="link-foto-incidente" [href]="incidente.photoUrl" target="_blank" rel="noopener">
+              <app-icone nome="arquivo" [tamanho]="16"></app-icone>
+              {{ 'INCIDENTES.ABRIR_PDF' | translate }}
+            </a>
+          } @else if (fotoFalhou) {
+            <p class="vf-aviso vf-aviso--aviso" role="status">
+              <app-icone nome="alerta" [tamanho]="18"></app-icone>
+              <span>{{ 'INCIDENTES.FOTO_INDISPONIVEL' | translate }}</span>
+            </p>
+          } @else {
+            <a class="vf-foto-incidente" [href]="incidente.photoUrl" target="_blank" rel="noopener">
+              <img
+                id="imagem-incidente"
+                [src]="incidente.photoUrl"
+                [alt]="'INCIDENTES.FOTO_ALT' | translate"
+                loading="lazy"
+                crossorigin="anonymous"
+                (error)="aoErrarFoto()"
+              />
+              <span class="visually-hidden">{{ 'INCIDENTES.ABRIR_FOTO' | translate }}</span>
+            </a>
+          }
+        } @else {
+          <p class="vf-foto-incidente__vazia" id="sem-foto-incidente">
+            <app-icone nome="imagem" [tamanho]="18"></app-icone>
+            {{ 'INCIDENTES.SEM_FOTO' | translate }}
+          </p>
+        }
+      </section>
+
+      @if (podeMudarStatus || podeExcluir) {
+        <section class="vf-bloco" aria-labelledby="titulo-acoes-incidente" id="acoes-incidente">
+          <h2 class="vf-bloco__titulo" id="titulo-acoes-incidente">{{ 'INCIDENTES.ACOES' | translate }}</h2>
+
+          @if (podeMudarStatus) {
+            @if (resolvido) {
+              <p class="vf-acoes-encerrada" id="aviso-incidente-resolvido">{{ 'INCIDENTES.RESOLVIDO_AVISO' | translate }}</p>
+            } @else {
+              <div class="vf-mudar-status">
+                <app-campo-formulario
+                  idCampo="campo-incidente-status"
+                  [rotulo]="'INCIDENTES.NOVO_STATUS' | translate"
+                  [ajuda]="'INCIDENTES.AJUDA_STATUS' | translate"
+                >
+                  <select vfCampoEntrada class="form-select" [(ngModel)]="novoStatus">
+                    <option value="">{{ 'INCIDENTES.ESCOLHA_STATUS' | translate }}</option>
+                    @for (status of proximosStatus; track status) {
+                      <option [value]="status">{{ 'STATUS_INCIDENTE.' + status | translate }}</option>
+                    }
+                  </select>
+                </app-campo-formulario>
+                <button
+                  class="btn btn-primary"
+                  type="button"
+                  id="botao-mudar-status-incidente"
+                  [disabled]="processando"
+                  [attr.aria-busy]="processando"
+                  (click)="mudarStatus()"
+                >
+                  {{ 'INCIDENTES.MUDAR_STATUS' | translate }}
+                </button>
+              </div>
+              @if (erroNovoStatus) {
+                <p class="vf-campo__erro" id="erro-novo-status-incidente" role="alert">
+                  <app-icone nome="alerta" [tamanho]="14"></app-icone>
+                  <span>{{ erroNovoStatus }}</span>
+                </p>
+              }
+            }
+          }
+
+          @if (podeExcluir) {
+            <div class="vf-botoes">
+              <button
+                class="btn btn-perigo btn-outline-secondary"
+                type="button"
+                id="botao-excluir-incidente"
+                [disabled]="processando"
+                (click)="excluir()"
+              >
+                <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+                {{ 'INCIDENTES.EXCLUIR' | translate }}
+              </button>
+            </div>
+          }
+        </section>
+      }
+    }
+  </app-estado-pagina>
+</div>

@@ -1,0 +1,81 @@
+// Caixa de marcar com área de toque de 44px.
+.vf-check {
+  display: flex;
+  align-items: center;
+  gap: var(--vf-espaco-3);
+  min-height: 44px;
+  padding-left: 0;
+
+  .form-check-input {
+    flex: none;
+    float: none;
+    width: 1.4rem;
+    height: 1.4rem;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .form-check-label {
+    cursor: pointer;
+  }
+}
+
+.vf-campo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  .form-control,
+  .form-select {
+    min-height: 44px;
+  }
+
+  &__obrigatorio {
+    margin-left: 2px;
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  &__ajuda {
+    margin: var(--vf-espaco-1) 0 0;
+    font-size: var(--vf-texto-xs);
+    color: var(--vf-cor-texto-suave);
+  }
+
+  // A área de erro sempre existe (aria-live), mas só ocupa espaço quando tem texto.
+  &__erro {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--vf-espaco-1);
+    min-height: 1.25rem;
+    margin: var(--vf-espaco-1) 0 0;
+    font-size: var(--vf-texto-sm);
+    color: var(--vf-cor-destaque-texto);
+
+    app-icone {
+      margin-top: 2px;
+    }
+  }
+}
+
+.vf-grade-campos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--vf-espaco-2) var(--vf-espaco-5);
+  align-items: start;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  &__largo {
+    grid-column: 1 / -1;
+  }
+}
+
+// Contador de caracteres colado embaixo do campo de texto.
+.vf-contador {
+  margin: calc(var(--vf-espaco-1) * -1) 0 var(--vf-espaco-2);
+  font-size: var(--vf-texto-xs);
+  text-align: right;
+  color: var(--vf-cor-texto-suave);
+}

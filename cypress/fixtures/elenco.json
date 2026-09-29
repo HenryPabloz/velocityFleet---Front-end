@@ -1,0 +1,41 @@
+{
+  "_comentario": "Espelho de src/testing/dados-reais.ts. Mantenha os dois arquivos iguais.",
+  "pessoas": {
+    "marcos": {
+      "nomeCompleto": "Marcos Vinícius Andrade",
+      "email": "marcos.andrade@velocityfleet.com.br",
+      "papel": "DRIVER",
+      "cnh": "04821736590",
+      "validadeCnh": "2031-03-18"
+    },
+    "patricia": {
+      "nomeCompleto": "Patrícia Lemos Figueiredo",
+      "email": "patricia.figueiredo@velocityfleet.com.br",
+      "papel": "FLEET_MANAGER"
+    },
+    "roberto": {
+      "nomeCompleto": "Roberto Carvalho Neto",
+      "email": "roberto.carvalho@velocityfleet.com.br",
+      "papel": "ADMIN"
+    },
+    "juliana": {
+      "nomeCompleto": "Juliana Souza Barbosa",
+      "email": "juliana.barbosa@velocityfleet.com.br",
+      "papel": "DRIVER",
+      "cnh": "07394528164",
+      "validadeCnh": "2030-11-02"
+    }
+  },
+  "veiculos": {
+    "strada": { "placa": "RIO4E56", "modelo": "Fiat Strada Endurance", "ano": 2023, "kmAtual": 18450 },
+    "saveiro": { "placa": "GHK4821", "placaFormatada": "GHK-4821", "modelo": "Volkswagen Saveiro Robust", "ano": 2018, "kmAtual": 96210 },
+    "master": { "placa": "BRA2E19", "modelo": "Renault Master Furgão", "ano": 2021, "kmAtual": 61830 }
+  },
+  "enderecos": {
+    "avenidaPaulista": { "cep": "01310-100", "texto": "Avenida Paulista, Bela Vista, São Paulo - SP" },
+    "pracaSete": { "cep": "30130-010", "texto": "Praça Sete de Setembro, Centro, Belo Horizonte - MG" }
+  },
+  "abastecimento": { "litros": 42, "precoLitro": 6.29, "combustivel": "GASOLINE" },
+  "manutencao": { "tipo": "PREVENTIVE", "descricao": "Troca de óleo e filtros aos 20.000 km", "custo": 480, "agendadaPara": "2026-10-15" },
+  "incidente": { "tipo": "MECHANICAL_FAILURE", "severidade": "MEDIUM", "descricao": "Pneu dianteiro direito estourado na BR-116, km 214, sem feridos" }
+}

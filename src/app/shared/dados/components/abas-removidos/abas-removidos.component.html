@@ -1,0 +1,25 @@
+@if (visivel) {
+  <div class="vf-abas-removidos" id="abas-removidos" role="group" [attr.aria-label]="'REMOCAO.ABAS' | translate">
+    <button
+      class="vf-abas-removidos__aba"
+      type="button"
+      [id]="idAbaAtivos"
+      [class.vf-abas-removidos__aba--ativa]="!removidos"
+      [attr.aria-pressed]="!removidos"
+      (click)="escolher(false)"
+    >
+      {{ rotuloAtivos }}
+    </button>
+    <button
+      class="vf-abas-removidos__aba"
+      type="button"
+      [id]="idAbaRemovidos"
+      [class.vf-abas-removidos__aba--ativa]="removidos"
+      [attr.aria-pressed]="removidos"
+      (click)="escolher(true)"
+    >
+      <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+      {{ rotuloRemovidos }}
+    </button>
+  </div>
+}

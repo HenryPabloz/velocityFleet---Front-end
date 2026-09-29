@@ -1,0 +1,13 @@
+// Sombras suaves em camadas. A cor da sombra vem do tema (--vf-cor-sombra).
+:root {
+  --vf-sombra-sm:
+    0 1px 2px rgb(var(--vf-cor-sombra) / 0.08), 0 1px 1px rgb(var(--vf-cor-sombra) / 0.05);
+  --vf-sombra-md:
+    0 6px 16px -4px rgb(var(--vf-cor-sombra) / 0.14), 0 2px 4px rgb(var(--vf-cor-sombra) / 0.06);
+  --vf-sombra-lg:
+    0 24px 48px -12px rgb(var(--vf-cor-sombra) / 0.22), 0 6px 12px rgb(var(--vf-cor-sombra) / 0.08);
+  --vf-sombra-brilho: 0 8px 24px -6px rgb(212 25 32 / 0.45);
+
+  --vf-transicao-rapida: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --vf-transicao-media: 280ms cubic-bezier(0.2, 0, 0, 1);
+}

@@ -1,0 +1,9 @@
+.vf-veiculo-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vf-espaco-4);
+  margin-bottom: var(--vf-espaco-5);
+  padding-bottom: var(--vf-espaco-5);
+  border-bottom: 1px solid var(--vf-cor-borda);
+}

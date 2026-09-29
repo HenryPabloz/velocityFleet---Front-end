@@ -1,0 +1,158 @@
+<div class="vf-pagina animar-surgir" id="pagina-abastecimento-form">
+  <app-cabecalho-pagina
+    [etiqueta]="'ABASTECIMENTOS.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.ABASTECIMENTOS_NOVO' | translate"
+    [subtitulo]="'ABASTECIMENTOS.SUBTITULO_NOVO' | translate"
+    rotaVoltar="/refuelings"
+    [rotuloVoltar]="'ABASTECIMENTOS.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="4"
+    (tentarNovamente)="carregarOpcoes()"
+  >
+    <form
+      #formularioRef
+      class="vf-bloco vf-bloco--formulario"
+      id="formulario-abastecimento"
+      novalidate
+      [formGroup]="formulario"
+      [attr.aria-busy]="salvando"
+      (ngSubmit)="salvar()"
+    >
+      @if (semMotoristaVinculado) {
+        <p class="vf-aviso vf-aviso--aviso" id="aviso-sem-motorista" role="alert">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>
+            <strong class="vf-aviso__titulo">{{ 'ABASTECIMENTOS.SEM_MOTORISTA_TITULO' | translate }}</strong>
+            {{ 'ABASTECIMENTOS.SEM_MOTORISTA_TEXTO' | translate }}
+          </span>
+        </p>
+      }
+
+      @if (erroGeral) {
+        <p class="vf-aviso vf-aviso--erro" id="alerta-erro-negocio" role="alert" tabindex="-1">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>{{ erroGeral }}</span>
+        </p>
+      }
+
+      <div class="vf-grade-campos">
+        <app-campo-formulario
+          idCampo="campo-abastecimento-veiculo"
+          [rotulo]="'ABASTECIMENTOS.VEICULO' | translate"
+          [ajuda]="'ABASTECIMENTOS.AJUDA_VEICULO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.veiculo"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        >
+          <select vfCampoEntrada class="form-select" formControlName="veiculo">
+            <option value="">{{ 'ABASTECIMENTOS.ESCOLHA_VEICULO' | translate }}</option>
+            @for (veiculo of veiculos; track veiculo.id) {
+              <option [value]="veiculo.id">{{ veiculo.plate | placa }} — {{ veiculo.model }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        @if (escolheMotorista) {
+          <app-campo-formulario
+            idCampo="campo-abastecimento-motorista"
+            [rotulo]="'ABASTECIMENTOS.MOTORISTA' | translate"
+            [ajuda]="'ABASTECIMENTOS.AJUDA_MOTORISTA' | translate"
+            [obrigatorio]="true"
+            [controle]="formulario.controls.motorista"
+            [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+          >
+            <select vfCampoEntrada class="form-select" formControlName="motorista">
+              <option value="">{{ 'ABASTECIMENTOS.ESCOLHA_MOTORISTA' | translate }}</option>
+              @for (opcao of opcoesMotoristas; track opcao.id) {
+                <option [value]="opcao.id">{{ opcao.rotulo }}</option>
+              }
+            </select>
+          </app-campo-formulario>
+        } @else {
+          <p class="vf-abastecimento-proprio" id="info-motorista-proprio">
+            <app-icone nome="usuario" [tamanho]="18"></app-icone>
+            {{ 'ABASTECIMENTOS.MOTORISTA_PROPRIO' | translate }}
+          </p>
+        }
+
+        <app-campo-formulario
+          idCampo="campo-abastecimento-combustivel"
+          [rotulo]="'ABASTECIMENTOS.COMBUSTIVEL' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.combustivel"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        >
+          <select vfCampoEntrada class="form-select" formControlName="combustivel">
+            <option value="">{{ 'ABASTECIMENTOS.ESCOLHA_COMBUSTIVEL' | translate }}</option>
+            @for (tipo of tiposCombustivel; track tipo) {
+              <option [value]="tipo">{{ 'COMBUSTIVEL.' + tipo | translate }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-abastecimento-litros"
+          [rotulo]="'ABASTECIMENTOS.LITROS' | translate"
+          [ajuda]="'ABASTECIMENTOS.AJUDA_LITROS' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.litros"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', min: 'ABASTECIMENTOS.ERRO_MAIOR_QUE_ZERO' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="decimal"
+            step="0.01"
+            min="0"
+            formControlName="litros"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-abastecimento-preco-litro"
+          [rotulo]="'ABASTECIMENTOS.PRECO_LITRO' | translate"
+          [ajuda]="'ABASTECIMENTOS.AJUDA_PRECO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.precoLitro"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', min: 'ABASTECIMENTOS.ERRO_MAIOR_QUE_ZERO' }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="decimal"
+            step="0.0001"
+            min="0"
+            formControlName="precoLitro"
+          />
+        </app-campo-formulario>
+
+        <div class="vf-grade-campos__largo vf-total-estimado" id="total-estimado-abastecimento" role="status">
+          <span class="vf-total-estimado__rotulo">{{ 'ABASTECIMENTOS.TOTAL_ESTIMADO' | translate }}</span>
+          <strong class="vf-total-estimado__valor dado-mono">{{ totalEstimado }}</strong>
+          <span class="vf-total-estimado__nota">{{ 'ABASTECIMENTOS.TOTAL_NOTA' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="vf-botoes">
+        <button
+          class="btn btn-primary"
+          type="submit"
+          id="botao-salvar-abastecimento"
+          [disabled]="salvando || semMotoristaVinculado"
+        >
+          <app-icone nome="abastecimentos" [tamanho]="16"></app-icone>
+          {{ chaveBotaoSalvar | translate }}
+        </button>
+        <a class="btn btn-outline-secondary" id="botao-cancelar-abastecimento" routerLink="/refuelings">
+          {{ 'COMUM.CANCELAR' | translate }}
+        </a>
+      </div>
+    </form>
+  </app-estado-pagina>
+</div>

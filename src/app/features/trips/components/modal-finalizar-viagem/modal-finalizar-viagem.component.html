@@ -1,0 +1,83 @@
+<form
+  #formularioRef
+  id="formulario-finalizar-viagem"
+  novalidate
+  [formGroup]="formulario"
+  [attr.aria-busy]="enviando"
+  (ngSubmit)="enviar()"
+>
+  <div class="modal-header vf-confirmar__cabeca">
+    <h2 class="modal-title vf-confirmar__titulo" id="titulo-modal-finalizar">
+      {{ 'VIAGENS.FINALIZAR_TITULO' | translate }}
+    </h2>
+    <button
+      type="button"
+      class="vf-confirmar__fechar"
+      [attr.aria-label]="'COMUM.CANCELAR' | translate"
+      (click)="modalAtivo.dismiss()"
+    >
+      <app-icone nome="fechar" [tamanho]="18"></app-icone>
+    </button>
+  </div>
+
+  <div class="modal-body vf-finalizar__corpo">
+    @if (erroGeral) {
+      <p class="vf-aviso vf-aviso--erro" id="alerta-erro-finalizar" role="alert">
+        <app-icone nome="alerta" [tamanho]="18"></app-icone>
+        <span>{{ erroGeral }}</span>
+      </p>
+    }
+
+    <app-campo-formulario
+      idCampo="campo-km-rodados"
+      [rotulo]="'VIAGENS.KM_RODADOS_CAMPO' | translate"
+      [ajuda]="'VIAGENS.AJUDA_KM_RODADOS' | translate"
+      [obrigatorio]="true"
+      [controle]="formulario.controls.kmRodados"
+      [mensagens]="{
+        required: 'ERROS_CAMPO.OBRIGATORIO',
+        min: 'ERROS_CAMPO.MINIMO',
+        max: 'ERROS_CAMPO.MAXIMO',
+        inteiro: 'ERROS_CAMPO.INTEIRO'
+      }"
+    >
+      <input
+        vfCampoEntrada
+        class="form-control dado-mono"
+        type="number"
+        inputmode="numeric"
+        min="1"
+        max="100000"
+        formControlName="kmRodados"
+      />
+    </app-campo-formulario>
+
+    <app-campo-formulario
+      idCampo="campo-local-final"
+      [rotulo]="'VIAGENS.LOCAL_FINAL' | translate"
+      [ajuda]="'VIAGENS.AJUDA_LOCAL_FINAL' | translate"
+      [obrigatorio]="true"
+      [controle]="formulario.controls.localFinal"
+      [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', maxlength: 'ERROS_CAMPO.MAX_CARACTERES' }"
+    >
+      <input
+        vfCampoEntrada
+        class="form-control"
+        type="text"
+        maxlength="255"
+        autocomplete="off"
+        formControlName="localFinal"
+      />
+    </app-campo-formulario>
+  </div>
+
+  <div class="modal-footer vf-confirmar__rodape">
+    <button type="button" class="btn btn-outline-secondary" id="botao-cancelar-modal" (click)="modalAtivo.dismiss()">
+      {{ 'COMUM.CANCELAR' | translate }}
+    </button>
+    <button type="submit" class="btn btn-primary" id="botao-confirmar-finalizar" [disabled]="enviando">
+      <app-icone nome="bandeira" [tamanho]="16"></app-icone>
+      {{ chaveBotao | translate }}
+    </button>
+  </div>
+</form>

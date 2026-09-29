@@ -1,0 +1,139 @@
+// Régua de andamento: três paradas ligadas por uma linha (como a régua do conta-giros do dashboard).
+.vf-etapas {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+    min-width: 0;
+    color: var(--vf-cor-texto-suave);
+    text-align: center;
+
+    // Linha que liga uma parada à anterior.
+    &:not(:first-child)::before {
+      content: '';
+      position: absolute;
+      top: 21px;
+      right: 50%;
+      left: -50%;
+      height: 3px;
+      background: var(--vf-cor-borda);
+    }
+
+    &--feita,
+    &--atual {
+      color: var(--vf-cor-texto);
+    }
+
+    &--feita:not(:first-child)::before,
+    &--atual:not(:first-child)::before {
+      background: var(--vf-cor-destaque);
+    }
+  }
+
+  &__marca {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 3px solid var(--vf-cor-borda);
+    border-radius: 50%;
+    background: var(--vf-cor-superficie);
+  }
+
+  &__item--feita &__marca {
+    border-color: var(--vf-cor-destaque);
+    background: var(--vf-cor-destaque);
+    color: var(--vf-cor-sobre-destaque);
+  }
+
+  &__item--atual &__marca {
+    border-color: var(--vf-cor-destaque);
+    color: var(--vf-cor-destaque-texto);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--vf-cor-destaque) 18%, transparent);
+  }
+
+  &__rotulo {
+    font-size: var(--vf-texto-sm);
+    font-weight: 600;
+  }
+}
+
+.vf-aviso-cancelada {
+  margin-top: var(--vf-espaco-4);
+}
+
+// Origem e destino com uma linha tracejada no meio.
+.vf-rota-viagem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-3);
+  margin-bottom: var(--vf-espaco-5);
+  padding-bottom: var(--vf-espaco-5);
+  border-bottom: 1px solid var(--vf-cor-borda);
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  &__ponto {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    font-family: var(--vf-fonte-titulo);
+    font-size: var(--vf-texto-lg);
+    letter-spacing: 0.03em;
+    overflow-wrap: anywhere;
+
+    app-icone {
+      color: var(--vf-cor-destaque-texto);
+    }
+
+    strong {
+      font-weight: 400;
+    }
+  }
+
+  &__rotulo {
+    font-family: var(--vf-fonte-corpo);
+    font-size: var(--vf-texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__linha {
+    height: 0;
+    border-top: 3px dotted var(--vf-cor-borda);
+
+    @media (min-width: 768px) {
+      flex: 0 0 22%;
+    }
+  }
+}
+
+.vf-viagem-veiculo {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--vf-espaco-2);
+}
+
+.vf-acoes-encerrada {
+  margin: 0;
+  color: var(--vf-cor-texto-suave);
+}

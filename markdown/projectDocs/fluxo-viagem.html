@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Fleet Management – Fluxo da Viagem</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,400..700;1,300..700&display=swap">
+<style>
+  html, body { margin: 0; height: 100%; background: #14181A; overflow: hidden; }
+  #slide { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0;
+    background: #fff; color: #354255; font-family: 'Exo', sans-serif; box-sizing: border-box; padding: 96px 96px 140px;
+    display: flex; flex-direction: column; justify-content: space-between; }
+  p, h1, h3 { margin: 0; }
+  .topo { display: flex; flex-direction: column; gap: 12px; }
+  .eyebrow { font-size: 24px; font-weight: 600; font-style: italic; color: #596474; text-transform: uppercase; letter-spacing: 2px; }
+  h1 { font-size: 56px; font-weight: 700; font-style: italic; color: #D22730; line-height: 1.1; }
+  .sub { font-size: 26px; font-style: italic; font-weight: 500; color: #596474; line-height: 1.3; }
+  .canvas { position: relative; width: 1728px; height: 450px; }
+  .canvas svg { position: absolute; left: 0; top: 0; }
+  .card { position: absolute; width: 460px; box-sizing: border-box; border-radius: 8px; padding: 20px 18px; display: flex; flex-direction: column; gap: 6px; }
+  .branco { height: 220px; background: #fff; border: 1px solid #CBCCCB; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+  .escuro, .vermelho { height: 150px; top: 300px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+  .escuro { background: #14181A; } .vermelho { background: #D22730; }
+  .num { font-size: 24px; font-weight: 700; color: #D22730; letter-spacing: 1px; }
+  .card h3 { font-size: 40px; font-weight: 700; line-height: 1.15; }
+  .escuro h3, .vermelho h3 { font-size: 36px; color: #fff; }
+  .en { font-size: 26px; font-style: italic; color: #596474; }
+  .escuro .en, .vermelho .en { color: #fff; }
+  .det { font-size: 24px; line-height: 1.3; }
+  .escuro .det { color: #ADADAD; } .vermelho .det { color: #FBE3E4; }
+  .perfis { display: flex; gap: 24px; }
+  .perfil { flex: 1; display: flex; align-items: center; gap: 14px; background: #E9EEF2; border-radius: 32px; padding: 14px 22px; }
+  .perfil i { width: 20px; height: 20px; border-radius: 50%; background: #D22730; flex: none; }
+  .perfil b { display: block; font-size: 26px; color: #354255; }
+  .perfil span { display: block; font-size: 24px; font-style: italic; color: #596474; }
+  .rodape { position: absolute; bottom: 64px; font-size: 24px; }
+</style>
+</head>
+<body>
+<div id="slide">
+  <div class="topo">
+    <p class="eyebrow">Gestão de Frota · Fleet Management</p>
+    <h1>_Fluxo da Viagem</h1>
+    <p class="sub">Do planejamento à conclusão, com as regras do hodômetro · From planning to completion, with the odometer rules</p>
+  </div>
+
+  <div class="canvas">
+    <svg width="1728" height="450" viewBox="0 0 1728 450" fill="none">
+      <defs>
+        <marker id="seta" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#062033"/></marker>
+        <marker id="setaCinza" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#596474"/></marker>
+      </defs>
+      <path d="M460 110 H630" stroke="#062033" stroke-width="3" marker-end="url(#seta)"/>
+      <path d="M1094 110 H1264" stroke="#062033" stroke-width="3" marker-end="url(#seta)"/>
+      <path d="M230 220 V260 H760 V296" stroke="#596474" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#setaCinza)"/>
+      <path d="M864 220 V260 H968 V296" stroke="#596474" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#setaCinza)"/>
+    </svg>
+
+    <div class="card branco" style="left:0;top:0"><p class="num">01</p><h3>Planejada</h3><p class="en">Planned</p><p class="det">create_trip · veículo vira IN_USE</p></div>
+    <div class="card branco" style="left:634px;top:0"><p class="num">02</p><h3>Em Andamento</h3><p class="en">In Progress</p><p class="det">start_trip · sem body, o status valida</p></div>
+    <div class="card branco" style="left:1268px;top:0"><p class="num">03</p><h3>Concluída</h3><p class="en">Completed</p><p class="det">end_trip · km rodados somam ao hodômetro</p></div>
+
+    <div class="card escuro" style="left:634px"><h3>Cancelada</h3><p class="en">Cancelled</p><p class="det">cancel_trip · antes de concluir</p></div>
+    <div class="card vermelho" style="left:1268px"><h3>Hodômetro</h3><p class="en">Odometer</p><p class="det">só muda pelas viagens</p></div>
+  </div>
+
+  <div class="perfis">
+    <div class="perfil"><i></i><div><b>Administrador</b><span>Admin</span></div></div>
+    <div class="perfil"><i></i><div><b>Gerente de Frota</b><span>Fleet Manager</span></div></div>
+    <div class="perfil"><i></i><div><b>Motorista</b><span>Driver · só as próprias</span></div></div>
+  </div>
+
+  <p class="rodape" style="left:96px;font-weight:700;font-style:italic;color:#D22730">_Fleet Management</p>
+  <p class="rodape" style="right:96px;color:#596474">API de Gestão de Frota · Fleet Management API</p>
+</div>
+<script>
+  // Ajusta o slide de 1920x1080 ao tamanho da janela.
+  function ajustar() {
+    var escala = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    var slide = document.getElementById('slide');
+    slide.style.transform = 'scale(' + escala + ')';
+    slide.style.left = ((window.innerWidth - 1920 * escala) / 2) + 'px';
+    slide.style.top = ((window.innerHeight - 1080 * escala) / 2) + 'px';
+  }
+  window.addEventListener('resize', ajustar);
+  ajustar();
+</script>
+</body>
+</html>

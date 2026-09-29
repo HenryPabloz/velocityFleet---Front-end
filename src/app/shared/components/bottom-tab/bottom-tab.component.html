@@ -1,0 +1,66 @@
+<div class="vf-tab" (focusout)="aoSairDoGrupo($event)">
+  @if (maisAberto) {
+    <div
+      class="vf-painel vf-painel--acima animar-surgir"
+      id="menu-mais"
+      role="group"
+      [attr.aria-label]="'MENU.MAIS_OPCOES' | translate"
+    >
+      @for (item of itensExtras; track item.id) {
+        <a
+          class="vf-painel__item"
+          [routerLink]="item.rota"
+          [attr.aria-current]="valorAriaCurrent(item)"
+          [attr.data-item]="item.id"
+          (click)="fecharMais()"
+        >
+          <app-icone [nome]="item.icone" [tamanho]="20"></app-icone>
+          <span>{{ item.chaveRotulo | translate }}</span>
+        </a>
+      }
+    </div>
+  }
+
+  <nav
+    class="vf-menu vf-menu--horizontal vf-tab__nav"
+    id="navegacao-inferior"
+    #menu
+    [attr.aria-label]="'MENU.PRINCIPAL' | translate"
+  >
+    <span class="vf-menu__indicador" aria-hidden="true"></span>
+    <ul class="vf-menu__lista">
+      @for (item of itensFixos; track item.id) {
+        <li>
+          <a
+            class="vf-menu__item"
+            [class.vf-menu__item--ativo]="estaAtivo(item)"
+            [routerLink]="item.rota"
+            [attr.aria-current]="valorAriaCurrent(item)"
+            [attr.data-item]="item.id"
+            [attr.aria-label]="item.chaveRotulo | translate"
+          >
+            <app-icone class="vf-menu__icone" [nome]="item.icone"></app-icone>
+            <span class="vf-menu__rotulo">{{ item.chaveRotuloCurto | translate }}</span>
+          </a>
+        </li>
+      }
+      @if (itensExtras.length > 0) {
+        <li>
+          <button
+            class="vf-menu__item"
+            [class.vf-menu__item--ativo]="maisEstaAtivo"
+            id="botao-mais"
+            #botaoMais
+            type="button"
+            aria-controls="menu-mais"
+            [attr.aria-expanded]="maisAberto"
+            (click)="alternarMais()"
+          >
+            <app-icone class="vf-menu__icone" nome="mais" [tamanho]="22" [espessura]="1.75"></app-icone>
+            <span class="vf-menu__rotulo">{{ 'MENU.MAIS' | translate }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+</div>

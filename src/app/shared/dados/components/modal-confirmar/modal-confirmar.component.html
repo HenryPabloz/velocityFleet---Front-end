@@ -1,0 +1,34 @@
+<div class="modal-header vf-confirmar__cabeca">
+  <h2 class="modal-title vf-confirmar__titulo" id="titulo-modal-confirmar">{{ opcoes.titulo }}</h2>
+  <button
+    type="button"
+    class="vf-confirmar__fechar"
+    [attr.aria-label]="opcoes.textoCancelar"
+    (click)="modalAtivo.dismiss()"
+  >
+    <app-icone nome="fechar" [tamanho]="18"></app-icone>
+  </button>
+</div>
+<div class="modal-body">
+  <p class="vf-confirmar__texto" id="texto-modal-confirmar">{{ opcoes.mensagem }}</p>
+</div>
+<div class="modal-footer vf-confirmar__rodape">
+  <button
+    #botaoCancelar
+    type="button"
+    class="btn btn-outline-secondary"
+    id="botao-cancelar-modal"
+    (click)="modalAtivo.dismiss()"
+  >
+    {{ opcoes.textoCancelar }}
+  </button>
+  <button
+    #botaoConfirmar
+    type="button"
+    class="btn btn-primary"
+    id="botao-confirmar"
+    (click)="modalAtivo.close(true)"
+  >
+    {{ opcoes.textoConfirmar }}
+  </button>
+</div>

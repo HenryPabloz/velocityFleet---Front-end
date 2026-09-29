@@ -1,0 +1,126 @@
+// Kit de página das telas de dados (frota, viagens e as próximas levas).
+.vf-pagina {
+  display: flex;
+  flex-direction: column;
+  gap: var(--vf-espaco-5);
+  min-width: 0;
+
+  &__topo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--vf-espaco-4);
+  }
+
+  &__texto {
+    min-width: 0;
+  }
+
+  &__voltar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--vf-espaco-2);
+    min-height: 44px;
+    color: var(--vf-cor-texto-suave);
+    font-size: var(--vf-texto-sm);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--vf-cor-destaque-texto);
+    }
+  }
+
+  &__etiqueta {
+    margin: 0 0 var(--vf-espaco-1);
+    font-size: var(--vf-texto-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vf-cor-destaque-texto);
+  }
+
+  &__titulo {
+    margin: 0;
+    font-size: var(--vf-texto-2xl);
+    overflow-wrap: anywhere;
+  }
+
+  &__subtitulo {
+    margin: var(--vf-espaco-2) 0 0;
+    max-width: 60ch;
+    color: var(--vf-cor-texto-suave);
+  }
+
+  &__acoes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--vf-espaco-3);
+
+    &:empty {
+      display: none;
+    }
+  }
+}
+
+.vf-pagina .btn,
+.vf-botoes .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vf-espaco-2);
+  min-height: 44px;
+}
+
+.btn-perigo {
+  --bs-btn-color: var(--vf-cor-destaque-texto);
+  --bs-btn-border-color: var(--vf-cor-destaque-texto);
+  --bs-btn-hover-bg: var(--vf-vermelho-600);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-border-color: var(--vf-vermelho-600);
+  --bs-btn-active-bg: var(--vf-vermelho-700);
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-color: var(--vf-cor-texto-suave);
+  --bs-btn-disabled-border-color: var(--vf-cor-borda);
+  background: transparent;
+}
+
+// Painel: superfície com a régua de conta-giros do dashboard.
+.vf-bloco {
+  position: relative;
+  min-width: 0;
+  padding: var(--vf-espaco-5);
+  padding-top: calc(var(--vf-espaco-5) + 6px);
+  overflow: hidden;
+  border: 1px solid var(--vf-cor-borda);
+  border-radius: var(--vf-raio-md);
+  background: var(--vf-cor-superficie);
+  box-shadow: var(--vf-sombra-sm);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, var(--vf-cor-borda) 0 1px, transparent 1px 8px);
+  }
+
+  &__titulo {
+    margin: 0 0 var(--vf-espaco-4);
+    font-size: var(--vf-texto-xl);
+  }
+
+  &--sem-regua::before {
+    display: none;
+  }
+
+  > .vf-aviso {
+    margin-bottom: var(--vf-espaco-4);
+  }
+
+  // Formulários não precisam ocupar a tela toda em telas grandes.
+  &--formulario {
+    max-width: 62rem;
+  }
+}

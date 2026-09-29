@@ -1,0 +1,349 @@
+// Menus do app: barra lateral (grafite, sempre escura) e bottom tab (segue o tema).
+// A assinatura é o indicador vermelho que desliza até o item ativo.
+@use '../utilities/responsive' as r;
+
+// ---------- Base compartilhada ----------
+.vf-menu {
+  position: relative;
+
+  &__lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__indicador {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: var(--indicador-opacidade, 0);
+  }
+
+  // A transition só liga depois da primeira posição (classe vem do TS).
+  &--animar &__indicador {
+    transition:
+      transform 360ms cubic-bezier(0.2, 0, 0, 1),
+      width 360ms cubic-bezier(0.2, 0, 0, 1),
+      height 360ms cubic-bezier(0.2, 0, 0, 1),
+      opacity 200ms ease;
+  }
+
+  &__item {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 0.875rem;
+    border: 0;
+    border-radius: var(--vf-raio-sm);
+    background: transparent;
+    color: var(--menu-suave);
+    font: inherit;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color var(--vf-transicao-rapida),
+      background-color var(--vf-transicao-rapida);
+
+    &:hover {
+      color: var(--menu-texto);
+      background: var(--menu-hover);
+    }
+
+    &--ativo,
+    &--ativo:hover {
+      color: var(--menu-destaque);
+      background: transparent;
+    }
+  }
+
+  &__icone {
+    flex: none;
+  }
+
+  &__rotulo {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// ---------- Barra lateral ----------
+.vf-barra {
+  --menu-texto: #ececee;
+  --menu-suave: #a4a4ad;
+  --menu-destaque: var(--vf-vermelho-400);
+  --menu-hover: rgb(255 255 255 / 0.07);
+  --menu-borda: var(--vf-preto-700);
+  --vf-cor-foco: var(--vf-vermelho-400);
+
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  width: min(85vw, 300px);
+  background: var(--vf-preto-900);
+  color: var(--menu-texto);
+  border-right: 1px solid var(--menu-borda);
+  visibility: hidden;
+  transform: translateX(-100%);
+  transition:
+    transform var(--vf-transicao-media),
+    visibility 0s linear 280ms;
+
+  &--gaveta-aberta {
+    visibility: visible;
+    transform: none;
+    box-shadow: var(--vf-sombra-lg);
+    transition-delay: 0s;
+  }
+
+  @include r.a-partir-de-tablet {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    width: auto;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 30;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+  }
+
+  &__topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--vf-altura-cabecalho);
+    padding: 0 1rem 0 1.5rem;
+  }
+
+  &__fechar {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: var(--vf-raio-sm);
+    background: transparent;
+    color: var(--menu-suave);
+
+    &:hover {
+      color: var(--menu-texto);
+      background: var(--menu-hover);
+    }
+
+    @include r.a-partir-de-tablet {
+      display: none;
+    }
+  }
+
+  &__rodape {
+    margin-top: auto;
+    padding: 0.75rem;
+    border-top: 1px solid var(--menu-borda);
+  }
+
+  // Botões do rodapé (recolher e sair) com o mesmo jeito dos itens.
+  &__acao {
+    @extend .vf-menu__item;
+    margin-bottom: 4px;
+
+    &--recolher {
+      display: none;
+
+      @include r.a-partir-de-tablet {
+        display: flex;
+      }
+    }
+
+    &--sair:hover {
+      color: #ff8a8f;
+    }
+  }
+
+  .vf-menu--vertical {
+    flex: 1;
+    min-height: 0;
+    padding-top: 0.5rem;
+    overflow-y: auto;
+
+    .vf-menu__lista {
+      padding: 0 0.75rem;
+
+      li + li {
+        margin-top: 4px;
+      }
+    }
+
+    .vf-menu__indicador {
+      left: 0.75rem;
+      right: 0.75rem;
+      height: var(--indicador-a, 44px);
+      transform: translateY(var(--indicador-y, 0px));
+      border-radius: var(--vf-raio-sm);
+      background: rgb(255 91 97 / 0.13);
+      box-shadow: inset 3px 0 0 var(--vf-vermelho-400);
+    }
+  }
+
+  .vf-menu__item--ativo {
+    font-weight: 600;
+  }
+}
+
+// Marca: "VF" quando a barra está recolhida, nome inteiro quando expandida.
+.vf-marca {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--vf-fonte-titulo);
+  font-size: 1.75rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  color: var(--menu-texto);
+  text-decoration: none;
+
+  span > span,
+  &__curta {
+    color: var(--vf-vermelho-400);
+  }
+
+  &__curta {
+    display: none;
+  }
+}
+
+@include r.a-partir-de-tablet {
+  .vf-barra--recolhida {
+    .vf-marca__curta {
+      display: inline;
+    }
+
+    .vf-marca__longa {
+      display: none;
+    }
+
+    .vf-barra__topo {
+      justify-content: center;
+      padding: 0;
+    }
+
+    .vf-menu--vertical {
+      overflow: visible;
+    }
+
+    .vf-menu__item,
+    .vf-barra__acao {
+      justify-content: center;
+      padding: 0;
+    }
+
+    // Rótulo some da tela mas continua para leitores de tela.
+    .vf-menu__rotulo {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    // Dica ao lado do ícone (mouse ou foco do teclado).
+    .vf-menu__item::after,
+    .vf-barra__acao::after {
+      content: attr(data-rotulo);
+      position: absolute;
+      left: calc(100% + 14px);
+      top: 50%;
+      z-index: 5;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      background: var(--vf-preto-700);
+      color: #fff;
+      font-size: 0.8125rem;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-4px, -50%);
+      transition:
+        opacity var(--vf-transicao-rapida),
+        transform var(--vf-transicao-rapida);
+    }
+
+    .vf-menu__item:hover::after,
+    .vf-menu__item:focus-visible::after,
+    .vf-barra__acao:hover::after,
+    .vf-barra__acao:focus-visible::after {
+      opacity: 1;
+      transform: translate(0, -50%);
+    }
+  }
+}
+
+// ---------- Bottom tab (celular) ----------
+.vf-tab {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 1030;
+
+  @include r.a-partir-de-tablet {
+    display: none;
+  }
+
+  &__nav {
+    --menu-texto: var(--vf-cor-texto);
+    --menu-suave: var(--vf-cor-texto-suave);
+    --menu-destaque: var(--vf-cor-destaque-texto);
+    --menu-hover: color-mix(in srgb, var(--vf-cor-texto) 7%, transparent);
+
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: var(--vf-cor-vidro);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    border-top: 1px solid var(--vf-cor-borda);
+
+    .vf-menu__lista {
+      display: flex;
+
+      li {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+    }
+
+    .vf-menu__item {
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      min-height: var(--vf-altura-bottom-tab);
+      padding: 0 2px;
+      border-radius: 0;
+      font-size: 0.6875rem;
+      text-align: center;
+    }
+
+    .vf-menu__item--ativo {
+      font-weight: 600;
+    }
+
+    // Barra vermelha no topo do item ativo.
+    .vf-menu__indicador {
+      width: var(--indicador-l, 0px);
+      height: 3px;
+      transform: translateX(var(--indicador-x, 0px));
+      background: var(--vf-cor-destaque);
+      border-radius: 0 0 4px 4px;
+    }
+  }
+}

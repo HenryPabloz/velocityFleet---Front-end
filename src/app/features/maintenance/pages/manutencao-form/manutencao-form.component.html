@@ -1,0 +1,138 @@
+<div class="vf-pagina animar-surgir" id="pagina-manutencao-form">
+  <app-cabecalho-pagina
+    [etiqueta]="'MANUTENCOES.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.MANUTENCOES_NOVA' | translate"
+    [subtitulo]="'MANUTENCOES.SUBTITULO_NOVA' | translate"
+    rotaVoltar="/maintenance"
+    [rotuloVoltar]="'MANUTENCOES.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="4"
+    (tentarNovamente)="carregarVeiculos()"
+  >
+    <form
+      #formularioRef
+      class="vf-bloco vf-bloco--formulario"
+      id="formulario-manutencao"
+      novalidate
+      [formGroup]="formulario"
+      [attr.aria-busy]="salvando"
+      (ngSubmit)="salvar()"
+    >
+      <p class="vf-aviso" id="aviso-efeito-manutencao">
+        <app-icone nome="info" [tamanho]="18"></app-icone>
+        <span>
+          <strong class="vf-aviso__titulo">{{ 'MANUTENCOES.EFEITO_TITULO' | translate }}</strong>
+          {{ 'MANUTENCOES.EFEITO_TEXTO' | translate }}
+        </span>
+      </p>
+
+      @if (erroGeral) {
+        <p class="vf-aviso vf-aviso--erro" id="alerta-erro-negocio" role="alert" tabindex="-1">
+          <app-icone nome="alerta" [tamanho]="18"></app-icone>
+          <span>{{ erroGeral }}</span>
+        </p>
+      }
+
+      <div class="vf-grade-campos">
+        <app-campo-formulario
+          class="vf-grade-campos__largo"
+          idCampo="campo-manutencao-veiculo"
+          [rotulo]="'MANUTENCOES.VEICULO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.veiculo"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        >
+          <select vfCampoEntrada class="form-select" formControlName="veiculo">
+            <option value="">{{ 'MANUTENCOES.ESCOLHA_VEICULO' | translate }}</option>
+            @for (veiculo of veiculos; track veiculo.id) {
+              <option [value]="veiculo.id">{{ veiculo.plate | placa }} — {{ veiculo.model }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        <app-grupo-opcoes
+          class="vf-grade-campos__largo"
+          idCampo="campo-manutencao-tipo"
+          [legenda]="'MANUTENCOES.TIPO' | translate"
+          [obrigatorio]="true"
+          [opcoes]="opcoesTipo"
+          [controle]="formulario.controls.tipo"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO' }"
+        ></app-grupo-opcoes>
+
+        <app-campo-formulario
+          idCampo="campo-manutencao-data"
+          [rotulo]="'MANUTENCOES.DATA' | translate"
+          [ajuda]="'MANUTENCOES.AJUDA_DATA' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.data"
+          [mensagens]="{
+            required: 'ERROS_CAMPO.OBRIGATORIO',
+            dataInvalida: 'MANUTENCOES.ERRO_DATA',
+            dataPassada: 'MANUTENCOES.ERRO_DATA_PASSADA'
+          }"
+        >
+          <input vfCampoEntrada class="form-control dado-mono" type="date" [min]="hoje" formControlName="data" />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          idCampo="campo-manutencao-custo"
+          [rotulo]="'MANUTENCOES.CUSTO' | translate"
+          [ajuda]="'MANUTENCOES.AJUDA_CUSTO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.custo"
+          [mensagens]="{
+            required: 'ERROS_CAMPO.OBRIGATORIO',
+            min: 'MANUTENCOES.ERRO_CUSTO',
+            max: 'MANUTENCOES.ERRO_CUSTO',
+            centavos: 'MANUTENCOES.ERRO_CENTAVOS'
+          }"
+        >
+          <input
+            vfCampoEntrada
+            class="form-control dado-mono"
+            type="number"
+            inputmode="decimal"
+            step="0.01"
+            min="0"
+            formControlName="custo"
+          />
+        </app-campo-formulario>
+
+        <app-campo-formulario
+          class="vf-grade-campos__largo"
+          idCampo="campo-manutencao-descricao"
+          [rotulo]="'MANUTENCOES.DESCRICAO' | translate"
+          [obrigatorio]="true"
+          [controle]="formulario.controls.descricao"
+          [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', maxlength: 'ERROS_CAMPO.MAX_CARACTERES' }"
+        >
+          <textarea
+            vfCampoEntrada
+            class="form-control"
+            rows="4"
+            [attr.maxlength]="limiteDescricao"
+            formControlName="descricao"
+          ></textarea>
+        </app-campo-formulario>
+        <p class="vf-contador vf-grade-campos__largo" id="contador-caracteres-manutencao">
+          {{ caracteresUsados }}/{{ limiteDescricao }}
+        </p>
+      </div>
+
+      <div class="vf-botoes">
+        <button class="btn btn-primary" type="submit" id="botao-agendar-manutencao" [disabled]="salvando">
+          <app-icone nome="calendario" [tamanho]="16"></app-icone>
+          {{ chaveBotaoSalvar | translate }}
+        </button>
+        <a class="btn btn-outline-secondary" id="botao-cancelar-manutencao" routerLink="/maintenance">
+          {{ 'COMUM.CANCELAR' | translate }}
+        </a>
+      </div>
+    </form>
+  </app-estado-pagina>
+</div>

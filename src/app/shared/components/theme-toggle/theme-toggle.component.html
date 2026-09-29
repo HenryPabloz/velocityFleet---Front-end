@@ -1,0 +1,22 @@
+<button
+  class="vf-cabecalho__acao"
+  id="botao-tema"
+  type="button"
+  [attr.data-tema]="tema"
+  [attr.aria-label]="
+    'TEMA.ROTULO'
+      | translate: { atual: (chaveNome(tema) | translate), proximo: (chaveNome(proximoTema()) | translate) }
+  "
+  (click)="alternar()"
+>
+  @if (tema === 'dark') {
+    <app-icone nome="sol" [tamanho]="20" [espessura]="1.75"></app-icone>
+  } @else {
+    <app-icone nome="lua" [tamanho]="20" [espessura]="1.75"></app-icone>
+  }
+</button>
+<span class="visually-hidden" role="status" aria-live="polite">
+  @if (anunciou) {
+    {{ 'TEMA.ANUNCIO' | translate: { nome: (chaveNome(tema) | translate) } }}
+  }
+</span>

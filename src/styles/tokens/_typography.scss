@@ -1,0 +1,16 @@
+// Bebas Neue nos títulos, Inter no corpo, JetBrains Mono nos dados (placas, km, valores).
+:root {
+  --vf-fonte-titulo: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  --vf-fonte-corpo: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --vf-fonte-dados: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+  --vf-texto-xs: 0.75rem;
+  --vf-texto-sm: 0.875rem;
+  --vf-texto-base: 1rem;
+  --vf-texto-lg: 1.25rem;
+  --vf-texto-xl: 1.75rem;
+  --vf-texto-2xl: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --vf-texto-3xl: clamp(3rem, 2rem + 5vw, 6rem);
+
+  --vf-espacamento-letras-titulo: 0.03em;
+}

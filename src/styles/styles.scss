@@ -1,0 +1,65 @@
+// Ponto de entrada dos estilos. O CSS do Bootstrap é carregado antes, pelo angular.json.
+@use 'tokens/colors';
+@use 'tokens/typography';
+@use 'tokens/spacing';
+@use 'tokens/shadows';
+@use 'themes/light';
+@use 'themes/dark';
+@use 'components/buttons';
+@use 'components/cards';
+@use 'components/forms';
+@use 'pages/auth';
+@use 'pages/dashboard';
+@use 'layout/app';
+@use 'components/menu';
+@use 'components/cabecalho';
+@use 'utilities/animations';
+@use 'utilities/responsive';
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--vf-fonte-corpo);
+  font-size: var(--vf-texto-base);
+  line-height: 1.55;
+  background-color: var(--vf-cor-fundo);
+  color: var(--vf-cor-texto);
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color var(--vf-transicao-media),
+    color var(--vf-transicao-media);
+}
+
+h1,
+h2,
+h3,
+.titulo-marca {
+  font-family: var(--vf-fonte-titulo);
+  font-weight: 400;
+  letter-spacing: var(--vf-espacamento-letras-titulo);
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+a {
+  transition: color var(--vf-transicao-rapida);
+}
+
+// Link "pular para o conteúdo": aparece só quando recebe foco do teclado.
+.pular-conteudo {
+  position: absolute;
+  left: var(--vf-espaco-4);
+  top: -4rem;
+  z-index: 2000;
+  padding: var(--vf-espaco-2) var(--vf-espaco-4);
+  background: var(--vf-cor-destaque);
+  color: var(--vf-cor-sobre-destaque);
+  border-radius: var(--vf-raio-sm);
+
+  &:focus {
+    top: var(--vf-espaco-4);
+  }
+}

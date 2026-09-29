@@ -1,0 +1,152 @@
+<div class="vf-pagina animar-surgir" id="pagina-abastecimentos">
+  <app-cabecalho-pagina
+    [etiqueta]="'ABASTECIMENTOS.ETIQUETA' | translate"
+    [titulo]="'ABASTECIMENTOS.TITULO' | translate"
+    [subtitulo]="'ABASTECIMENTOS.SUBTITULO' | translate"
+  >
+    <app-abas-removidos
+      recurso="REFUELING"
+      [removidos]="verRemovidos"
+      [rotuloAtivos]="'ABASTECIMENTOS.ABA_ATIVOS' | translate"
+      [rotuloRemovidos]="'ABASTECIMENTOS.ABA_REMOVIDOS' | translate"
+      (mudou)="mudarAba($event)"
+    ></app-abas-removidos>
+    @if (podeCriar) {
+      <a class="btn btn-primary" id="botao-novo-abastecimento" routerLink="/refuelings/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'ABASTECIMENTOS.NOVO' | translate }}
+      </a>
+    }
+  </app-cabecalho-pagina>
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-abastecimentos" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  @if (!verRemovidos) {
+    <details
+      class="vf-bloco vf-bloco--sem-regua vf-bloco--filtros"
+      id="filtros-abastecimentos"
+      [open]="filtrosAbertos"
+      (toggle)="aoAlternarFiltros($event)"
+    >
+      <summary class="vf-bloco__resumo">
+        <app-icone nome="busca" [tamanho]="18"></app-icone>
+        {{ 'COMUM.FILTROS' | translate }}
+        @if (quantidadeFiltrosAtivos > 0) {
+          <span
+            class="vf-bloco__contagem"
+            [attr.aria-label]="'COMUM.FILTROS_ATIVOS' | translate: { quantidade: quantidadeFiltrosAtivos }"
+            >{{ quantidadeFiltrosAtivos }}</span
+          >
+        }
+        <app-icone nome="seta-baixo" [tamanho]="18"></app-icone>
+      </summary>
+      <div class="vf-filtros">
+        <app-campo-formulario idCampo="filtro-veiculo-abastecimento" [rotulo]="'ABASTECIMENTOS.FILTRO_VEICULO' | translate">
+          <select vfCampoEntrada class="form-select" [(ngModel)]="filtroVeiculo" (ngModelChange)="mudarFiltro()">
+            <option value="">{{ 'ABASTECIMENTOS.TODOS_VEICULOS' | translate }}</option>
+            @for (veiculo of listaVeiculos; track veiculo.id) {
+              <option [value]="veiculo.id">{{ veiculo.plate | placa }} · {{ veiculo.model }}</option>
+            }
+          </select>
+        </app-campo-formulario>
+
+        @if (podeVerTodos && podeVerMotoristas) {
+          <app-campo-formulario idCampo="filtro-motorista-abastecimento" [rotulo]="'ABASTECIMENTOS.FILTRO_MOTORISTA' | translate">
+            <select vfCampoEntrada class="form-select" [(ngModel)]="filtroMotorista" (ngModelChange)="mudarFiltro()">
+              <option value="">{{ 'ABASTECIMENTOS.TODOS_MOTORISTAS' | translate }}</option>
+              @for (motorista of listaMotoristas; track motorista.id) {
+                <option [value]="motorista.id">{{ rotuloMotorista(motorista) }}</option>
+              }
+            </select>
+          </app-campo-formulario>
+        }
+      </div>
+    </details>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [tituloVazio]="chaveTituloVazio | translate"
+    [textoVazio]="chaveTextoVazio | translate"
+    [linhasEsqueleto]="5"
+    (tentarNovamente)="carregar()"
+  >
+    @if (temFiltro && !verRemovidos) {
+      <button vazioAcao class="vf-botao-secundario" type="button" (click)="limparFiltros()">
+        {{ 'COMUM.LIMPAR_FILTROS' | translate }}
+      </button>
+    }
+    @if (!temFiltro && !verRemovidos && podeCriar) {
+      <a vazioAcao class="btn btn-primary" routerLink="/refuelings/new">
+        <app-icone nome="adicionar" [tamanho]="16"></app-icone>
+        {{ 'ABASTECIMENTOS.NOVO' | translate }}
+      </a>
+    }
+
+    <app-tabela-dados
+      idTabela="tabela-abastecimentos"
+      classeCartao="vf-abastecimento-card"
+      [legenda]="'ABASTECIMENTOS.LEGENDA' | translate"
+      [rotuloAcoes]="'COMUM.ACOES' | translate"
+      [colunas]="colunas"
+      [linhas]="resposta?.data ?? []"
+    >
+      <ng-template #celula let-abastecimento let-coluna="coluna">
+        @switch (coluna.chave) {
+          @case ('createdAt') {
+            <span class="dado-mono">{{ abastecimento.createdAt | dataHoraCurta }}</span>
+          }
+          @case ('vehicle') {
+            @if (placaDe(abastecimento)) {
+              <app-placa [placa]="placaDe(abastecimento)" tamanho="p"></app-placa>
+            } @else {
+              <span class="dado-mono">—</span>
+            }
+          }
+          @case ('driver') {
+            {{ nomeDe(abastecimento) }}
+          }
+          @case ('fuelType') {
+            {{ 'COMBUSTIVEL.' + abastecimento.fuelType | translate }}
+          }
+          @case ('liters') {
+            <span class="dado-mono">{{ abastecimento.litersAdded | numero }} L</span>
+          }
+          @case ('total') {
+            <strong class="dado-mono">{{ abastecimento.totalCost | moeda }}</strong>
+          }
+        }
+      </ng-template>
+
+      <ng-template #titulo let-abastecimento>
+        @if (placaDe(abastecimento)) {
+          <app-placa [placa]="placaDe(abastecimento)"></app-placa>
+        }
+      </ng-template>
+
+      <ng-template #acoes let-abastecimento>
+        @if (!verRemovidos) {
+          <a class="vf-acao" data-acao="ver" [routerLink]="['/refuelings', abastecimento.id]">
+            <app-icone nome="olho" [tamanho]="16"></app-icone>
+            <span class="vf-acao__texto">{{ 'COMUM.VER_DETALHES' | translate }}</span>
+          </a>
+        }
+        <app-acoes-remocao
+          recurso="REFUELING"
+          [removido]="verRemovidos"
+          (excluir)="excluir(abastecimento)"
+          (restaurar)="restaurar(abastecimento)"
+          (excluirDefinitivo)="excluirDefinitivamente(abastecimento)"
+        ></app-acoes-remocao>
+      </ng-template>
+    </app-tabela-dados>
+
+    <app-paginacao [paginacao]="resposta?.pagination ?? null" (paginaMudou)="mudarPagina($event)"></app-paginacao>
+  </app-estado-pagina>
+</div>

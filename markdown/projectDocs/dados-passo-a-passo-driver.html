@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Fleet Management – Dados do passo a passo do Motorista</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1f2937; font-size: 10.5pt; line-height: 1.4; margin: 0; }
+  h1 { font-size: 22pt; margin: 0 0 4px; color: #D22730; }
+  h2 { font-size: 15pt; margin: 18px 0 8px; color: #14213d; border-bottom: 2px solid #D22730; padding-bottom: 4px; }
+  .feliz-t h2 { border-color: #1f7a4d; }
+  h3 { font-size: 11.5pt; margin: 0 0 4px; color: #14213d; }
+  p { margin: 4px 0; }
+  .sub { color: #596474; font-size: 11pt; }
+  .passo { border: 1px solid #cbd2da; border-radius: 6px; padding: 8px 10px; margin: 8px 0; page-break-inside: avoid; }
+  .met { background: #14213d; color: #fff; padding: 1px 7px; border-radius: 4px; font-weight: 700; font-size: 9.5pt; }
+  code { font-family: Consolas, monospace; font-size: 9.5pt; background: #eef1f5; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #14181A; color: #EAF0F7; padding: 6px 9px; border-radius: 5px; font-size: 8.6pt; white-space: pre-wrap; word-break: break-all; margin: 3px 0; }
+  .rot { font-size: 9pt; font-weight: 700; color: #596474; text-transform: uppercase; letter-spacing: .5px; margin-top: 6px; }
+  .db { color: #1f5f9a; }
+  .esp { margin-top: 6px; }
+  .nota { color: #596474; font-size: 9.5pt; font-style: italic; }
+  .quebra { page-break-before: always; }
+  table { border-collapse: collapse; width: 100%; font-size: 9.5pt; margin: 6px 0; }
+  th, td { border: 1px solid #cbd2da; padding: 4px 7px; text-align: left; }
+  th { background: #14213d; color: #fff; }
+</style></head><body>
+
+<h1>Fleet Management · Dados para o passo a passo do Motorista</h1>
+<p class="sub">Tudo pronto para copiar e colar: caminho triste primeiro, depois o caminho feliz. Cada bloco traz o comando de banco para mostrar a persistência.</p>
+
+<h2>Dados de partida (já existem no banco)</h2>
+<table>
+  <tr><th style="width:26%">Item</th><th>Valor</th></tr>
+  <tr><td>Motorista (você)</td><td>Pablo Driver · pablo.driver@velocityfleet.com · senha 12345678</td></tr>
+  <tr><td>x-api-key do motorista</td><td><code>956e1dbe05ec48fe81b3f8c98a07640c612ae21e089c821d267a61b9ef4eb6be</code></td></tr>
+  <tr><td>driverId (Pablo)</td><td><code>0548bc21-2a86-420a-9733-b4cec146e975</code></td></tr>
+  <tr><td>Veículo livre (Fiat Strada, FLT1A23, 82000 km)</td><td><code>e0cfd550-2055-4484-90bd-6e03c1b7d559</code></td></tr>
+  <tr><td>Outro motorista</td><td>Carlos Driver · driverId <code>11c97ad5-1239-4430-b1c0-9275f3bff352</code></td></tr>
+  <tr><td>Veículo em uso (VW Saveiro, FLT2B34)</td><td><code>c0982d4f-becc-4c6f-ab6a-c2f38f9eef10</code></td></tr>
+  <tr><td>Viagem do outro motorista (IN_PROGRESS)</td><td><code>85cf6289-716c-4340-9e84-df3358eac806</code></td></tr>
+</table>
+<p class="nota">Base local: <code>http://localhost:3000</code> (Swagger em <code>/api/docs</code>). Nos comandos de banco, o contêiner é <code>fleet_postgres</code>. O caminho feliz muda o hodômetro do veículo livre (+120 km a cada execução completa). O dado do outro motorista é fixo para os testes do caminho triste. Este documento contém credenciais de demonstração: não o publique.</p>
+
+<h2 class="quebra">Parte 1 · Caminho triste</h2>
+<div class="passo"><h3>T1 · Login sem a API key</h3>
+<p><span class="met">POST</span> <code>/auth/login</code></p>
+<p class="rot">Headers</p><pre>Content-Type: application/json
+(não envie o header x-api-key)</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "email": "pablo.driver@velocityfleet.com",
+  "password": "12345678"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 401 Unauthorized</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT email, api_key_last_used_at FROM users WHERE email='pablo.driver@velocityfleet.com';"</pre>
+<p class="nota">Nada mudou: o último uso da API key continua vazio.</p>
+</div>
+<div class="passo"><h3>T2 · Login com senha errada</h3>
+<p><span class="met">POST</span> <code>/auth/login</code></p>
+<p class="rot">Headers</p><pre>Content-Type: application/json
+x-api-key: 956e1dbe05ec48fe81b3f8c98a07640c612ae21e089c821d267a61b9ef4eb6be</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "email": "pablo.driver@velocityfleet.com",
+  "password": "senha-errada-1"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 401 Unauthorized</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT email, api_key_last_used_at FROM users WHERE email='pablo.driver@velocityfleet.com';"</pre>
+<p class="nota">Continua sem registro de uso: o login falhou.</p>
+</div>
+<div class="passo"><h3>T3 · Login com API key inválida</h3>
+<p><span class="met">POST</span> <code>/auth/login</code></p>
+<p class="rot">Headers</p><pre>Content-Type: application/json
+x-api-key: chave-invalida</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "email": "pablo.driver@velocityfleet.com",
+  "password": "12345678"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 401 Unauthorized</p>
+</div>
+<div class="passo"><h3>Preparação · Login válido (para obter o token das próximas etapas)</h3>
+<p><span class="met">POST</span> <code>/auth/login</code></p>
+<p class="rot">Headers</p><pre>Content-Type: application/json
+x-api-key: 956e1dbe05ec48fe81b3f8c98a07640c612ae21e089c821d267a61b9ef4eb6be</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "email": "pablo.driver@velocityfleet.com",
+  "password": "12345678"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 200 OK. Copie o accessToken e use em todas as próximas chamadas: Authorization: Bearer &lt;accessToken&gt;</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT email, api_key_last_used_at FROM users WHERE email='pablo.driver@velocityfleet.com';"</pre>
+<p class="nota">Agora o último uso da API key foi gravado (persistência do login).</p>
+</div>
+<div class="passo"><h3>T4 · Motorista tenta listar usuários</h3>
+<p><span class="met">GET</span> <code>/users</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 403 Forbidden</p>
+</div>
+<div class="passo"><h3>T5 · Motorista tenta cadastrar veículo</h3>
+<p><span class="met">POST</span> <code>/vehicles</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "plate": "XYZ1A23",
+  "model": "Fiat Strada",
+  "year": 2023,
+  "currentMileage": 1000
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 403 Forbidden</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT count(*) FROM vehicles WHERE plate='XYZ1A23';"</pre>
+<p class="nota">Resultado 0: o veículo não foi gravado.</p>
+</div>
+<div class="passo"><h3>T6 · Criar viagem com o driverId de outro motorista</h3>
+<p><span class="met">POST</span> <code>/trips</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "driverId": "11c97ad5-1239-4430-b1c0-9275f3bff352",
+  "vehicleId": "e0cfd550-2055-4484-90bd-6e03c1b7d559",
+  "startLocation": "01310-100",
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 403 Forbidden</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT count(*) FROM trips WHERE fk_driver_id='11c97ad5-1239-4430-b1c0-9275f3bff352' AND fk_vehicle_id='e0cfd550-2055-4484-90bd-6e03c1b7d559';"</pre>
+<p class="nota">Resultado 0: nenhuma viagem foi criada para o outro motorista.</p>
+</div>
+<div class="passo"><h3>T7 · Criar viagem com CEP inexistente</h3>
+<p><span class="met">POST</span> <code>/trips</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "driverId": "0548bc21-2a86-420a-9733-b4cec146e975",
+  "vehicleId": "e0cfd550-2055-4484-90bd-6e03c1b7d559",
+  "startLocation": "00000-000",
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 400 Bad Request (CEP inválido no ViaCEP)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT count(*) FROM trips WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975';"</pre>
+<p class="nota">Resultado 0: a viagem não foi gravada.</p>
+</div>
+<div class="passo"><h3>T8 · Criar viagem com veículo já em uso</h3>
+<p><span class="met">POST</span> <code>/trips</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "driverId": "0548bc21-2a86-420a-9733-b4cec146e975",
+  "vehicleId": "c0982d4f-becc-4c6f-ab6a-c2f38f9eef10",
+  "startLocation": "01310-100",
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 409 Conflict (veículo em uso pela viagem do outro motorista)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT plate, status FROM vehicles WHERE id_vehicle='c0982d4f-becc-4c6f-ab6a-c2f38f9eef10';"</pre>
+<p class="nota">O veículo segue IN_USE, com a viagem do outro motorista.</p>
+</div>
+<div class="passo"><h3>T9 · Criar viagem enviando startKm</h3>
+<p><span class="met">POST</span> <code>/trips</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "driverId": "0548bc21-2a86-420a-9733-b4cec146e975",
+  "vehicleId": "e0cfd550-2055-4484-90bd-6e03c1b7d559",
+  "startKm": 90000,
+  "startLocation": "01310-100",
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 400 Bad Request (startKm não é aceito)</p>
+</div>
+<div class="passo"><h3>T10 · Ler a viagem de outro motorista</h3>
+<p><span class="met">GET</span> <code>/trips/85cf6289-716c-4340-9e84-df3358eac806</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 404 Not Found (para o motorista, o dado alheio não existe)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT id_trip, status, fk_driver_id FROM trips WHERE id_trip='85cf6289-716c-4340-9e84-df3358eac806';"</pre>
+<p class="nota">A viagem existe no banco, mas pertence a Carlos Driver.</p>
+</div>
+<div class="passo"><h3>T11 · Iniciar a viagem de outro motorista</h3>
+<p><span class="met">PATCH</span> <code>/trips/85cf6289-716c-4340-9e84-df3358eac806/start</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 404 Not Found</p>
+</div>
+<div class="passo"><h3>T12 · Iniciar viagem enviando body (currentMileage)</h3>
+<p><span class="met">PATCH</span> <code>/trips/85cf6289-716c-4340-9e84-df3358eac806/start</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "currentMileage": 90000
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 400 Bad Request (o start não recebe body)</p>
+</div>
+<div class="passo"><h3>T13 · Finalizar com endKm zero</h3>
+<p><span class="met">PATCH</span> <code>/trips/85cf6289-716c-4340-9e84-df3358eac806/end</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "endKm": 0,
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 400 Bad Request (endKm entre 1 e 100000)</p>
+</div>
+<div class="passo"><h3>T14 · Finalizar com endKm acima do limite</h3>
+<p><span class="met">PATCH</span> <code>/trips/85cf6289-716c-4340-9e84-df3358eac806/end</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "endKm": 100001,
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 400 Bad Request</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT status, end_km FROM trips WHERE id_trip='85cf6289-716c-4340-9e84-df3358eac806';"</pre>
+<p class="nota">A viagem alheia segue IN_PROGRESS, sem end_km.</p>
+</div>
+<div class="passo"><h3>T15 · Abastecer enviando mileage</h3>
+<p><span class="met">POST</span> <code>/refuelings</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "vehicleId": "e0cfd550-2055-4484-90bd-6e03c1b7d559",
+  "driverId": "0548bc21-2a86-420a-9733-b4cec146e975",
+  "mileage": 90000,
+  "litersAdded": 10,
+  "costPerLiter": 5.5,
+  "fuelType": "GASOLINE"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 400 Bad Request (o campo mileage não existe mais)</p>
+</div>
+<div class="passo"><h3>T16 · Abastecer veículo que está em viagem de outro motorista</h3>
+<p><span class="met">POST</span> <code>/refuelings</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "vehicleId": "c0982d4f-becc-4c6f-ab6a-c2f38f9eef10",
+  "driverId": "0548bc21-2a86-420a-9733-b4cec146e975",
+  "litersAdded": 10,
+  "costPerLiter": 5.5,
+  "fuelType": "GASOLINE"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 409 Conflict (o motorista não é o da viagem ativa do veículo)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT count(*) FROM refuelings WHERE fk_vehicle_id='c0982d4f-becc-4c6f-ab6a-c2f38f9eef10';"</pre>
+<p class="nota">Resultado 0: nada foi gravado.</p>
+</div>
+<div class="passo"><h3>T17 · Incidente com tipo inválido</h3>
+<p><span class="met">POST</span> <code>/incidents</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;
+Content-Type: multipart/form-data (no Swagger, preencha os campos abaixo)</pre>
+<p class="rot">Campos do formulário (copiar e colar)</p><pre>vehicleId: e0cfd550-2055-4484-90bd-6e03c1b7d559
+driverId: 0548bc21-2a86-420a-9733-b4cec146e975
+type: BATIDA
+severity: LOW
+description: Teste de tipo inválido</pre>
+<p class="esp"><b>Resultado esperado:</b> 400 Bad Request (tipos válidos: ACCIDENT, MECHANICAL_FAILURE, OTHER)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT count(*) FROM incidents WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975';"</pre>
+<p class="nota">Resultado 0: o incidente não foi gravado.</p>
+</div>
+<div class="passo"><h3>T18 · Apagar veículo de vez</h3>
+<p><span class="met">DELETE</span> <code>/vehicles/e0cfd550-2055-4484-90bd-6e03c1b7d559/permanent</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 403 Forbidden (deleção total é só do ADMIN)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT plate, status, current_mileage FROM vehicles WHERE id_vehicle='e0cfd550-2055-4484-90bd-6e03c1b7d559';"</pre>
+<p class="nota">O veículo continua no banco.</p>
+</div>
+<div class="passo"><h3>T19 · Motorista tenta subir o próprio papel</h3>
+<p><span class="met">PATCH</span> <code>/users/928bb76e-dfa0-4694-8c64-db7fd6ff01a8/role</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "roleId": "00000000-0000-0000-0000-000000000000"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 403 Forbidden</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT u.email, r.name AS papel FROM users u JOIN roles r ON r.id_role=u.fk_role_id WHERE u.email='pablo.driver@velocityfleet.com';"</pre>
+<p class="nota">O papel continua DRIVER.</p>
+</div>
+
+<div class="quebra feliz-t"><h2>Parte 2 · Caminho feliz</h2>
+<p class="nota">Use o mesmo accessToken do login. Onde aparecer &lt;TRIP_ID&gt;, cole o id devolvido no passo F3.</p>
+<div class="passo"><h3>F1 · Login</h3>
+<p><span class="met">POST</span> <code>/auth/login</code></p>
+<p class="rot">Headers</p><pre>Content-Type: application/json
+x-api-key: 956e1dbe05ec48fe81b3f8c98a07640c612ae21e089c821d267a61b9ef4eb6be</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "email": "pablo.driver@velocityfleet.com",
+  "password": "12345678"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 200 OK com accessToken, user.permissions e user.driverId</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT email, is_active, api_key_last_used_at FROM users WHERE email='pablo.driver@velocityfleet.com';"</pre>
+<p class="nota">O usuário existe, está ativo e o último uso da API key foi gravado.</p>
+</div>
+<div class="passo"><h3>F2 · Ver o próprio perfil</h3>
+<p><span class="met">GET</span> <code>/users/me</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 200 OK com driverId 0548bc21-2a86-420a-9733-b4cec146e975</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT u.full_name, r.name AS papel, d.id_driver, d.license_expiry FROM users u JOIN roles r ON r.id_role=u.fk_role_id JOIN drivers d ON d.fk_user_id=u.id_user WHERE u.email='pablo.driver@velocityfleet.com';"</pre>
+<p class="nota">Usuário, papel DRIVER e o perfil de motorista vinculado.</p>
+</div>
+<div class="passo"><h3>F3 · Planejar a viagem</h3>
+<p><span class="met">POST</span> <code>/trips</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "driverId": "0548bc21-2a86-420a-9733-b4cec146e975",
+  "vehicleId": "e0cfd550-2055-4484-90bd-6e03c1b7d559",
+  "startLocation": "01310-100",
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 201 Created, status PLANNED. Copie o id devolvido: é o &lt;TRIP_ID&gt; dos próximos passos</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT id_trip, status, start_km, end_km, start_location, end_location FROM trips WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975' ORDER BY created_at DESC LIMIT 1;"
+docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT plate, status, current_mileage FROM vehicles WHERE id_vehicle='e0cfd550-2055-4484-90bd-6e03c1b7d559';"</pre>
+<p class="nota">Viagem PLANNED com start_km igual ao hodômetro (82000) e veículo IN_USE.</p>
+</div>
+<div class="passo"><h3>F4 · Iniciar a viagem</h3>
+<p><span class="met">PATCH</span> <code>/trips/&lt;TRIP_ID&gt;/start</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 200 OK, status IN_PROGRESS (sem body)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT id_trip, status, start_km, end_km, start_location, end_location FROM trips WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975' ORDER BY created_at DESC LIMIT 1;"</pre>
+<p class="nota">Status IN_PROGRESS e start_time preenchido.</p>
+</div>
+<div class="passo"><h3>F5 · Abastecer durante a viagem</h3>
+<p><span class="met">POST</span> <code>/refuelings</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "vehicleId": "e0cfd550-2055-4484-90bd-6e03c1b7d559",
+  "driverId": "0548bc21-2a86-420a-9733-b4cec146e975",
+  "litersAdded": 10.5,
+  "costPerLiter": 5.89,
+  "fuelType": "GASOLINE"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 201 Created, totalCost 61.85</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT liters_added, cost_per_liter, total_cost, fuel_type, mileage FROM refuelings WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975' ORDER BY created_at DESC LIMIT 1;"</pre>
+<p class="nota">Custo total calculado pelo servidor; o mileage é o hodômetro do veículo no momento.</p>
+</div>
+<div class="passo"><h3>F6 · Registrar um incidente</h3>
+<p><span class="met">POST</span> <code>/incidents</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;
+Content-Type: multipart/form-data (no Swagger, preencha os campos abaixo)</pre>
+<p class="rot">Campos do formulário (copiar e colar)</p><pre>vehicleId: e0cfd550-2055-4484-90bd-6e03c1b7d559
+driverId: 0548bc21-2a86-420a-9733-b4cec146e975
+tripId: &lt;TRIP_ID&gt;
+type: MECHANICAL_FAILURE
+severity: LOW
+description: Luz de aviso do painel acendeu durante a viagem</pre>
+<p class="esp"><b>Resultado esperado:</b> 201 Created (a foto é opcional)</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT type, severity, status, description FROM incidents WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975' ORDER BY created_at DESC LIMIT 1;"</pre>
+<p class="nota">Incidente gravado e ligado à viagem.</p>
+</div>
+<div class="passo"><h3>F7 · Finalizar a viagem (km rodados)</h3>
+<p><span class="met">PATCH</span> <code>/trips/&lt;TRIP_ID&gt;/end</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="rot">Body (copiar e colar)</p><pre>{
+  "endKm": 120,
+  "endLocation": "20040-020"
+}</pre>
+<p class="esp"><b>Resultado esperado:</b> 200 OK, status COMPLETED, distanceKm 120</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT id_trip, status, start_km, end_km, start_location, end_location FROM trips WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975' ORDER BY created_at DESC LIMIT 1;"
+docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT plate, status, current_mileage FROM vehicles WHERE id_vehicle='e0cfd550-2055-4484-90bd-6e03c1b7d559';"</pre>
+<p class="nota">Viagem COMPLETED com end_km = 82120; veículo AVAILABLE com hodômetro 82120 (82000 + 120).</p>
+</div>
+<div class="passo"><h3>F8 · Consultar o resultado</h3>
+<p><span class="met">GET</span> <code>/trips/&lt;TRIP_ID&gt;</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 200 OK. Também: GET /trips lista só as viagens do próprio motorista</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT count(*) AS minhas_viagens FROM trips WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975';"</pre>
+<p class="nota">Quantidade de viagens do Pablo Driver.</p>
+</div>
+<div class="passo"><h3>F9 · Alternativa: planejar outra viagem e cancelar</h3>
+<p><span class="met">PATCH</span> <code>/trips/&lt;TRIP_ID&gt;/cancel</code></p>
+<p class="rot">Headers</p><pre>Authorization: Bearer &lt;accessToken&gt;</pre>
+<p class="esp"><b>Resultado esperado:</b> 200 OK, status CANCELLED. Antes, crie outra viagem com o body do passo F3 e use o id novo</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT id_trip, status FROM trips WHERE fk_driver_id='0548bc21-2a86-420a-9733-b4cec146e975' ORDER BY created_at DESC LIMIT 2;"
+docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT plate, status, current_mileage FROM vehicles WHERE id_vehicle='e0cfd550-2055-4484-90bd-6e03c1b7d559';"</pre>
+<p class="nota">A última viagem está CANCELLED e o veículo voltou a AVAILABLE.</p>
+</div>
+<div class="passo"><h3>F10 · Prova de auditoria</h3>
+<p class="esp"><b>Resultado esperado:</b> Toda mudança de viagem, abastecimento e incidente gera linha imutável em audit_logs</p>
+<p class="rot db">Comando no banco (prova de persistência)</p><pre>docker exec fleet_postgres psql -U postgres -d fleet_db -c "SELECT entity_type, action, created_at FROM audit_logs WHERE fk_user_id='928bb76e-dfa0-4694-8c64-db7fd6ff01a8' ORDER BY created_at;"</pre>
+<p class="nota">Uma linha para cada ação do motorista (criar, iniciar, abastecer, incidente, finalizar, cancelar).</p>
+</div>
+</div>
+</body></html>

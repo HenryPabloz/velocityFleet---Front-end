@@ -1,0 +1,100 @@
+<div class="vf-pagina animar-surgir" id="pagina-veiculo-detalhe">
+  <app-abas-frota></app-abas-frota>
+
+  @if (estado === 'ok' && veiculo) {
+    <app-cabecalho-pagina
+      [etiqueta]="'VEICULOS.DETALHE_ETIQUETA' | translate"
+      [titulo]="veiculo.model"
+      rotaVoltar="/fleet/vehicles"
+      [rotuloVoltar]="'VEICULOS.VOLTAR' | translate"
+    >
+      @if (podeEditar) {
+        <a class="btn btn-outline-secondary" id="botao-editar-veiculo" [routerLink]="['/fleet/vehicles', veiculo.id, 'edit']">
+          <app-icone nome="editar" [tamanho]="16"></app-icone>
+          {{ 'COMUM.EDITAR' | translate }}
+        </a>
+      }
+      @if (podeAgendarManutencao) {
+        <a
+          class="btn btn-outline-secondary"
+          id="botao-agendar-manutencao"
+          routerLink="/maintenance/new"
+          [queryParams]="{ vehicleId: veiculo.id }"
+        >
+          <app-icone nome="manutencao" [tamanho]="16"></app-icone>
+          {{ 'VEICULOS.AGENDAR_MANUTENCAO' | translate }}
+        </a>
+      }
+      @if (podeExcluir) {
+        <button class="btn btn-perigo btn-outline-secondary" type="button" id="botao-excluir-veiculo" (click)="excluir()">
+          <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+          {{ 'COMUM.EXCLUIR' | translate }}
+        </button>
+      }
+    </app-cabecalho-pagina>
+  } @else {
+    <app-cabecalho-pagina
+      [titulo]="'PAGINAS.VEICULOS_DETALHE' | translate"
+      rotaVoltar="/fleet/vehicles"
+      [rotuloVoltar]="'VEICULOS.VOLTAR' | translate"
+    ></app-cabecalho-pagina>
+  }
+
+  @if (erroDeAcao) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-veiculo" role="alert">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroDeAcao }}</span>
+    </p>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar()"
+  >
+    @if (veiculo) {
+      <section class="vf-bloco" aria-labelledby="titulo-dados-veiculo">
+        <h2 class="visually-hidden" id="titulo-dados-veiculo">{{ 'VEICULOS.DADOS' | translate }}</h2>
+        <div class="vf-veiculo-topo">
+          <app-placa [placa]="veiculo.plate" tamanho="g"></app-placa>
+          <app-selo-status tipo="veiculo" [valor]="veiculo.status"></app-selo-status>
+        </div>
+        <dl class="vf-detalhes">
+          <div>
+            <dt>{{ 'VEICULOS.COL_MODELO' | translate }}</dt>
+            <dd>{{ veiculo.model }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'VEICULOS.COL_ANO' | translate }}</dt>
+            <dd class="dado-mono">{{ veiculo.year }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'VEICULOS.KM_ATUAL' | translate }}</dt>
+            <dd class="dado-mono">{{ veiculo.currentMileage | numero }} km</dd>
+          </div>
+          <div>
+            <dt>{{ 'VEICULOS.KM_ULTIMA_MANUTENCAO' | translate }}</dt>
+            <dd class="dado-mono">{{ veiculo.lastMaintenanceKm | numero }} km</dd>
+          </div>
+          <div>
+            <dt>{{ 'VEICULOS.KM_DESDE_MANUTENCAO' | translate }}</dt>
+            <dd class="dado-mono">{{ kmDesdeManutencao | numero }} km</dd>
+          </div>
+          <div>
+            <dt>{{ 'VEICULOS.CADASTRADO_EM' | translate }}</dt>
+            <dd class="dado-mono">{{ veiculo.createdAt | dataCurta }}</dd>
+          </div>
+        </dl>
+        @if (podeVerViagens) {
+          <div class="vf-botoes">
+            <a class="btn btn-outline-secondary" id="botao-ver-viagens-veiculo" routerLink="/trips" [queryParams]="{ vehicleId: veiculo.id }">
+              <app-icone nome="viagens" [tamanho]="16"></app-icone>
+              {{ 'VEICULOS.VER_VIAGENS' | translate }}
+            </a>
+          </div>
+        }
+      </section>
+    }
+  </app-estado-pagina>
+</div>

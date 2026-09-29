@@ -1,0 +1,81 @@
+<section class="vf-bloco vf-conta-bloco" id="bloco-conta-perfil" aria-labelledby="titulo-conta-perfil">
+  <header class="vf-conta-bloco__cabeca">
+    <span class="vf-conta-bloco__icone" aria-hidden="true"><app-icone nome="usuario" [tamanho]="22"></app-icone></span>
+    <div>
+      <h2 class="vf-conta-bloco__titulo" id="titulo-conta-perfil">{{ 'CONTA.PERFIL.TITULO' | translate }}</h2>
+      <p class="vf-conta-bloco__texto">{{ 'CONTA.PERFIL.TEXTO' | translate }}</p>
+    </div>
+  </header>
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="2"
+    (tentarNovamente)="carregar()"
+  >
+    @if (perfil) {
+      <form
+        #formularioRef
+        id="formulario-perfil"
+        novalidate
+        [formGroup]="formulario"
+        [attr.aria-busy]="salvando"
+        (ngSubmit)="salvar()"
+      >
+        @if (erroGeral) {
+          <p class="vf-aviso vf-aviso--erro" id="alerta-erro-perfil" role="alert" tabindex="-1">
+            <app-icone nome="alerta" [tamanho]="18"></app-icone>
+            <span>{{ erroGeral }}</span>
+          </p>
+        }
+
+        <dl class="vf-detalhes vf-conta-resumo">
+          <div>
+            <dt>{{ 'USUARIOS.COL_EMAIL' | translate }}</dt>
+            <dd class="dado-mono" id="valor-perfil-email">{{ perfil.email }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'USUARIOS.COL_PAPEL' | translate }}</dt>
+            <dd>
+              @if (papelConhecido) {
+                {{ 'PAPEIS.' + papel | translate }}
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+        </dl>
+
+        <div class="vf-grade-campos">
+          <app-campo-formulario
+            class="vf-grade-campos__largo"
+            idCampo="campo-perfil-nome"
+            [rotulo]="'USUARIO_FORM.NOME' | translate"
+            [obrigatorio]="true"
+            [controle]="formulario.controls.nome"
+            [mensagens]="{ required: 'ERROS_CAMPO.OBRIGATORIO', maxlength: 'ERROS_CAMPO.MAX_CARACTERES' }"
+          >
+            <input
+              vfCampoEntrada
+              class="form-control"
+              type="text"
+              autocomplete="name"
+              maxlength="150"
+              formControlName="nome"
+              [readonly]="!podeEditar"
+            />
+          </app-campo-formulario>
+        </div>
+
+        @if (podeEditar) {
+          <div class="vf-botoes">
+            <button class="btn btn-primary" type="submit" id="botao-salvar-perfil" [disabled]="salvando">
+              <app-icone nome="editar" [tamanho]="16"></app-icone>
+              {{ chaveBotaoSalvar | translate }}
+            </button>
+          </div>
+        }
+      </form>
+    }
+  </app-estado-pagina>
+</section>

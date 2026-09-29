@@ -1,0 +1,44 @@
+<div class="vf-pagina animar-surgir" id="pagina-configuracoes">
+  <app-cabecalho-pagina
+    [etiqueta]="'CONFIGURACOES.ETIQUETA' | translate"
+    [titulo]="'PAGINAS.CONFIGURACOES' | translate"
+    [subtitulo]="'CONFIGURACOES.SUBTITULO' | translate"
+  ></app-cabecalho-pagina>
+
+  <section class="vf-bloco vf-config-bloco" id="bloco-info-aplicacao" aria-labelledby="titulo-info-aplicacao">
+    <h2 class="vf-config-bloco__titulo" id="titulo-info-aplicacao">{{ 'CONFIGURACOES.APLICACAO' | translate }}</h2>
+    <dl class="vf-detalhes">
+      <div>
+        <dt>{{ 'CONFIGURACOES.NOME' | translate }}</dt>
+        <dd>{{ nomeDaAplicacao }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'CONFIGURACOES.VERSAO' | translate }}</dt>
+        <dd class="dado-mono" id="valor-versao">{{ versao }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'CONFIGURACOES.URL_API' | translate }}</dt>
+        <dd class="dado-mono" id="valor-url-api">{{ urlDaApi }}</dd>
+      </div>
+      <div>
+        <dt>{{ 'CONFIGURACOES.AMBIENTE' | translate }}</dt>
+        <dd class="dado-mono">{{ ambiente }}</dd>
+      </div>
+    </dl>
+    <p class="vf-aviso vf-config-aviso" role="note">
+      <app-icone nome="info" [tamanho]="18"></app-icone>
+      <span>{{ 'CONFIGURACOES.AVISO_SEM_API' | translate }}</span>
+    </p>
+  </section>
+
+  <section class="vf-bloco vf-config-bloco" id="bloco-tema" aria-labelledby="titulo-tema">
+    <h2 class="vf-config-bloco__titulo" id="titulo-tema">{{ 'CONFIGURACOES.APARENCIA' | translate }}</h2>
+    <app-grupo-opcoes
+      idCampo="campo-configuracoes-tema"
+      [legenda]="'CONFIGURACOES.TEMA' | translate"
+      [ajuda]="'CONFIGURACOES.TEMA_AJUDA' | translate"
+      [opcoes]="opcoesTema"
+      [controle]="controleTema"
+    ></app-grupo-opcoes>
+  </section>
+</div>

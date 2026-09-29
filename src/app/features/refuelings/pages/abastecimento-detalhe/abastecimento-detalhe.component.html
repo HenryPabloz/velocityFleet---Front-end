@@ -1,0 +1,99 @@
+<div class="vf-pagina animar-surgir" id="pagina-abastecimento-detalhe">
+  <app-cabecalho-pagina
+    [etiqueta]="'ABASTECIMENTOS.DETALHE_ETIQUETA' | translate"
+    [titulo]="'PAGINAS.ABASTECIMENTOS_DETALHE' | translate"
+    rotaVoltar="/refuelings"
+    [rotuloVoltar]="'ABASTECIMENTOS.VOLTAR' | translate"
+  ></app-cabecalho-pagina>
+
+  @if (erroNegocio) {
+    <p class="vf-aviso vf-aviso--erro" id="alerta-erro-negocio" role="alert" tabindex="-1">
+      <app-icone nome="alerta" [tamanho]="18"></app-icone>
+      <span>{{ erroNegocio }}</span>
+    </p>
+  }
+
+  <app-estado-pagina
+    [estado]="estado"
+    [mensagemErro]="mensagemErro"
+    [linhasEsqueleto]="3"
+    (tentarNovamente)="carregar()"
+  >
+    @if (abastecimento) {
+      <section class="vf-bloco" aria-labelledby="titulo-dados-abastecimento">
+        <h2 class="visually-hidden" id="titulo-dados-abastecimento">{{ 'ABASTECIMENTOS.DADOS' | translate }}</h2>
+        <dl class="vf-detalhes">
+          <div>
+            <dt>{{ 'ABASTECIMENTOS.VEICULO' | translate }}</dt>
+            <dd>
+              @if (veiculo) {
+                <a [routerLink]="['/fleet/vehicles', veiculo.id]">
+                  <app-placa [placa]="placa" tamanho="p"></app-placa>
+                  {{ veiculo.model }}
+                </a>
+              } @else {
+                <span class="dado-mono">—</span>
+              }
+            </dd>
+          </div>
+          @if (podeVerMotorista) {
+            <div>
+              <dt>{{ 'ABASTECIMENTOS.MOTORISTA' | translate }}</dt>
+              <dd>
+                @if (nomeMotorista) {
+                  <a [routerLink]="['/fleet/drivers', abastecimento.driverId]">{{ nomeMotorista }}</a>
+                } @else {
+                  <span class="dado-mono">—</span>
+                }
+              </dd>
+            </div>
+          }
+          <div>
+            <dt>{{ 'ABASTECIMENTOS.COL_DATA' | translate }}</dt>
+            <dd class="dado-mono">{{ abastecimento.createdAt | dataHoraCurta }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'ABASTECIMENTOS.COMBUSTIVEL' | translate }}</dt>
+            <dd>{{ 'COMBUSTIVEL.' + abastecimento.fuelType | translate }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'ABASTECIMENTOS.LITROS' | translate }}</dt>
+            <dd class="dado-mono">{{ abastecimento.litersAdded | numero }} L</dd>
+          </div>
+          <div>
+            <dt>{{ 'ABASTECIMENTOS.PRECO_LITRO' | translate }}</dt>
+            <dd class="dado-mono">{{ abastecimento.costPerLiter | precoLitro }}</dd>
+          </div>
+          <div>
+            <dt>{{ 'ABASTECIMENTOS.TOTAL' | translate }}</dt>
+            <dd class="dado-mono" id="total-abastecimento">
+              <strong>{{ abastecimento.totalCost | moeda }}</strong>
+            </dd>
+          </div>
+          <div>
+            <dt>{{ 'ABASTECIMENTOS.KM_NO_ABASTECIMENTO' | translate }}</dt>
+            <dd class="dado-mono">{{ abastecimento.mileage | numero }} km</dd>
+          </div>
+        </dl>
+      </section>
+
+      @if (podeExcluir) {
+        <section class="vf-bloco" aria-labelledby="titulo-acoes-abastecimento" id="acoes-abastecimento">
+          <h2 class="vf-bloco__titulo" id="titulo-acoes-abastecimento">{{ 'ABASTECIMENTOS.ACOES' | translate }}</h2>
+          <div class="vf-botoes">
+            <button
+              class="btn btn-perigo btn-outline-secondary"
+              type="button"
+              id="botao-excluir-abastecimento"
+              [disabled]="processando"
+              (click)="excluir()"
+            >
+              <app-icone nome="lixeira" [tamanho]="16"></app-icone>
+              {{ 'ABASTECIMENTOS.EXCLUIR' | translate }}
+            </button>
+          </div>
+        </section>
+      }
+    }
+  </app-estado-pagina>
+</div>

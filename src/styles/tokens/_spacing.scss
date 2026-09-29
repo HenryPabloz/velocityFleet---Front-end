@@ -1,0 +1,19 @@
+// Escala de espaçamento (base 4px) e raios de borda.
+:root {
+  --vf-espaco-1: 0.25rem;
+  --vf-espaco-2: 0.5rem;
+  --vf-espaco-3: 0.75rem;
+  --vf-espaco-4: 1rem;
+  --vf-espaco-5: 1.5rem;
+  --vf-espaco-6: 2rem;
+  --vf-espaco-7: 3rem;
+  --vf-espaco-8: 4rem;
+
+  --vf-raio-sm: 8px;
+  --vf-raio-md: 14px;
+  --vf-raio-lg: 22px;
+  --vf-raio-pilula: 999px;
+
+  --vf-largura-sidebar: 264px;
+  --vf-altura-bottom-tab: 64px;
+}
