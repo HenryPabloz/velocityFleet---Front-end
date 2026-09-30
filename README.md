@@ -12,6 +12,55 @@ efetivas (papel + delegações individuais) que a API decide e o front apenas re
 Não existe cadastro público: contas nascem no módulo de administração, e o primeiro acesso usa uma
 `API key` entregue pelo administrador ou gerente, junto com e-mail e senha.
 
+## Intuito do projeto
+
+O objetivo do VelocityFleet é substituir controles manuais (planilhas, papel, grupos de mensagem) na
+gestão de uma frota corporativa por um sistema único, com histórico auditável de cada veículo, viagem,
+abastecimento, manutenção e incidente. A proposta central é permitir que diferentes perfis — motorista,
+gerente de frota e administrador — enxerguem e ajam somente sobre o que lhes é permitido, com a API
+como única fonte de verdade sobre permissões, nunca o front-end. Este repositório é a interface web
+desse sistema, consumindo a API NestJS do projeto `avaliacaoBackEnd/fleet-management`.
+
+## Tecnologias e versões
+
+### Core
+
+| Tecnologia | Versão | Papel no projeto |
+|---|---|---|
+| [Angular](https://angular.dev) | `21.2.x` | Framework principal — `NgModules` com lazy loading, zoneless (`provideZonelessChangeDetection`) |
+| [TypeScript](https://www.typescriptlang.org) | `5.9.x` | Linguagem de todo o front-end |
+| [RxJS](https://rxjs.dev) | `7.8.x` | Streams reativas (HTTP, estado de autenticação, formulários) |
+| [Bootstrap](https://getbootstrap.com) | `5.3.x` | Grid e base de componentes, customizado via SCSS |
+| SCSS | — | Pré-processador de estilos (`src/styles/styles.scss` + estilos por componente) |
+
+### Bibliotecas de UI e dados
+
+| Tecnologia | Versão | Papel no projeto |
+|---|---|---|
+| [@ng-bootstrap/ng-bootstrap](https://ng-bootstrap.github.io) | `20.x` | Modais, dropdowns e demais componentes Bootstrap acessíveis, sem depender de jQuery |
+| [@lucide/angular](https://lucide.dev) | `1.47.x` | Ícones SVG com tree-shaking (só os ícones usados entram no bundle) |
+| [ng-apexcharts](https://apexcharts.com) / [apexcharts](https://apexcharts.com) | `3.1.x` / `7.5.x` | Gráficos do módulo de Analytics |
+| [three](https://threejs.org) + [vanta](https://www.vantajs.com) | `0.186.x` / `0.5.x` | Fundo animado 3D da tela de login |
+| [gsap](https://gsap.com) | `3.15.x` | Animações e microinterações |
+| [ngx-mask](https://github.com/JsDaddy/ngx-mask) | `21.x` | Máscaras de campo (CEP, placa) |
+| [ngx-toastr](https://github.com/scttcper/ngx-toastr) | `20.x` | Notificações (toasts) de sucesso/erro |
+| [@ngx-translate/core](https://github.com/ngx-translate/core) + `http-loader` | `18.x` | Internacionalização (`pt-BR` e `en-US`) |
+| [date-fns](https://date-fns.org) | `4.4.x` | Formatação e manipulação de datas |
+
+### Qualidade e testes
+
+| Tecnologia | Versão | Papel no projeto |
+|---|---|---|
+| [Jest](https://jestjs.io) + [jest-preset-angular](https://github.com/thymikee/jest-preset-angular) | `30.x` / `17.x` | Testes unitários, em modo zoneless |
+| [@testing-library/angular](https://testing-library.com/angular) | `19.x` | Testes orientados a comportamento do usuário |
+| [Cypress](https://www.cypress.io) | `16.x` | Testes end-to-end (E2E) |
+| [Prettier](https://prettier.io) | `3.8.x` | Formatação de código |
+
+### Ver também
+
+- Versões exatas e todas as dependências transitivas: [`package.json`](package.json) e [`package-lock.json`](package-lock.json).
+- A seção [Decisões de versão](#decisões-de-versão) explica o porquê de cada escolha não óbvia.
+
 ## Requisitos
 
 - Node.js 20+ e npm 10+
@@ -21,8 +70,31 @@ Não existe cadastro público: contas nascem no módulo de administração, e o 
 ## Instalação
 
 ```bash
+git clone https://github.com/HenryPabloz/velocityFleet---Front-end.git
+cd velocityFleet---Front-end
 npm install
 ```
+
+## Como rodar o projeto (exemplo completo)
+
+```bash
+# 1. instale as dependências
+npm install
+
+# 2. garanta que o back-end (fleet-management) está rodando em http://localhost:3000
+#    ver o repositório do back-end para instruções
+
+# 3. suba o front em modo desenvolvimento
+npm start
+# abre automaticamente em http://localhost:4200
+
+# 4. (opcional) gere um build de produção
+npm run build
+# artefatos gerados em dist/
+```
+
+No primeiro acesso, use o e-mail, a senha e a `API key` entregues por um administrador ou gerente —
+não há cadastro público (ver [Fluxo de autenticação](#fluxo-de-autenticação)).
 
 ## Variáveis de ambiente
 
